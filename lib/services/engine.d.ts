@@ -80,6 +80,7 @@ export declare class SyncEngine {
     private readonly mutex;
     private readonly snapshots;
     private scanCache;
+    private scanInFlight;
     private busy;
     private lastError;
     constructor(deps: EngineDeps);
@@ -175,7 +176,20 @@ export declare class SyncEngine {
     private readState;
     /** Keep the persisted device identity in step with configuration/versions. */
     private persistDeviceIfChanged;
-    /** Scan the local profile, with a short cache for the status poll. */
+    /**
+     * Drop the cached inventory: the profile's plugins changed.
+     *
+     * Called from the `plugin-manager/changed` listener; the next read rescans.
+     */
+    invalidateScan(): void;
+    /**
+     * Scan the local profile, with a cache shared by concurrent callers.
+     *
+     * The settings page fires status + plugin list together, and the status
+     * poll runs every five seconds; without single-flight each of those ran a
+     * full scan. A plugin-manager change invalidates the cache immediately, and
+     * a forced scan (after an install/remove) bypasses it.
+     */
     private scanLocal;
     /** Configuration view without secrets. */
     private configView;

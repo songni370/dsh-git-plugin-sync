@@ -10,6 +10,24 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.2] - 2026-10-28
+
+### Added
+
+- **设置导航图标**：设置页「插件备份」分区不再使用宿主的默认齿轮，改为插件自己绘制的同步图标（16 px CSS mask，跟随明暗主题与文字色）。
+
+### Fixed
+
+- **打开设置页右侧内容变慢**：一次 215 个插件的全量扫描此前会为每个内置插件读取配置和已安装版本，约 1.4 秒。现在内置/官方插件跳过配置提取与版本文件探测（只作为清单列出），全量扫描实测降到 **约 100 毫秒**。
+- **首次打开设置页不再触发仓库克隆/拉取**：状态与插件列表在本地工作副本不存在时按「远端未知」渲染，历史页返回空历史；只有「测试连接」或显式操作才会访问网络。
+- **并发扫描合并**：状态与插件列表同时请求时共享一次扫描（单飞 + 10 秒缓存），插件管理器变更会立即失效缓存。
+- **设置页插件列表不再混入 200+ 内置插件**：列表只显示可同步的第三方插件。
+- 设备信息中的 DSH 版本优先从运行中的应用包读取（回退到已安装的 CLI 包）。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（14 个测试文件 / 196 个测试）通过；新增导航图标、内置插件扫描成本回归测试。
+
 ## [0.1.1] - 2026-10-28
 
 ### Changed
@@ -85,6 +103,7 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/songni370/dsh-git-plugin-sync/releases/tag/v0.1.0

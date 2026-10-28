@@ -580,6 +580,45 @@ describe('profile discovery', () => {
     expect(profiles[1]!.pluginCount).toBe(1)
   })
 
+  it('does not spend scan time on configuration or versions of built-in plugins', async () => {
+    const root = await makeTempDir()
+    const profilesRoot = join(root, 'profiles')
+    await writeProfile(profilesRoot, 'default', { dependencies: {} })
+
+    let configurationCalls = 0
+    const configEditor = {
+      entries: () => [],
+      configuration: () => {
+        configurationCalls += 1
+        return [{ entry: { id: 'entry-community' }, inherited: {}, override: { timeout: 30 } }]
+      },
+      edit: async () => undefined,
+    }
+    const bundles = [
+      bundle({ name: '@deepseek-ai/base', official: true, availability: 'installation', version: '0.2.1-rc.3' }),
+      bundle({ name: '@deepseek-ai/web-app', official: true, availability: 'installation' }),
+      bundle({
+        name: 'community-plugin',
+        version: '1.0.0',
+        rows: [{ rowId: 'community-plugin', moduleName: 'community-plugin', entryId: 'entry-community' }],
+      }),
+    ]
+    const plugins = [plugin({ entryId: 'entry-community', moduleName: 'community-plugin' })]
+    const inventory = await scannerFor(profilesRoot, {
+      pluginManager: fakeManager(bundles, plugins),
+      configEditor: configEditor as unknown as DshConfigEditor,
+    }).scan({ config: makeConfig(), profile: 'default' })
+
+    // Only the third-party plugin may trigger a config walk; built-ins are
+    // inventory-only and dominated a full-profile scan before this guard.
+    expect(configurationCalls).toBe(1)
+    const builtIn = inventory.plugins.find(record => record.name === '@deepseek-ai/web-app')
+    expect(builtIn?.builtIn).toBe(true)
+    expect(builtIn?.configs).toEqual({})
+    // A missing built-in version is deliberately not probed from disk.
+    expect(builtIn?.version).toBeNull()
+  })
+
   it('returns an empty list for a missing profiles root', async () => {
     expect(await listProfiles(join(tmpdir(), 'dsh-does-not-exist-scanner-test'))).toEqual([])
   })

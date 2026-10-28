@@ -418,6 +418,10 @@ function bundleErrorText(bundle: Record<string, unknown>): string | undefined {
 
 /** Read and filter one record's configuration through the gateway. */
 async function attachConfigs(record: PluginRecord, entryIds: readonly string[], context: ScanContext): Promise<void> {
+  // Built-in/official plugins are never synchronized, so reading their configs
+  // is pure scan cost: on a full profile this was ~200 redundant
+  // configEditor.configuration() walks per scan.
+  if (record.builtIn) return
   if (!context.includeConfigs) return
   if (context.excludedConfig.includes(record.id) || context.excludedConfig.includes(record.name)) return
   try {
@@ -474,7 +478,7 @@ async function buildBundleRecord(
   }
 
   let version: string | null = bundleVersion ?? installTargetVersion ?? null
-  if (version === null) {
+  if (version === null && !builtIn) {
     version =
       originInfo.origin === 'local-path'
         ? (await getInstalledVersion()) ?? dependencyVersion
@@ -534,8 +538,10 @@ async function buildOrphanRecord(
     : classifySource(dependencySpec, { linkedDir, profileDir: context.profileDir })
   const dependencyVersion =
     dependencySpec !== undefined && isValidVersion(dependencySpec) ? dependencySpec.trim() : null
-  const version =
-    dependencyVersion ?? (await readInstalledVersion(originInfo.localPath, context.profileDir, name))
+  // Built-in orphans are inventory-only; skip the per-package fs probe.
+  const version = builtIn
+    ? null
+    : dependencyVersion ?? (await readInstalledVersion(originInfo.localPath, context.profileDir, name))
   const installSpec = resolveInstallSpec(name, originInfo, version)
   const id = originInfo.origin === 'local-path' ? `local:${name}` : name
   const row: PluginRowRecord = { moduleName: name, enabled: plugin.enabled === true }
@@ -740,6 +746,7 @@ export function createScanner(deps: ScannerDeps): InventoryScanner {
     profile: string
     signal?: AbortSignal
   }): Promise<DeviceInventory> => {
+    const scanStartedAt = performance.now()
     if (isAborted(options?.signal)) {
       throw new SyncError('cancelled', 'plugin inventory scan was cancelled')
     }
@@ -824,6 +831,7 @@ export function createScanner(deps: ScannerDeps): InventoryScanner {
       profile: requestedProfile,
       plugins: plugins.length,
       source: records !== null && manager !== undefined && !useFallback ? 'plugin-manager' : 'profile-manifest',
+      durationMs: Math.round((performance.now() - scanStartedAt) * 10) / 10,
     })
 
     return {

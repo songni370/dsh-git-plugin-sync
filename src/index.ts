@@ -104,17 +104,25 @@ async function readPluginVersion(): Promise<string> {
 async function readDshVersion(dshHome: string, profile: string): Promise<string> {
   const electron = process as NodeJS.Process & { resourcesPath?: string }
   const resources = typeof electron.resourcesPath === 'string' ? electron.resourcesPath : ''
-  const candidates = [
-    resources === '' ? '' : join(resources, 'app.asar', 'package.json'),
-    join(dshHome, 'profiles', 'node_modules', '@deepseek-ai', 'dsh', 'package.json'),
-    join(dshHome, 'profiles', profile, 'node_modules', '@deepseek-ai', 'dsh', 'package.json'),
-    join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'package.json'),
-  ].filter(candidate => candidate !== '')
+  // The desktop host starts as `…/Resources/app.asar/dsh/…`; derive the bundle
+  // from argv for hosts where process.resourcesPath is not set.
+  const asarIndex = process.argv.find(arg => arg.includes('app.asar'))
+  const asarRoot = asarIndex === undefined ? '' : join(asarIndex.slice(0, asarIndex.indexOf('app.asar')), 'app.asar')
+  const candidates: { path: string; anyPackage: boolean }[] = [
+    // The running application bundle is the authority; its package is the
+    // desktop shell (@deepseek-ai/dsh-desktop), not the CLI package.
+    ...(resources === '' ? [] : [{ path: join(resources, 'app.asar', 'package.json'), anyPackage: true }]),
+    ...(asarRoot === '' ? [] : [{ path: join(asarRoot, 'package.json'), anyPackage: true }]),
+    { path: join(dshHome, 'profiles', 'node_modules', '@deepseek-ai', 'dsh', 'package.json'), anyPackage: false },
+    { path: join(dshHome, 'profiles', profile, 'node_modules', '@deepseek-ai', 'dsh', 'package.json'), anyPackage: false },
+    { path: join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'package.json'), anyPackage: false },
+  ]
   for (const candidate of candidates) {
     try {
-      const text = await readFile(candidate, 'utf8')
+      const text = await readFile(candidate.path, 'utf8')
       const parsed = JSON.parse(text) as { name?: unknown; version?: unknown }
-      if (parsed.name === '@deepseek-ai/dsh' && typeof parsed.version === 'string') return parsed.version
+      if (typeof parsed.version !== 'string') continue
+      if (candidate.anyPackage || parsed.name === '@deepseek-ai/dsh') return parsed.version
     } catch {
       continue
     }
@@ -272,6 +280,7 @@ export function apply(ctx: DshContext): void {
         // Never throws into the Host: a change notification must not break the
         // operation that produced it.
         try {
+          engine.invalidateScan()
           scheduler.notifyPluginChange()
         } catch (error) {
           logger.debug(`插件变更通知处理失败 / plugin-change notification failed: ${errorMessage(error)}`)

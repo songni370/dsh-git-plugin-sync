@@ -214,6 +214,7 @@ export class SyncEngine {
   private readonly mutex = new Mutex()
   private readonly snapshots: SnapshotService
   private scanCache: { at: number; profile: string; inventory: DeviceInventory } | null = null
+  private scanInFlight: Promise<DeviceInventory> | null = null
   private busy = false
   private lastError: string | null = null
 
@@ -257,9 +258,15 @@ export class SyncEngine {
     let read: RemoteRead = EMPTY_REMOTE
     let connection = state.connection
     if (config.repoUrl !== '') {
-      try {
-        const { store } = this.deps.createRepo(config)
-        if (options.refresh === true) {
+      const { store, workDir } = this.deps.createRepo(config)
+      const hasLocalCopy = await fileExists(workDir)
+      // Opening the settings page must not clone or fetch. Until a work tree
+      // exists the remote side is simply unknown; only `refresh: true` (an
+      // explicit user action) or a page rendered after a previous operation
+      // may touch the network, and only the former may report a connection
+      // failure — a missing local copy is not an error.
+      if (options.refresh === true) {
+        try {
           const prepared = await store.prepare()
           read = await this.readRemote(store, config, prepared.head)
           connection = {
@@ -270,16 +277,20 @@ export class SyncEngine {
             message: '仓库连接正常 / repository reachable',
             authMethod: this.authMethod(config),
           }
-        } else {
-          read = await this.readRemote(store, config, state.lastCommit)
+        } catch (error) {
+          connection = {
+            ok: false,
+            at: new Date().toISOString(),
+            message: errorMessage(error),
+            branch: config.branch,
+            authMethod: this.authMethod(config),
+          }
         }
-      } catch (error) {
-        connection = {
-          ok: false,
-          at: new Date().toISOString(),
-          message: errorMessage(error),
-          branch: config.branch,
-          authMethod: this.authMethod(config),
+      } else if (hasLocalCopy) {
+        try {
+          read = await this.readRemote(store, config, state.lastCommit)
+        } catch {
+          read = EMPTY_REMOTE
         }
       }
     }
@@ -380,7 +391,8 @@ export class SyncEngine {
     let read: RemoteRead = EMPTY_REMOTE
     if (config.repoUrl !== '') {
       try {
-        read = await this.readRemote(this.deps.createRepo(config).store, config, state.lastCommit)
+        const { store, workDir } = this.deps.createRepo(config)
+        if (await fileExists(workDir)) read = await this.readRemote(store, config, state.lastCommit)
       } catch {
         read = EMPTY_REMOTE
       }
@@ -394,7 +406,12 @@ export class SyncEngine {
     } catch {
       // A malformed remote must not break the local plugin list.
     }
-    const ids = [...new Set([...Object.keys(localMap), ...Object.keys(remoteMap)])].sort()
+    const ids = [...new Set([...Object.keys(localMap), ...Object.keys(remoteMap)])]
+      // Built-in/official plugins are inventory-only: they are never installed
+      // or removed by this plugin, so they do not belong in the selectable
+      // list (and a full profile would otherwise render 200+ dead rows).
+      .filter(id => !(localMap[id]?.builtIn ?? false) && !(remoteMap[id]?.builtIn ?? false))
+      .sort()
     const rows: PluginListRow[] = ids.map(id => {
       const localState = localMap[id]
       const remoteState = remoteMap[id]
@@ -782,12 +799,15 @@ export class SyncEngine {
     const config = await this.readConfig()
     this.ensureConfigured(config)
     const state = await this.readState()
-    const { store } = this.deps.createRepo(config)
+    const { store, workDir } = this.deps.createRepo(config)
+    // No local copy yet: show an empty history instead of cloning on page
+    // open. The first backup/restore/sync creates the work tree.
+    if (!(await fileExists(workDir))) return { entries: [], lastOperation: state.lastOperation }
     try {
       await store.prepare({ signal: options.signal })
     } catch (error) {
       // A history view on an unreachable remote may still read the last clone.
-      if (!(await fileExists(this.deps.createRepo(config).workDir))) throw error
+      if (!(await fileExists(workDir))) throw error
     }
     const entries = await store.history({ limit: options.limit ?? 100, signal: options.signal })
     return { entries, lastOperation: state.lastOperation }
@@ -1209,15 +1229,44 @@ export class SyncEngine {
     return state
   }
 
-  /** Scan the local profile, with a short cache for the status poll. */
+  /**
+   * Drop the cached inventory: the profile's plugins changed.
+   *
+   * Called from the `plugin-manager/changed` listener; the next read rescans.
+   */
+  invalidateScan(): void {
+    this.scanCache = null
+  }
+
+  /**
+   * Scan the local profile, with a cache shared by concurrent callers.
+   *
+   * The settings page fires status + plugin list together, and the status
+   * poll runs every five seconds; without single-flight each of those ran a
+   * full scan. A plugin-manager change invalidates the cache immediately, and
+   * a forced scan (after an install/remove) bypasses it.
+   */
   private async scanLocal(config: SyncConfig, force = false): Promise<DeviceInventory> {
     const now = Date.now()
-    if (!force && this.scanCache !== null && this.scanCache.profile === this.deps.activeProfile && now - this.scanCache.at < 3_000) {
+    if (
+      !force
+      && this.scanCache !== null
+      && this.scanCache.profile === this.deps.activeProfile
+      && now - this.scanCache.at < 10_000
+    ) {
       return this.scanCache.inventory
     }
-    const inventory = await this.deps.scanner.scan({ config, profile: this.deps.activeProfile })
-    this.scanCache = { at: now, profile: this.deps.activeProfile, inventory }
-    return inventory
+    if (this.scanInFlight !== null) return this.scanInFlight
+    const run = this.deps.scanner.scan({ config, profile: this.deps.activeProfile }).then(inventory => {
+      this.scanCache = { at: Date.now(), profile: this.deps.activeProfile, inventory }
+      return inventory
+    })
+    this.scanInFlight = run
+    try {
+      return await run
+    } finally {
+      if (this.scanInFlight === run) this.scanInFlight = null
+    }
   }
 
   /** Configuration view without secrets. */
