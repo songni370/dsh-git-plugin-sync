@@ -10,6 +10,16 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.10] - 2026-10-28
+
+### Fixed
+
+- **初始状态不再显示「认证方式」**：地址为空或无法识别时，认证方式选择、Token 环境变量、用户名全部隐藏；只有识别为 HTTPS 地址后才出现「Git 凭据助手 / HTTPS 令牌」选择，SSH 与本地路径继续不显示认证项。空地址时表单其余字段（分支、备份目录、设备名称等）保持不变。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（17 个测试文件 / 218 个测试）通过；新增空地址与未识别地址不展示认证字段的测试。
+
 ## [0.1.9] - 2026-10-28
 
 ### Added
@@ -188,7 +198,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.9...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.10...HEAD
+[0.1.10]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.6...v0.1.7

@@ -56,8 +56,8 @@ describe('authForTransport', () => {
 
   it('only offers an auth choice for network transports that need one', () => {
     expect(transportUsesAuth('https')).toBe(true)
-    expect(transportUsesAuth('other')).toBe(true)
-    expect(transportUsesAuth('none')).toBe(true)
+    expect(transportUsesAuth('other')).toBe(false)
+    expect(transportUsesAuth('none')).toBe(false)
     expect(transportUsesAuth('ssh')).toBe(false)
     expect(transportUsesAuth('local')).toBe(false)
   })

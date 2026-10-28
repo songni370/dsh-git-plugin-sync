@@ -87,6 +87,23 @@ describe('repository card transport fields', () => {
     expect(html).not.toContain('id="dgs-config-username"')
   })
 
+  it('empty address: nothing auth-related is shown before detection', () => {
+    const html = render('', 'credential-helper')
+    expect(html).not.toContain('id="dgs-config-auth"')
+    expect(html).not.toContain('id="dgs-config-token-env"')
+    expect(html).not.toContain('id="dgs-config-username"')
+    // The rest of the form (branch, backup dir, device) is still there.
+    expect(html).toContain('id="dgs-config-repo"')
+    expect(html).toContain('id="dgs-config-device"')
+  })
+
+  it('unknown address form: no auth selector until the transport is known', () => {
+    const html = render('git://example.com/repo.git', 'credential-helper')
+    expect(html).toContain('其他地址')
+    expect(html).not.toContain('id="dgs-config-auth"')
+    expect(html).not.toContain('id="dgs-config-token-env"')
+  })
+
   it('local: no auth selector or credential fields', () => {
     const html = render('/tmp/backup.git', 'credential-helper')
     expect(html).toContain('本地仓库')

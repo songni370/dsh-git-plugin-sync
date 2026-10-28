@@ -46,7 +46,13 @@ export function authForTransport(transport: RepoTransport, current: GitAuthMode)
   return current
 }
 
-/** Whether the transport needs an authentication choice in the form. */
+/**
+ * Whether the transport needs an authentication choice in the form.
+ *
+ * Only HTTPS offers one (credential helper vs token). SSH uses the system
+ * agent, local paths need nothing, and an empty/unknown address shows no auth
+ * fields at all until the transport is known.
+ */
 export function transportUsesAuth(transport: RepoTransport): boolean {
-  return transport === 'https' || transport === 'other' || transport === 'none'
+  return transport === 'https'
 }
