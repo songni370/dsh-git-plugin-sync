@@ -50,13 +50,6 @@ export function configFormFromView(view: SyncConfigView): ConfigForm {
   }
 }
 
-/** One-line hint for the selected HTTPS authentication mode. */
-const AUTH_HINT: Record<GitAuthMode, string> = {
-  'credential-helper': 'configAuthCredentialHelperHint',
-  ssh: 'configAuthSshHint',
-  'https-token': 'configAuthHttpsTokenHint',
-}
-
 /** Props for {@link ConfigSection}. */
 export interface ConfigSectionProps {
   t: Translate
@@ -218,7 +211,6 @@ export function ConfigSection(props: ConfigSectionProps): ReactElement {
                     </button>
                   ))}
                 </div>
-                <span className="dgs-formRowHint">{t(AUTH_HINT[effectiveAuth])}</span>
               </FormRow>
 
               {tokenVisible ? (
