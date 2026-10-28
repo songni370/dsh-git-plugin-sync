@@ -110,6 +110,14 @@ describe('two-device synchronization', () => {
     expect(restored?.configs.nested).toEqual({ mode: 'fast' })
   }, 120_000)
 
+  it('returns the documented AutoSyncResponse shape', async () => {
+    const result = await ctx.mac.engine.setAutoSync({ enabled: false })
+    // The page reads `response.status.config`, so the status view must be at
+    // exactly that depth (regression: it used to be nested one level deeper).
+    expect(result.status.config.repoUrl).toBe(ctx.bareRepo)
+    expect(result.status.state).toBeDefined()
+  }, 120_000)
+
   it('does not create a commit when nothing changed', async () => {
     const before = repoHead(ctx.bareRepo)
     const commits = repoCommitCount(ctx.bareRepo)

@@ -834,9 +834,13 @@ export class SyncEngine {
   }
 
   /** Update automatic synchronization settings. */
-  async setAutoSync(patch: Partial<SyncConfig['autoSync']>): Promise<{ status: Awaited<ReturnType<SyncEngine['status']>> }> {
+  async setAutoSync(patch: Partial<SyncConfig['autoSync']>): Promise<{ status: import('../types.js').StatusView }> {
     await this.saveConfig({ autoSync: { ...(await this.readConfig()).autoSync, ...patch } })
-    return { status: await this.status() }
+    // The wire contract (`AutoSyncResponse`) is `{ status: StatusView }`; the
+    // route used to nest the whole status payload one level deeper, so the
+    // page read `response.status.config` from `undefined` after a save.
+    const { status } = await this.status()
+    return { status }
   }
 
   /** Recent log entries. */

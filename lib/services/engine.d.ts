@@ -153,7 +153,7 @@ export declare class SyncEngine {
     }>;
     /** Update automatic synchronization settings. */
     setAutoSync(patch: Partial<SyncConfig['autoSync']>): Promise<{
-        status: Awaited<ReturnType<SyncEngine['status']>>;
+        status: import('../types.js').StatusView;
     }>;
     /** Recent log entries. */
     logs(options?: {
