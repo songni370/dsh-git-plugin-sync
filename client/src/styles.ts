@@ -366,26 +366,33 @@ export const CSS = `
   position: relative;
   flex: 0 0 auto;
   box-sizing: border-box;
-  width: 36px;
-  height: 20px;
-  margin: 2px 0 0;
+  width: 38px;
+  height: 22px;
+  margin: 1px 0 0;
   padding: 0;
-  border: 1px solid var(--dsw-alias-border-l2, #d9dde3);
+  border: 1px solid transparent;
   border-radius: 999px;
-  background: var(--dsw-alias-bg-layer-2, #f3f4f6);
+  /* OFF must be readable in BOTH themes: bg-layer-2 was nearly white on a
+     white card, and the white knob disappeared. label-secondary is mid-tone
+     in light and dark, so the knob (bg-base: white in light, dark in dark)
+     always contrasts. */
+  background: var(--dsw-alias-label-secondary, #6b7280);
   cursor: pointer;
-  transition: background-color 120ms ease, border-color 120ms ease;
+  transition: background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+.dgs-switch:hover {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--dsw-alias-brand-primary, #4f6ef7) 16%, transparent);
 }
 .dgs-switch::after {
   content: '';
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: var(--dsw-alias-bg-base, #ffffff);
-  box-shadow: var(--dsw-shadow-lv1, 0 1px 2px rgba(15, 23, 42, 0.2));
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.35);
   transition: transform 120ms ease;
 }
 .dgs-switch[aria-checked='true'] {
@@ -394,6 +401,10 @@ export const CSS = `
 }
 .dgs-switch[aria-checked='true']::after {
   transform: translateX(16px);
+}
+.dgs-switch:focus-visible {
+  outline: 2px solid var(--dsw-alias-brand-primary, #4f6ef7);
+  outline-offset: 2px;
 }
 .dgs-switch:disabled {
   opacity: 0.5;

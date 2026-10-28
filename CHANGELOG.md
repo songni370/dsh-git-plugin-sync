@@ -10,6 +10,19 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.5] - 2026-10-28
+
+### Fixed
+
+- **「配置页面展示」开关在浅色主题下几乎看不见**：原关闭态用 `bg-layer-2`（接近白色）打底、白色圆点，放在白色卡片上对比度极低。现在开关颜色改为成对的语义 token，随客户端浅色/深色主题自动适配：
+  - 关闭态：轨道 `label-secondary`（两套主题都是中间灰）、圆点 `bg-base`（浅色为白、深色为深色），始终有对比；
+  - 开启态：轨道 `brand-primary`、圆点 `bg-base`，亮暗主题都清晰；
+  - 增加按钮尺寸（38×22）、悬停光晕与 `focus-visible` 焦点环，键盘可达。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（15 个测试文件 / 202 个测试）通过。
+
 ## [0.1.4] - 2026-10-28
 
 ### Changed
@@ -127,7 +140,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.4...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.5...HEAD
+[0.1.5]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.1...v0.1.2
