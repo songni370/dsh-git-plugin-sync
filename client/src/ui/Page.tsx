@@ -69,6 +69,8 @@ const HISTORY_LIMIT = 20
 /** Props handed to the section by the slot registration. */
 export interface PageProps {
   t: Translate
+  /** Settings page only: switch to the Plugins page and select the backup tab. */
+  openInPlugins?: () => void
 }
 
 /** Operation a confirmation dialog will execute. */
@@ -91,7 +93,7 @@ interface ConfirmState {
 }
 
 /** Render the whole settings page. */
-export function Page({ t }: PageProps): ReactElement {
+export function Page({ t, openInPlugins }: PageProps): ReactElement {
   // --- Host data ---------------------------------------------------------
   const [status, setStatus] = useState<StatusPayload | null>(null)
   const [statusError, setStatusError] = useState<string | null>(null)
@@ -566,7 +568,12 @@ export function Page({ t }: PageProps): ReactElement {
   return (
     <div className="dgs-root">
       <style>{CSS}</style>
-      <p className="dgs-intro">{t('intro')}</p>
+      <div className="dgs-pageHeader">
+        <p className="dgs-intro">{t('intro')}</p>
+        {openInPlugins === undefined ? null : (
+          <Button onClick={openInPlugins}>{t('openInPlugins')}</Button>
+        )}
+      </div>
 
       {notice === null ? null : <Banner tone="success">{notice}</Banner>}
       {actionError === null ? null : <Banner tone="error">{actionError}</Banner>}

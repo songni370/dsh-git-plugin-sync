@@ -180,6 +180,10 @@ describe('settings page render', () => {
     expect(zh.nav).toBe('插件备份')
     expect(en.nav).toBe('Plugin Backup')
     expect(createTranslate(key => (key === 'nav' ? 'Plugin Backup' : key))('nav')).toBe('Plugin Backup')
+    // Plugins-page tab and the settings-page shortcut label.
+    expect(zh.tab).toBe('备份')
+    expect(en.tab).toBe('Backup')
+    expect(zh.openInPlugins).toBe('在插件页打开')
   })
 
   it('mounts and renders the repository configuration', async () => {

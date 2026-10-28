@@ -23,6 +23,7 @@ import { Component } from 'react'
 import type { ErrorInfo, ReactElement, ReactNode } from 'react'
 import { createTranslate, en, fallbackTranslate, NS, zh } from './i18n'
 import { installSettingsNavIcon } from './nav-icon'
+import { clickBackupTab } from './plugins-tab'
 import type { Translate, Vars } from './i18n'
 import { Page } from './ui/Page'
 
@@ -40,7 +41,7 @@ interface LocaleService {
 
 /** Registration metadata the settings slot understands. */
 interface SectionRegistration {
-  name: 'settings.section'
+  name: 'settings.section' | 'plugins.tab'
   id: string
   order: number
   label: () => string
@@ -63,11 +64,20 @@ interface ClientContext {
   /** Injected for the shell's benefit; the page follows the host palette via
    * `--dsw-alias-*` CSS variables and needs no theme API. */
   theme: unknown
+  /** Optional service injection (Cordis); absence just disables the shortcut. */
+  inject?(deps: readonly string[], callback: (scoped: { layout?: LayoutService }) => void): unknown
 }
 
 /** Props the slot registration injects into the section component. */
 interface SectionProps {
   t?: Translate
+  /** Present on the settings page only: jump to the backup tab on the Plugins page. */
+  openInPlugins?: () => void
+}
+
+/** The slice of the client layout service used to open the Plugins page. */
+interface LayoutService {
+  selectPanel(id: string | null): void
 }
 
 /** Props of the crash boundary below. */
@@ -150,12 +160,32 @@ export function apply(ctx: ClientContext): void {
     t = fallbackTranslate()
   }
 
+  // Optional: the layout service opens the main column on the Plugins page.
+  let layout: LayoutService | undefined
+  try {
+    ctx.inject?.(['layout'], scoped => {
+      layout = scoped.layout
+    })
+  } catch (error) {
+    console.warn('[dsh-git-plugin-sync] layout service unavailable; the Plugins-page shortcut is disabled:', error)
+  }
+
+  /** Open the Plugins page and select this plugin's backup tab there. */
+  const openInPlugins = (): void => {
+    try {
+      layout?.selectPanel('plugins')
+    } catch (error) {
+      console.warn('[dsh-git-plugin-sync] could not switch to the Plugins page:', error)
+    }
+    clickBackupTab(() => t('tab'))
+  }
+
   try {
     const Section = (props: SectionProps): ReactElement => {
       const translate = props.t ?? t
       return (
         <SectionBoundary t={translate}>
-          <Page t={translate} />
+          <Page t={translate} openInPlugins={props.openInPlugins} />
         </SectionBoundary>
       )
     }
@@ -164,8 +194,8 @@ export function apply(ctx: ClientContext): void {
     // nav row and paint the sync glyph (same label thunk as the registration).
     installSettingsNavIcon(ctx, () => t('nav'))
 
-    // The section appears once the shell declares the slot. The label is a
-    // thunk so a locale switch re-claims the nav row.
+    // The settings page appears once the shell declares the slot. The label
+    // is a thunk so a locale switch re-claims the nav row.
     ctx.slots.inject('settings.section', () =>
       ctx.slots.register(
         {
@@ -174,9 +204,42 @@ export function apply(ctx: ClientContext): void {
           order: 42,
           label: () => t('nav'),
           locale: NS,
-          inject: () => ({ t }),
+          inject: () => ({ t, openInPlugins }),
         },
         Section,
+      ),
+    )
+  } catch (error) {
+    // Contain anything the host's bootstrap throws: the rest of the app,
+    // settings included, keeps working without this section.
+    console.warn(
+      '[dsh-git-plugin-sync] settings section registration failed; the rest of Settings is unaffected:',
+      error,
+    )
+  }
+
+  try {
+    // Plugins page tab: same page, one click from 已安装 (order 1 = after the
+    // host's own 发现 tab). The page hands `t` down; no shortcut button here.
+    const Tab = (props: SectionProps): ReactElement => {
+      const translate = props.t ?? t
+      return (
+        <SectionBoundary t={translate}>
+          <Page t={translate} />
+        </SectionBoundary>
+      )
+    }
+    ctx.slots.inject('plugins.tab', () =>
+      ctx.slots.register(
+        {
+          name: 'plugins.tab',
+          id: 'git-sync-backup',
+          order: 1,
+          label: () => t('tab'),
+          locale: NS,
+          inject: () => ({ t }),
+        },
+        Tab,
       ),
     )
   } catch (error) {
