@@ -34,12 +34,40 @@ export const CSS = `
   flex-wrap: wrap;
   justify-content: flex-end;
 }
-.dgs-configSummary {
-  margin: 0 0 4px;
-  font-size: 13px;
-  line-height: 20px;
+.dgs-disclosure {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 10px 0 8px;
+  border: 1px solid var(--dsw-alias-border-l1, #e1e5ee);
+  border-radius: 8px;
+  background: transparent;
   color: var(--dsw-alias-label-secondary, #61666b);
-  overflow-wrap: anywhere;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+.dgs-disclosure svg {
+  transition: transform 150ms ease;
+}
+.dgs-disclosure[aria-expanded='true'] svg {
+  transform: rotate(180deg);
+}
+.dgs-disclosure:hover {
+  background: var(--dsw-alias-bg-layer-2, #f1f3f5);
+  border-color: var(--dsw-alias-border-l2, #cfd3d6);
+  color: var(--dsw-alias-label-primary, #0f1115);
+}
+.dgs-disclosure:active {
+  transform: translateY(1px);
+}
+.dgs-disclosure:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .dgs-intro {
   margin: 0;

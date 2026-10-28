@@ -205,7 +205,10 @@ describe('settings page render', () => {
     expect(container.textContent).toContain('已配置')
     const repoInput = () => container.querySelector('#dgs-config-repo')
     expect(repoInput()?.closest('[hidden]')).not.toBeNull()
-    const edit = Array.from(container.querySelectorAll('button')).find(button => (button.textContent ?? '').trim() === '展开编辑')
+    // Collapsed shows only the title, the status badge and the toggle button.
+    expect(container.querySelector('.dgs-configSummary')).toBeNull()
+    expect(container.textContent).not.toContain('Git 仓库地址与认证方式')
+    const edit = Array.from(container.querySelectorAll('button')).find(button => (button.textContent ?? '').trim() === '编辑配置')
     expect(edit).toBeDefined()
     await act(async () => {
       edit?.dispatchEvent(new window.MouseEvent('click', { bubbles: true }))

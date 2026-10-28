@@ -10,6 +10,17 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.8] - 2026-10-28
+
+### Changed
+
+- **折叠后的「仓库配置」只显示标题与状态**：去掉了 `地址 · 分支 · 认证方式` 摘要行和描述文字，折叠时只有卡片标题、「已配置 / 未配置仓库」状态徽标与展开按钮，更干净。
+- **展开/折叠按钮重做**：从无样式的文字链接改为带边框、圆角、悬停背景、`chevron` 图标（展开时旋转 180°）与焦点环的按钮；文案为「编辑配置 / 收起」，保留 `aria-expanded` / `aria-controls`。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（15 个测试文件 / 204 个测试）通过；渲染测试覆盖折叠时无摘要/描述、按钮文案与展开行为。
+
 ## [0.1.7] - 2026-10-28
 
 ### Added
@@ -161,7 +172,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.7...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.8...HEAD
+[0.1.8]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.4...v0.1.5

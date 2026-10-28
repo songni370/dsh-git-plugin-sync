@@ -12,7 +12,7 @@ import type { ReactElement } from 'react'
 import type { ConnectionTestResult, GitAuthMode, SyncConfigView } from '../../../src/types'
 import type { Translate } from '../i18n'
 import { formatDateTime, shortCommit } from '../format'
-import { Badge, Banner, Button, Card, Field, LinkButton, Select, TextInput } from './controls'
+import { Badge, Banner, Button, Card, Field, Select, TextInput } from './controls'
 
 /** The editable subset of the Host configuration. */
 export interface ConfigForm {
@@ -65,12 +65,6 @@ export interface ConfigSectionProps {
   onToggle: () => void
 }
 
-/** Human-readable auth label for the collapsed summary. */
-function authLabel(t: Translate, mode: GitAuthMode): string {
-  if (mode === 'ssh') return t('configAuthSsh')
-  if (mode === 'https-token') return t('configAuthHttpsToken')
-  return t('configAuthCredentialHelper')
-}
 
 /** Render the repository-configuration card. */
 export function ConfigSection(props: ConfigSectionProps): ReactElement {
@@ -87,31 +81,39 @@ export function ConfigSection(props: ConfigSectionProps): ReactElement {
     )
 
   const configured = view.repoUrl.trim() !== ''
-  const summary = configured
-    ? `${view.repoUrl} · ${view.branch} · ${authLabel(t, view.authMode)}`
-    : t('configNotConfigured')
 
   return (
     <Card
       title={t('configTitle')}
-      description={t('configDesc')}
+      description={props.open ? t('configDesc') : undefined}
       trailing={
         <span className="dgs-trailingRow">
           {dirty ? <Badge tone="warn">{t('configUnsaved')}</Badge> : null}
           <Badge tone={configured ? 'success' : 'idle'}>
             {configured ? t('configConfigured') : t('configNotConfigured')}
           </Badge>
-          <LinkButton onClick={props.onToggle} ariaExpanded={!props.open} controls="dgs-config-body">
-            {props.open ? t('configCollapse') : t('configExpand')}
-          </LinkButton>
+          <button
+            type="button"
+            className="dgs-disclosure"
+            aria-expanded={props.open}
+            aria-controls="dgs-config-body"
+            onClick={props.onToggle}
+          >
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
+              <path
+                d="M4 6.5 8 10.5 12 6.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <span>{props.open ? t('configCollapse') : t('configExpand')}</span>
+          </button>
         </span>
       }
     >
-      {props.open ? null : (
-        <p className={configured ? 'dgs-configSummary dgs-mono' : 'dgs-configSummary'}>
-          {summary}
-        </p>
-      )}
       <div id="dgs-config-body" hidden={!props.open}>
       <div className="dgs-grid">
         <Field id="dgs-config-repo" label={t('configRepoUrl')} hint={t('configRepoUrlHint')}>
