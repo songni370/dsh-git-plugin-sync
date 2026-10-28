@@ -11,7 +11,7 @@
 
 import { MAX_BACKUP_FILES, MANIFEST_SCHEMA_VERSION, PACKAGE_NAME, REPO_DEVICES_DIR, REPO_MANIFEST_FILE, REPO_PROFILES_DIR, REPO_SCHEMA_FILE } from '../constants.js'
 import { SyncError } from '../core/errors.js'
-import { safeFileName } from '../core/paths.js'
+import { hasControlCharacters, safeFileName } from '../core/paths.js'
 import { buildManifest, buildSchemaDocument, serializeJson, serializeManifest } from '../manifest/manifest.js'
 import type {
   DeviceSnapshot,
@@ -26,10 +26,41 @@ import type {
 } from '../types.js'
 import { toBaselineEntry, type PluginState } from './model.js'
 
+/**
+ * Make a row's module name safe to store.
+ *
+ * A DSH row can name a module through an absolute `file:///…` URL (the
+ * cc-safety-net bundle does this in practice). Such a value is device-specific
+ * and must never reach a shared repository, so it is replaced with the plugin's
+ * package name; ordinary package names and subpaths are kept.
+ */
+export function sanitizeModuleName(moduleName: string, fallbackName: string): string {
+  if (moduleName === '' || moduleName.length > 256) return fallbackName
+  if (/^(?:file|link|workspace):/i.test(moduleName)) return fallbackName
+  if (/^[a-zA-Z]:[\\/]/.test(moduleName) || moduleName.startsWith('/') || moduleName.startsWith('\\')) return fallbackName
+  if (moduleName.includes('\\')) return fallbackName
+  if (hasControlCharacters(moduleName)) return fallbackName
+  return moduleName
+}
+
+/** Sanitize every row a backup records. */
+function sanitizeRows(rows: PluginRecord['rows'], fallbackName: string): PluginRecord['rows'] {
+  return rows.map(row => {
+    const next: PluginRecord['rows'][number] = {
+      ...row,
+      moduleName: sanitizeModuleName(row.moduleName, fallbackName),
+    }
+    if (next.entryId !== undefined) next.entryId = sanitizeModuleName(next.entryId, '')
+    if (next.entryId === '') delete next.entryId
+    return next
+  })
+}
+
 /** Strip machine-only fields before a plugin record enters the backup. */
 export function sanitizePluginRecord(record: PluginRecord): PluginRecord {
   const copy: PluginRecord = { ...record }
   delete copy.localPath
+  copy.rows = sanitizeRows(record.rows, record.name)
   return copy
 }
 
@@ -71,7 +102,7 @@ export function toRemoteEntry(
     builtIn: state.builtIn,
     syncable: state.syncable,
     pathOnly: state.pathOnly,
-    rows: state.rows,
+    rows: sanitizeRows(state.rows, state.name),
     updatedAt: options.now,
     updatedBy: options.deviceId,
   }
@@ -139,6 +170,8 @@ export function toConfigEntry(
 /** Input to {@link buildBackupFiles}. */
 export interface BuildBackupFilesInput {
   backupDir: string
+  /** Running plugin version, recorded in the manifest generator field. */
+  generatorVersion: string
   profile: string
   deviceId: string
   now: string
@@ -212,6 +245,7 @@ export function buildBackupFiles(input: BuildBackupFilesInput): BackupFiles {
   const activeEntries = Object.values(entries).filter(entry => entry.deleted !== true)
   const devices = [...new Set([...input.knownDevices, input.deviceId])].sort()
   const manifest = buildManifest({
+    generatorVersion: input.generatorVersion,
     previous: input.previousManifest,
     profiles: {
       ...(input.previousManifest?.profiles ?? {}),
@@ -223,10 +257,13 @@ export function buildBackupFiles(input: BuildBackupFilesInput): BackupFiles {
 
   const files: Record<string, string> = {
     [joinRepoPath(input.backupDir, REPO_MANIFEST_FILE)]: serializeManifest(manifest),
-    [joinRepoPath(input.backupDir, REPO_SCHEMA_FILE)]: buildSchemaDocument(),
+    [joinRepoPath(input.backupDir, REPO_SCHEMA_FILE)]: buildSchemaDocument(input.generatorVersion),
     [joinRepoPath(input.backupDir, 'README.md')]: backupReadme(),
     [profileStatePath(input.backupDir, input.profile)]: serializeJson(toProfileState(input.profile, input.now, entries)),
-    [deviceSnapshotPath(input.backupDir, input.deviceId, input.profile)]: serializeJson(input.deviceSnapshot),
+    [deviceSnapshotPath(input.backupDir, input.deviceId, input.profile)]: serializeJson({
+      ...input.deviceSnapshot,
+      plugins: input.deviceSnapshot.plugins.map(sanitizePluginRecord),
+    }),
   }
   for (const [pluginId, config] of Object.entries(configs)) {
     files[configPath(input.backupDir, input.profile, pluginId)] = serializeJson(config)

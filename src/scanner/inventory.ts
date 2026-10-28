@@ -175,11 +175,22 @@ function isLocalSpec(spec: string): boolean {
   return !NPM_NAME_PATTERN.test(spec) && /[\\/]/.test(spec)
 }
 
-/** Whether a spec is a registry (npm) spec: a name, version, range or tag. */
+/** npm version range, exact version, or dist-tag. */
+const NPM_VERSION_SPEC = /^(?:[\^~]|>=?|<=?|=)?\s*v?\d+(?:\.\d+){0,2}(?:[-+][0-9A-Za-z.-]+)?$/
+const NPM_TAG_SPEC = /^(?:latest|next|beta|alpha|rc|canary|stable|\*|x)$/i
+
+/** Whether a spec is a registry (npm) spec: a name, version, range, tag or `name@version`. */
 function isNpmSpec(spec: string): boolean {
   if (NPM_NAME_PATTERN.test(spec)) return true
-  if (/^(?:[\^~]|>=?|<=?|=)?\s*v?\d+(?:\.\d+){0,2}(?:[-+][0-9A-Za-z.-]+)?$/.test(spec)) return true
-  return /^(?:latest|next|beta|alpha|rc|canary|stable|\*|x)$/i.test(spec)
+  if (NPM_VERSION_SPEC.test(spec) || NPM_TAG_SPEC.test(spec)) return true
+  // `installTarget.spec` is usually `name@version`, including scoped names.
+  const separator = spec.lastIndexOf('@')
+  if (separator > 0) {
+    const name = spec.slice(0, separator)
+    const version = spec.slice(separator + 1)
+    if (NPM_NAME_PATTERN.test(name) && (NPM_VERSION_SPEC.test(version) || NPM_TAG_SPEC.test(version))) return true
+  }
+  return false
 }
 
 /** Whether a git/tarball spec embeds credentials in its URL userinfo. */

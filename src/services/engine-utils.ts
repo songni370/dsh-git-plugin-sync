@@ -13,7 +13,16 @@ import { isJsonValue } from '../core/json.js'
  * this plugin, never user input).
  */
 export function safeJsonCopy(value: unknown): JsonValue {
-  const cloned: unknown = structuredClone(value)
+  // JSON round-trip, not structuredClone: plan objects legitimately carry
+  // optional fields as explicit `undefined` (e.g. `installSpec: undefined`),
+  // which is valid in memory but not lossless JSON. Dropping those keys is the
+  // documented lossless-JSON projection and keeps the wire envelope valid.
+  let cloned: unknown
+  try {
+    cloned = JSON.parse(JSON.stringify(value ?? null))
+  } catch {
+    throw new TypeError('value is not lossless JSON')
+  }
   if (!isJsonValue(cloned)) throw new TypeError('value is not lossless JSON')
   return cloned
 }

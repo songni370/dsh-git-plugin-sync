@@ -14,8 +14,7 @@
 
 import { SyncError, errorMessage } from '../core/errors.js'
 import type { DshContext, DshDisposer } from '../dsh.js'
-import type { FileSyncLogger } from '../core/logger.js'
-import type { SyncConfig } from '../types.js'
+import type { SyncConfig, SyncLogger } from '../types.js'
 import type { SyncEngine } from './engine.js'
 
 /** Delay before the startup check, giving the profile time to finish booting. */
@@ -31,7 +30,7 @@ const RETRY_DELAYS_MS = [60_000, 5 * 60_000, 15 * 60_000] as const
 export interface SchedulerOptions {
   ctx: DshContext
   engine: SyncEngine
-  logger: FileSyncLogger
+  logger: SyncLogger
   /** Called when an automatic run cannot continue without the user. */
   onPaused?: (reason: string) => void
 }
@@ -136,7 +135,7 @@ export function createScheduler(options: SchedulerOptions): AutoSyncScheduler {
       } else if (current.autoSync.mode === 'restore') {
         await engine.restore({ confirmDestructive: false })
       } else {
-        await engine.sync({ confirmDestructive: false, automatic: true })
+        await engine.sync({ confirmDestructive: false })
       }
       failures = 0
       pausedReason = null

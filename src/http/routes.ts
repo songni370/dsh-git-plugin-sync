@@ -100,7 +100,10 @@ export function registerHttpRoutes(options: { ctx: DshContext; engine: SyncEngin
         resolutions: asResolutions(body.resolutions),
         confirmDestructive: body.confirmDestructive === true,
       }),
-      'sync/preview': async () => options.engine.previewSync(),
+      'sync/preview': async () => {
+        const preview = await options.engine.previewSync()
+        return { direction: 'two-way' as const, plan: preview.plan }
+      },
       sync: async body => options.engine.sync({
         resolutions: asResolutions(body.resolutions),
         confirmDestructive: body.confirmDestructive === true,

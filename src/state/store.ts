@@ -290,7 +290,6 @@ function clamp(value: number, min: number, max: number): number {
 /** Persisted configuration file. */
 export class ConfigStore {
   readonly path: string
-  private cached: SyncConfig | null = null
 
   constructor(
     path: string,
@@ -299,9 +298,14 @@ export class ConfigStore {
     this.path = path
   }
 
-  /** Read and normalize the configuration; a corrupt file falls back to defaults. */
+  /**
+   * Read and normalize the configuration; a corrupt file falls back to defaults.
+   *
+   * Deliberately uncached: the file is small, and the settings page, an agent
+   * tool and a synchronization can all read it inside one polling window. A
+   * cache here once hid an external edit until the next DSH restart.
+   */
   async read(): Promise<SyncConfig> {
-    if (this.cached !== null) return { ...this.cached }
     let raw: unknown = null
     try {
       const text = await readFile(this.path, 'utf8')
@@ -309,15 +313,13 @@ export class ConfigStore {
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
     }
-    this.cached = this.onNormalize(raw)
-    return { ...this.cached }
+    return this.onNormalize(raw)
   }
 
   /** Persist a normalized configuration. */
   async write(config: SyncConfig): Promise<void> {
     const normalized = this.onNormalize(config)
     await writeFileAtomic(this.path, `${JSON.stringify(normalized, null, 2)}\n`)
-    this.cached = normalized
   }
 }
 

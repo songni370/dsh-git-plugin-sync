@@ -11,11 +11,12 @@
 import type { ReactElement } from 'react'
 import type { DiffResponse } from '../../../src/http/api-types'
 import type { Translate } from '../i18n'
-import { Button, Card, LinkButton, Loading } from './controls'
+import type { DiffDirection } from '../api'
+import { Button, Card, LinkButton, Loading, Select } from './controls'
 import { PlanPreview } from './PlanPreview'
 
 /** Action names used for the busy indicator and disabled set. */
-export type ActionName = 'backup' | 'restore' | 'sync' | 'diff' | 'config' | 'auto' | 'exclusion'
+export type ActionName = 'backup' | 'restore' | 'rollback' | 'sync' | 'diff' | 'config' | 'auto' | 'exclusion'
 
 /** Props for {@link ActionsSection}. */
 export interface ActionsSectionProps {
@@ -28,6 +29,9 @@ export interface ActionsSectionProps {
   enabled: boolean
   diff: DiffResponse | null
   diffLoading: boolean
+  /** Direction the "check differences" preview asks the Host for. */
+  diffDirection: DiffDirection
+  onDiffDirectionChange: (direction: DiffDirection) => void
   onBackup: () => void
   onRestore: () => void
   onSync: () => void
@@ -56,6 +60,26 @@ export function ActionsSection(props: ActionsSectionProps): ReactElement {
         <Button onClick={props.onDiff} disabled={disabled} title={t('actionDiffHint')}>
           {t('actionDiff')}
         </Button>
+      </div>
+
+      <div className="dgs-btnRow">
+        <label className="dgs-label" htmlFor="dgs-diff-direction">
+          {t('diffDirection')}
+        </label>
+        <Select
+          id="dgs-diff-direction"
+          className="dgs-selectInline"
+          value={props.diffDirection}
+          disabled={disabled}
+          options={[
+            { value: 'two-way', label: t('diffDirectionTwoWay') },
+            { value: 'push', label: t('diffDirectionPush') },
+            { value: 'pull', label: t('diffDirectionPull') },
+          ]}
+          onChange={value => {
+            props.onDiffDirectionChange(value)
+          }}
+        />
       </div>
 
       {running === null ? null : (
@@ -89,6 +113,8 @@ function actionLabel(t: Translate, action: ActionName): string {
       return t('actionBackup')
     case 'restore':
       return t('actionRestore')
+    case 'rollback':
+      return t('op_rollback')
     case 'sync':
       return t('actionSync')
     case 'diff':

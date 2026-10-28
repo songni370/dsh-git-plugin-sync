@@ -27,7 +27,7 @@ import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
 import { DEFAULT_GIT_TIMEOUT_MS } from '../constants.js'
 import { SyncError, type SyncErrorCode } from '../core/errors.js'
 import { redactText } from '../core/redact.js'
-import type { GitRunner, GitRunResult, SyncLogger } from '../types.js'
+import type { GitRunner, GitRunResult, JsonValue, SyncLogger } from '../types.js'
 
 /** Largest amount of stdout/stderr retained for one command (per stream). */
 export const MAX_CAPTURED_OUTPUT_BYTES = 1024 * 1024
@@ -119,26 +119,12 @@ const NETWORK_FAILURE_PATTERNS: readonly RegExp[] = [
 ]
 
 /** A logger method may throw; a diagnostic must never break a Git command. */
-function safeLog(logger: SyncLogger, level: 'debug' | 'warn', message: string, details?: Record<string, unknown>): void {
+function safeLog(logger: SyncLogger, message: string, details: JsonValue): void {
   try {
-    const safeDetails = details === undefined ? undefined : (redactUnknown(details) as Record<string, never>)
-    if (level === 'debug') logger.debug(message, safeDetails as never)
-    else logger.warn(message, safeDetails as never)
+    logger.debug(redactText(message), details)
   } catch {
     // Diagnostics are best effort.
   }
-}
-
-/** Minimal JSON-shaped redaction for log details. */
-function redactUnknown(value: unknown): unknown {
-  if (typeof value === 'string') return redactText(value)
-  if (Array.isArray(value)) return value.map(redactUnknown)
-  if (value !== null && typeof value === 'object') {
-    const out: Record<string, unknown> = {}
-    for (const [key, item] of Object.entries(value as Record<string, unknown>)) out[key] = redactUnknown(item)
-    return out
-  }
-  return value
 }
 
 /**
@@ -379,10 +365,10 @@ export function createGitRunner(options: GitRunnerOptions): GitRunner {
           reject(new SyncError('cancelled', 'Git 操作已取消 / git operation cancelled'))
           return
         }
-        const stdout = captureText(stdoutCapture)
-        const stderr = captureText(stderrCapture)
+        const stdout = redactText(captureText(stdoutCapture))
+        const stderr = redactText(captureText(stderrCapture))
         const effectiveCode = timedOut ? GIT_TIMEOUT_EXIT_CODE : code === null ? 1 : code
-        safeLog(logger, 'debug', `git ${args.map(arg => redactText(arg)).join(' ')}`, {
+        safeLog(logger, `git ${args.join(' ')}`, {
           code: effectiveCode,
           timedOut,
           stdoutBytes: stdoutCapture.bytes,

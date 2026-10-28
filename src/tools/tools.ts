@@ -66,6 +66,18 @@ function renderJson(_args: unknown, value: unknown): TextContent[] {
   return [{ type: 'text', text: JSON.stringify(value, null, 2) }]
 }
 
+/**
+ * Project a tool result onto lossless JSON.
+ *
+ * The tool registry rejects any canonical value that is not lossless JSON, and
+ * plans legitimately carry optional fields as explicit `undefined`. A JSON
+ * round-trip drops exactly those keys, which is the documented lossless
+ * projection — without it every preview tool would fail at the boundary.
+ */
+function lossless(value: unknown): unknown {
+  return JSON.parse(JSON.stringify(value ?? null))
+}
+
 /** Read a boolean argument. */
 function booleanArg(value: unknown): boolean | undefined {
   return typeof value === 'boolean' ? value : undefined
@@ -107,13 +119,13 @@ function errorResult(error: unknown): Record<string, unknown> {
   if (error instanceof SyncError) {
     const details = error.details as { plan?: unknown } | undefined
     if (error.code === 'confirmation-required' || error.code === 'conflict-present') {
-      return {
+      return lossless({
         ok: true,
         requiresConfirmation: true,
         needsUserDecision: true,
         reason: error.message,
         plan: details?.plan,
-      }
+      }) as Record<string, unknown>
     }
     return { ok: false, error: { code: error.code, message: error.message } }
   }
@@ -141,7 +153,7 @@ export function buildToolDefinitions(engine: SyncEngine): ToolDefinitionLike[] {
         const raw = (args ?? {}) as Record<string, unknown>
         try {
           const result = await engine.status({ refresh: booleanArg(raw.refresh) === true })
-          return { ok: true, ...result }
+          return lossless({ ok: true, ...result })
         } catch (error) {
           return errorResult(error)
         }
@@ -170,7 +182,7 @@ export function buildToolDefinitions(engine: SyncEngine): ToolDefinitionLike[] {
             message: stringArg(raw.message),
             confirmDestructive: booleanArg(raw.confirm) === true,
           })
-          return { ok: true, result }
+          return lossless({ ok: true, result })
         } catch (error) {
           return errorResult(error)
         }
@@ -200,13 +212,13 @@ export function buildToolDefinitions(engine: SyncEngine): ToolDefinitionLike[] {
         try {
           if (booleanArg(raw.confirm) !== true) {
             const preview = await engine.previewRestore({ commit })
-            return {
+            return lossless({
               ok: true,
               requiresConfirmation: preview.plan.actions.length > 0,
               source: preview.source,
               plan: preview.plan,
               hint: 'Review the plan with the user, then call again with confirm: true.',
-            }
+            })
           }
           const result = await engine.restore({
             commit,
@@ -214,7 +226,7 @@ export function buildToolDefinitions(engine: SyncEngine): ToolDefinitionLike[] {
             resolutions: resolutionsArg(raw.resolutions),
             confirmDestructive: true,
           })
-          return { ok: true, result }
+          return lossless({ ok: true, result })
         } catch (error) {
           return errorResult(error)
         }
@@ -241,18 +253,18 @@ export function buildToolDefinitions(engine: SyncEngine): ToolDefinitionLike[] {
         try {
           if (booleanArg(raw.confirm) !== true) {
             const preview = await engine.previewSync()
-            return {
+            return lossless({
               ok: true,
               requiresConfirmation: preview.plan.actions.length > 0 || preview.plan.conflicts.length > 0,
               plan: preview.plan,
               hint: 'Review the plan and conflicts with the user, then call again with confirm: true and resolutions if needed.',
-            }
+            })
           }
           const result = await engine.sync({
             resolutions: resolutionsArg(raw.resolutions),
             confirmDestructive: true,
           })
-          return { ok: true, result }
+          return lossless({ ok: true, result })
         } catch (error) {
           return errorResult(error)
         }
@@ -279,7 +291,7 @@ export function buildToolDefinitions(engine: SyncEngine): ToolDefinitionLike[] {
         const direction = raw.direction === 'push' || raw.direction === 'pull' || raw.direction === 'two-way' ? raw.direction : 'two-way'
         try {
           const result = await engine.diff({ direction, commit: stringArg(raw.commit) })
-          return { ok: true, ...result }
+          return lossless({ ok: true, ...result })
         } catch (error) {
           return errorResult(error)
         }
@@ -306,7 +318,7 @@ export function buildToolDefinitions(engine: SyncEngine): ToolDefinitionLike[] {
         try {
           const result = await engine.history({ limit })
           const snapshots = await engine.listSnapshots()
-          return { ok: true, ...result, snapshots: snapshots.slice(0, 20) }
+          return lossless({ ok: true, ...result, snapshots: snapshots.slice(0, 20) })
         } catch (error) {
           return errorResult(error)
         }

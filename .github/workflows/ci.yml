@@ -35,10 +35,8 @@ jobs:
         run: npm run typecheck
       - name: Build
         run: npm run build
-      - name: Unit tests
-        run: npm run test:unit
-      - name: Integration tests
-        run: npm run test:integration
+      - name: Tests (unit, integration and client render)
+        run: npm test
       - name: Verify packaged file list
         if: matrix.node == 24
         run: npm pack --dry-run

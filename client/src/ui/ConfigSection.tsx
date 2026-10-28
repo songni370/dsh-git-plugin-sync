@@ -167,6 +167,20 @@ export function ConfigSection(props: ConfigSectionProps): ReactElement {
         </Field>
       </div>
 
+      <div className="dgs-field">
+        <span className="dgs-label">{t('configProfiles')}</span>
+        <div className="dgs-btnRow">
+          {profilesOf(view).map(profile => (
+            <Badge key={profile} tone={profile === view.activeProfile ? 'success' : 'idle'}>
+              {profile === view.activeProfile
+                ? `${profile} · ${t('profileActive')}`
+                : `${profile} · ${t('profileUnsupported')}`}
+            </Badge>
+          ))}
+        </div>
+        <span className="dgs-hint">{t('configProfilesHint')}</span>
+      </div>
+
       <div className="dgs-btnRow">
         <Button onClick={props.onTest} disabled={busy}>
           {props.testing ? t('configTesting') : t('configTest')}
@@ -199,4 +213,21 @@ export function ConfigSection(props: ConfigSectionProps): ReactElement {
       )}
     </Card>
   )
+}
+
+/**
+ * Every profile the Host names, active first. The page never edits this list
+ * (v1 synchronizes the active profile only) — it just shows what the Host
+ * reports, so a future multi-profile release needs no client change beyond
+ * the "not supported yet" copy.
+ */
+function profilesOf(view: SyncConfigView): string[] {
+  const seen = new Set<string>()
+  const profiles: string[] = []
+  for (const profile of [view.activeProfile, ...view.profiles, ...view.availableProfiles]) {
+    if (profile === '' || seen.has(profile)) continue
+    seen.add(profile)
+    profiles.push(profile)
+  }
+  return profiles
 }

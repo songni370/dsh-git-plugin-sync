@@ -125,6 +125,10 @@ export const CSS = `
 .dgs-inlineRow > .dgs-input {
   flex: 1 1 auto;
 }
+.dgs-selectInline {
+  width: auto;
+  min-width: 160px;
+}
 .dgs-btnRow {
   display: flex;
   flex-wrap: wrap;
@@ -381,7 +385,7 @@ export const CSS = `
   height: 14px;
   border-radius: 50%;
   background: var(--dsw-alias-bg-base, #ffffff);
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.2);
+  box-shadow: var(--dsw-shadow-lv1, 0 1px 2px rgba(15, 23, 42, 0.2));
   transition: transform 120ms ease;
 }
 .dgs-switch[aria-checked='true'] {

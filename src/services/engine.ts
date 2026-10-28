@@ -114,8 +114,6 @@ export interface SyncOptions {
   resolutions?: ConflictResolution[]
   confirmDestructive?: boolean
   signal?: AbortSignal
-  /** Automatic runs never prompt; they stop at a confirmation requirement. */
-  automatic?: boolean
 }
 
 /** Diff options. */
@@ -180,13 +178,24 @@ function remoteMeta(read: RemoteRead): Record<string, RemoteMeta> {
   return out
 }
 
-/** Whether a resolution list fully covers the conflicts of a plan. */
-function unresolvedConflicts(plan: SyncPlan, resolutions: readonly ConflictResolution[] | undefined): ConflictInfo[] {
-  if (resolutions === undefined || resolutions.length === 0) return plan.conflicts
-  return plan.conflicts.filter(conflict => {
-    const resolution = resolutions.find(item => item.pluginId === conflict.pluginId)
-    return resolution === undefined || resolution.choice === 'skip'
-  })
+/**
+ * Conflicts still needing a decision.
+ *
+ * The planner itself removes every conflict a supplied resolution actually
+ * resolved, so `plan.conflicts` is already the exact unresolved set: filtering
+ * by the caller's resolution list a second time would treat a resolution the
+ * planner could not apply (for example a removal the configuration forbids) as
+ * handled, and the operation would silently skip it.
+ */
+function unresolvedConflicts(plan: SyncPlan): ConflictInfo[] {
+  return plan.conflicts
+}
+
+/** Human-readable conflict summary naming the affected plugins. */
+function describeConflicts(conflicts: readonly ConflictInfo[]): string {
+  const names = conflicts.slice(0, 3).map(conflict => conflict.pluginName)
+  const suffix = conflicts.length > 3 ? ', …' : ''
+  return `${conflicts.length} 个冲突（${names.join(', ')}${suffix}）需要先选择处理方式 / ${conflicts.length} conflict(s) (${names.join(', ')}${suffix}) need a decision`
 }
 
 /** Convert a plan into operation warnings when changes were filtered out. */
@@ -467,6 +476,8 @@ export class SyncEngine {
           this.buildRemoteFiles({ config, plan, local: inventory, read: currentRead, device: state.device, baselineRead: read })
         const firstFiles = build(read, local)
         const now = new Date().toISOString()
+        const repositoryHasData = read.manifest !== null || read.state !== null
+        const nothingToRecord = plan.actions.length === 0 && repositoryHasData
         const trailers = {
           operation: 'backup',
           deviceId: state.device.id,
@@ -475,18 +486,20 @@ export class SyncEngine {
           result: plan.actions.length === 0 ? 'no-changes' : 'ok',
           pluginCount: String(local.plugins.filter(plugin => !plugin.builtIn).length),
         }
-        const write = await store.write({
-          files: firstFiles.files,
-          deletions: firstFiles.deletions,
-          rebuild: async () => {
-            const freshRead = await this.readRemote(store, config, null)
-            const freshPlan = planBackup(this.planInput(config, local, freshRead, await this.readState()))
-            return this.buildRemoteFiles({ config, plan: freshPlan, local, read: freshRead, device: state.device, baselineRead: freshRead })
-          },
-          message: this.commitMessage('backup', options.message),
-          trailers,
-          signal: options.signal,
-        })
+        const write = nothingToRecord
+          ? { changed: false, pushed: false, commit: prepared.head, changedFiles: [], retried: false }
+          : await store.write({
+              files: firstFiles.files,
+              deletions: firstFiles.deletions,
+              rebuild: async () => {
+                const freshRead = await this.readRemote(store, config, null)
+                const freshPlan = planBackup(this.planInput(config, local, freshRead, await this.readState()))
+                return this.buildRemoteFiles({ config, plan: freshPlan, local, read: freshRead, device: state.device, baselineRead: freshRead })
+              },
+              message: this.commitMessage('backup', options.message),
+              trailers,
+              signal: options.signal,
+            })
         const localAfter = await this.scanLocal(config, true)
         const remoteAfter = await this.readRemote(store, config, write.commit)
         const baseline = buildBaseline({
@@ -611,11 +624,11 @@ export class SyncEngine {
         const read = await this.readRemote(store, config, prepared.head)
         const base = this.planInput(config, local, read, state)
         const plan = planSync({ ...base, resolutions: options.resolutions })
-        const pending = unresolvedConflicts(plan, options.resolutions)
+        const pending = unresolvedConflicts(plan)
         if (pending.length > 0) {
           throw new SyncError(
             'conflict-present',
-            `存在 ${pending.length} 个冲突，需要先选择处理方式 / ${pending.length} conflict(s) need a decision`,
+            describeConflicts(pending),
             { details: { plan: safeJsonCopy(plan) as unknown as import('../types.js').JsonValue } },
           )
         }
@@ -939,6 +952,7 @@ export class SyncEngine {
     const knownDevices = input.read.manifest?.devices ?? input.baselineRead.manifest?.devices ?? []
     return buildBackupFiles({
       backupDir: input.config.backupDir,
+      generatorVersion: this.deps.pluginVersion,
       profile: this.deps.activeProfile,
       deviceId: input.device.id,
       now: new Date().toISOString(),
@@ -1017,11 +1031,11 @@ export class SyncEngine {
           const wanted = new Set(options.pluginIds)
           plan = { ...plan, actions: plan.actions.filter(action => wanted.has(action.pluginId)) }
         }
-        const pending = unresolvedConflicts(plan, options.resolutions)
+        const pending = unresolvedConflicts(plan)
         if (pending.length > 0) {
           throw new SyncError(
             'conflict-present',
-            `存在 ${pending.length} 个配置冲突，需要先选择处理方式 / ${pending.length} conflict(s) need a decision`,
+            describeConflicts(pending),
             { details: { plan: safeJsonCopy(plan) as unknown as JsonValue } },
           )
         }

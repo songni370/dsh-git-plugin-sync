@@ -7,13 +7,14 @@
  */
 
 import type { ReactElement } from 'react'
-import type { SyncConfigView } from '../../../src/types'
+import type { AutoSyncMode, SyncConfigView } from '../../../src/types'
 import type { Translate } from '../i18n'
-import { Badge, Button, Card, Field, NumberInput, Switch } from './controls'
+import { Badge, Button, Card, Field, NumberInput, Select, Switch } from './controls'
 
 /** The editable subset of `SyncConfig.autoSync`. */
 export interface AutoForm {
   enabled: boolean
+  mode: AutoSyncMode
   intervalMinutes: number
   onStartup: boolean
   onPluginChange: boolean
@@ -24,6 +25,7 @@ export interface AutoForm {
 export function autoFormFromView(view: SyncConfigView): AutoForm {
   return {
     enabled: view.autoSync.enabled,
+    mode: view.autoSync.mode,
     intervalMinutes: view.autoSync.intervalMinutes,
     onStartup: view.autoSync.onStartup,
     onPluginChange: view.autoSync.onPluginChange,
@@ -59,6 +61,21 @@ export function AutoSyncSection(props: AutoSyncSectionProps): ReactElement {
           props.onChange({ enabled: checked })
         }}
       />
+      <Field id="dgs-auto-mode" label={t('autoMode')} hint={t('autoModeBehaviorHint')}>
+        <Select
+          id="dgs-auto-mode"
+          value={form.mode}
+          disabled={props.saving || !form.enabled}
+          options={[
+            { value: 'two-way', label: t('autoModeTwoWay') },
+            { value: 'backup', label: t('autoModeBackup') },
+            { value: 'restore', label: t('autoModeRestore') },
+          ]}
+          onChange={value => {
+            props.onChange({ mode: value })
+          }}
+        />
+      </Field>
       <Switch
         label={t('autoStartup')}
         hint={t('autoStartupHint')}

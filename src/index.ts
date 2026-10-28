@@ -92,13 +92,24 @@ async function readPluginVersion(): Promise<string> {
   }
 }
 
-/** Read the running DSH version from an installed package manifest. */
+/**
+ * Read the running DSH version.
+ *
+ * The desktop application and the `dsh` CLI package under the profile are
+ * separate installs and can disagree (a profile may still hold an older CLI
+ * package), so the running application bundle is asked first. Electron's
+ * patched filesystem reads inside `app.asar`; a non-Electron host simply fails
+ * that candidate and falls back to the installed CLI package.
+ */
 async function readDshVersion(dshHome: string, profile: string): Promise<string> {
+  const electron = process as NodeJS.Process & { resourcesPath?: string }
+  const resources = typeof electron.resourcesPath === 'string' ? electron.resourcesPath : ''
   const candidates = [
+    resources === '' ? '' : join(resources, 'app.asar', 'package.json'),
     join(dshHome, 'profiles', 'node_modules', '@deepseek-ai', 'dsh', 'package.json'),
     join(dshHome, 'profiles', profile, 'node_modules', '@deepseek-ai', 'dsh', 'package.json'),
     join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'package.json'),
-  ]
+  ].filter(candidate => candidate !== '')
   for (const candidate of candidates) {
     try {
       const text = await readFile(candidate, 'utf8')

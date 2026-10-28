@@ -19,7 +19,8 @@
  * @module git/repo-paths
  */
 
-import { open, lstat, mkdir, readFile, readdir, rename, rm, type Dirent } from 'node:fs/promises'
+import { open, lstat, mkdir, readFile, readdir, rename, rm } from 'node:fs/promises'
+import type { Dirent } from 'node:fs'
 import { randomBytes } from 'node:crypto'
 import { dirname } from 'node:path'
 import {
@@ -258,6 +259,23 @@ export async function writeWorkTreeFile(workTree: string, repoRelative: string, 
       cause: error,
     })
   }
+}
+
+/**
+ * Read one repository file, refusing to traverse any symbolic link on the way.
+ *
+ * Repository contents are untrusted: a backup can commit a symlink such as
+ * `profiles -> ~/.ssh`, so every read walks the path segments first.
+ */
+export async function readRepoFile(workTree: string, repoRelative: string): Promise<string | null> {
+  await assertNoSymlinkSegments(workTree, repoRelative)
+  return await readWorkTreeFile(workTreePath(workTree, repoRelative))
+}
+
+/** List one repository directory, refusing symlinked paths. */
+export async function listRepoDirectory(workTree: string, repoRelative: string): Promise<Dirent[] | null> {
+  await assertNoSymlinkSegments(workTree, repoRelative)
+  return await listDirectoryEntries(workTreePath(workTree, repoRelative))
 }
 
 /** Read a UTF-8 file without following a symlink; null when it does not exist. */

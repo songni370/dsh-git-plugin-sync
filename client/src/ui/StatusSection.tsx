@@ -102,7 +102,11 @@ export function StatusSection(props: StatusSectionProps): ReactElement {
         <p className="dgs-hint">{t('statusConnectionAt', { time: formatDateTime(connection.at, t('unknown')) })}</p>
       ) : null}
 
-      {status.lastError === null ? null : <Banner tone="error">{status.lastError}</Banner>}
+      {status.lastError === null ? null : (
+        <Banner tone="error">
+          {t('statusLastError')}: {status.lastError}
+        </Banner>
+      )}
     </Card>
   )
 }

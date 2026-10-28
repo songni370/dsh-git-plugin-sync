@@ -43,6 +43,7 @@ import type {
   TestConnectionRequest,
   TestConnectionResponse,
 } from '../../src/http/api-types'
+import type { SyncPlan } from '../../src/types'
 
 /** Route prefix, relative to the page the UI is served from. */
 const PREFIX = 'api/dsh-git-plugin-sync'
@@ -131,7 +132,10 @@ export function getPlugins(): Promise<PluginListResponse> {
   return request<PluginListResponse>('plugins/list')
 }
 
-/** Preview the plan a sync would execute, without executing it. */
+/** Direction a difference preview is computed for (`DiffRequest.direction`). */
+export type DiffDirection = NonNullable<DiffRequest['direction']>
+
+/** Preview the plan an operation would execute, without executing it. */
 export function getDiff(body: DiffRequest = {}): Promise<DiffResponse> {
   return request<DiffResponse>('diff', body)
 }
@@ -139,6 +143,37 @@ export function getDiff(body: DiffRequest = {}): Promise<DiffResponse> {
 /** Commit the local inventory to the repository and push. */
 export function backup(body: BackupRequest = {}): Promise<OperationResponse> {
   return request<OperationResponse>('backup', body)
+}
+
+/**
+ * The `SyncPlan` carried by a confirmation / conflict error envelope.
+ *
+ * `/backup`, `/restore`, `/sync`, and `/rollback` refuse a plan that needs
+ * acknowledgement or that has unresolved conflicts by failing with
+ * `{ ok: false, error: { code: 'confirmation-required' | 'conflict-present',
+ * message, details: { plan } } }`. The page renders that plan, then re-calls
+ * with `confirmDestructive: true` and `resolutions`. Returns null for any
+ * other failure so callers can keep the plain error path.
+ */
+export function planFromError(error: unknown): SyncPlan | null {
+  if (!(error instanceof ApiRequestError)) return null
+  if (error.code !== 'confirmation-required' && error.code !== 'conflict-present') return null
+  const details = error.details
+  if (details === null || typeof details !== 'object' || Array.isArray(details)) return null
+  const plan = (details as Record<string, unknown>).plan
+  return isSyncPlan(plan) ? plan : null
+}
+
+/** Structural check for a plan carried over the wire. */
+function isSyncPlan(value: unknown): value is SyncPlan {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return false
+  const plan = value as Record<string, unknown>
+  return (
+    (plan.direction === 'push' || plan.direction === 'pull' || plan.direction === 'two-way') &&
+    Array.isArray(plan.actions) &&
+    Array.isArray(plan.conflicts) &&
+    Array.isArray(plan.warnings)
+  )
 }
 
 /** Preview what restoring the repository head (or one commit) would do. */

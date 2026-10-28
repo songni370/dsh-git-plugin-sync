@@ -185,11 +185,12 @@ export function Select<T extends string>(props: {
   options: ReadonlyArray<{ value: T; label: string }>
   onChange: (value: T) => void
   disabled?: boolean
+  className?: string
 }): ReactElement {
   return (
     <select
       id={props.id}
-      className="dgs-select"
+      className={props.className === undefined ? 'dgs-select' : `dgs-select ${props.className}`}
       value={props.value}
       disabled={props.disabled === true}
       onChange={(event: ChangeEvent<HTMLSelectElement>) => {

@@ -214,6 +214,8 @@ export function validateManifest(value: unknown): Manifest {
 
 /** Input for {@link buildManifest}. */
 export interface BuildManifestInput {
+  /** Running plugin version recorded in the manifest generator field. */
+  generatorVersion?: string
   /** Previous manifest (preserves `createdAt` and the generator identity). */
   previous: Manifest | null
   /** Per-profile plugin counts and update times. */
@@ -231,13 +233,15 @@ export interface BuildManifestInput {
  * creation time), while `updatedAt` is always the current time.
  */
 export function buildManifest(input: BuildManifestInput): Manifest {
+  const generatorVersion = typeof input.generatorVersion === 'string' && input.generatorVersion.trim() !== ''
+    ? input.generatorVersion.trim()
+    : MANIFEST_GENERATOR.version
   const now = timestampOr(input.now, new Date().toISOString())
   const previous = input.previous
   const createdAt = previous !== null && isValidTimestamp(previous.createdAt) ? previous.createdAt : now
-  const generator =
-    previous !== null && previous.generator !== undefined
-      ? validateGenerator(previous.generator)
-      : { name: MANIFEST_GENERATOR.name, version: MANIFEST_GENERATOR.version }
+  // The generator records the plugin version that wrote this manifest, so an
+  // upgraded plugin updates it instead of freezing the first writer's version.
+  const generator = { name: MANIFEST_GENERATOR.name, version: generatorVersion }
   const profiles: Manifest['profiles'] = {}
   const profileInput = input.profiles ?? {}
   for (const profile of Object.keys(profileInput).sort()) {
@@ -270,8 +274,8 @@ export function buildManifest(input: BuildManifestInput): Manifest {
   }
 }
 
-/** Recursive deterministic pretty printer (2-space indent, sorted keys). */
-function prettyJson(value: JsonValue, depth = 0): string {
+/** Recursive deterministic pretty printer (2-space indent, optional key sorting). */
+function prettyJson(value: JsonValue, depth = 0, sortKeys = true): string {
   if (value === null) return 'null'
   const kind = typeof value
   if (kind === 'string' || kind === 'number' || kind === 'boolean') return JSON.stringify(value)
@@ -279,13 +283,13 @@ function prettyJson(value: JsonValue, depth = 0): string {
   const closing = '  '.repeat(depth)
   if (Array.isArray(value)) {
     if (value.length === 0) return '[]'
-    return `[\n${value.map(item => `${indent}${prettyJson(item, depth + 1)}`).join(',\n')}\n${closing}]`
+    return `[\n${value.map(item => `${indent}${prettyJson(item, depth + 1, sortKeys)}`).join(',\n')}\n${closing}]`
   }
   const object = value as JsonObject
-  const keys = Object.keys(object).sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
+  const keys = sortKeys ? Object.keys(object).sort((a, b) => (a < b ? -1 : a > b ? 1 : 0)) : Object.keys(object)
   if (keys.length === 0) return '{}'
   const body = keys
-    .map(key => `${indent}${JSON.stringify(key)}: ${prettyJson(object[key] as JsonValue, depth + 1)}`)
+    .map(key => `${indent}${JSON.stringify(key)}: ${prettyJson(object[key] as JsonValue, depth + 1, sortKeys)}`)
     .join(',\n')
   return `{\n${body}\n${closing}}`
 }
@@ -323,7 +327,8 @@ export function serializeManifest(manifest: Manifest): string {
     profiles,
     devices: [...manifest.devices].sort(),
   }
-  return `${prettyJson(document)}\n`
+  // The manifest keeps its documented member order (schemaVersion first).
+  return `${prettyJson(document, 0, false)}\n`
 }
 
 /**
@@ -333,10 +338,10 @@ export function serializeManifest(manifest: Manifest): string {
  * the plugin can read the schema version, the directory layout and the commit
  * trailers. It contains no machine-specific paths.
  */
-export function buildSchemaDocument(): string {
+export function buildSchemaDocument(pluginVersion: string = MANIFEST_GENERATOR.version): string {
   const document: JsonObject = {
     schemaVersion: MANIFEST_SCHEMA_VERSION,
-    generator: { name: MANIFEST_GENERATOR.name, version: MANIFEST_GENERATOR.version },
+    generator: { name: MANIFEST_GENERATOR.name, version: pluginVersion },
     description:
       'DSH 插件 Git 同步的备份布局 / Backup layout of DSH Plugin Git Sync. 此目录由插件自动维护，请勿手工修改 / maintained automatically; do not edit by hand.',
     files: {
@@ -590,6 +595,19 @@ function validateArchive(value: unknown): PluginArchive {
   return { file: raw.file, sha256: raw.sha256, size: raw.size }
 }
 
+/**
+ * Strip fields that must never be persisted in a backup.
+ *
+ * `PluginRecord.localPath` is an absolute machine path (`types.ts` says it is
+ * "never written to a backup"), so it is dropped from device snapshots even when
+ * a scanner hands one over.
+ */
+function withoutLocalPaths(record: PluginRecord): PluginRecord {
+  if (record.localPath === undefined) return record
+  const { localPath: _localPath, ...rest } = record
+  return rest
+}
+
 /** Validate one device snapshot document. */
 export function validateDeviceSnapshot(value: unknown): DeviceSnapshot {
   const raw = asJsonObject(value)
@@ -606,7 +624,7 @@ export function validateDeviceSnapshot(value: unknown): DeviceSnapshot {
   if (raw.plugins.length > MAX_BACKUP_FILES) {
     throw invalid('device snapshot.plugins', `超过上限 ${MAX_BACKUP_FILES} / exceeds the limit of ${MAX_BACKUP_FILES}`)
   }
-  const plugins = raw.plugins.map(item => validatePluginRecord(item))
+  const plugins = raw.plugins.map(item => withoutLocalPaths(validatePluginRecord(item)))
   return {
     schemaVersion: MANIFEST_SCHEMA_VERSION,
     device,
@@ -737,7 +755,7 @@ export function buildDeviceSnapshot(input: BuildDeviceSnapshotInput): DeviceSnap
     device,
     profile: input.profile,
     updatedAt: input.updatedAt,
-    plugins: input.plugins.map(record => validatePluginRecord(record)),
+    plugins: input.plugins.map(record => withoutLocalPaths(validatePluginRecord(record))),
   }
 }
 

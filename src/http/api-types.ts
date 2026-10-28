@@ -107,13 +107,15 @@ export interface PluginListResponse {
 
 /** Diff/preview request. */
 export interface DiffRequest {
-  /** Compare against the remote repository (default) or a history commit. */
+  /** Which operation to preview; defaults to a two-way sync. */
+  direction?: 'push' | 'pull' | 'two-way'
+  /** Compare against a history commit (restore direction only). */
   commit?: string
 }
 
 /** Diff response: the plan a restore or sync would execute, without doing it. */
 export interface DiffResponse {
-  direction: 'pull' | 'two-way'
+  direction: 'push' | 'pull' | 'two-way'
   plan: SyncPlan
 }
 

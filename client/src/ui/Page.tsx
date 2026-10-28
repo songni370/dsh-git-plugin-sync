@@ -9,6 +9,13 @@
  *  - every operation refreshes status, plugins, and history afterwards;
  *  - errors from the Host are shown verbatim (`ApiRequestError.message`).
  *
+ * Confirmation protocol (`confirmation-required` / `conflict-present`):
+ * the Host never executes a destructive plan or an unresolved conflict
+ * silently — it answers with an error envelope whose `details.plan` is the
+ * plan that needs acknowledgement. This page always renders that plan in the
+ * dialog before re-calling with `confirmDestructive: true` (and the user's
+ * `resolutions` when conflicts exist), so no destructive step runs unseen.
+ *
  * The component-level timer and visibility listener are removed by their
  * `useEffect` cleanup, which React runs when the settings section unmounts —
  * the same disposal guarantee a plugin-level `ctx.effect` gives the locale
@@ -26,17 +33,25 @@ import type {
   PluginListRow,
   StatusPayload,
 } from '../../../src/http/api-types'
-import type { ConnectionTestResult, OperationResult, StatusView, SyncPlan } from '../../../src/types'
+import type {
+  ConflictChoice,
+  ConflictResolution,
+  ConnectionTestResult,
+  OperationResult,
+  StatusView,
+  SyncPlan,
+} from '../../../src/types'
 import * as api from '../api'
-import { errorText } from '../api'
-import { formatDateTime, operationLabel, shortCommit } from '../format'
+import { errorText, planFromError } from '../api'
+import type { DiffDirection } from '../api'
+import { shortCommit } from '../format'
 import type { Translate } from '../i18n'
 import { CSS } from '../styles'
 import { ActionsSection } from './ActionsSection'
 import type { ActionName } from './ActionsSection'
 import { AutoSyncSection, autoFormFromView } from './AutoSyncSection'
 import type { AutoForm } from './AutoSyncSection'
-import { Badge, Banner, Button, Card, LinkButton, Loading } from './controls'
+import { Banner, Button, Card, LinkButton, Loading } from './controls'
 import { ConfigSection, configFormFromView } from './ConfigSection'
 import type { ConfigForm } from './ConfigSection'
 import { HistorySection } from './HistorySection'
@@ -56,9 +71,12 @@ export interface PageProps {
   t: Translate
 }
 
+/** Operation a confirmation dialog will execute. */
+type ConfirmKind = 'backup' | 'restore' | 'rollback' | 'sync'
+
 /** What the open confirmation dialog will run. */
 interface ConfirmState {
-  kind: 'restore' | 'rollback' | 'sync'
+  kind: ConfirmKind
   /** Commit for restore/rollback; absent for restore-from-head and sync. */
   commit?: string
   title: string
@@ -66,6 +84,10 @@ interface ConfirmState {
   plan: SyncPlan
   snapshotPlanned: boolean
   sourceCommit: string | null
+  /** Per-plugin conflict decisions; `skip` unless the user changes one. */
+  resolutions: Record<string, ConflictChoice>
+  /** Informational Host message (e.g. why confirmation is required). */
+  hint?: string
 }
 
 /** Render the whole settings page. */
@@ -87,6 +109,7 @@ export function Page({ t }: PageProps): ReactElement {
   const [autoDirty, setAutoDirty] = useState(false)
   const [filter, setFilter] = useState('')
   const [exclusions, setExclusions] = useState<ReadonlySet<string>>(() => new Set<string>())
+  const [diffDirection, setDiffDirection] = useState<DiffDirection>('two-way')
 
   // Refs mirror the state that async callbacks and the poll loop must read
   // WITHOUT re-creating themselves: a stale closure here would silently drop
@@ -130,19 +153,16 @@ export function Page({ t }: PageProps): ReactElement {
     if (!exclusionBusyRef.current) setExclusions(new Set(view.excludedPlugins))
   }, [])
 
-  const refreshStatus = useCallback(
-    async (quiet: boolean) => {
-      try {
+  const refreshStatus = useCallback(async () => {
+    try {
         const payload = await api.getStatus()
         setStatus(payload)
         setStatusError(null)
         applyConfigView(payload.status.config)
       } catch (error) {
         setStatusError(errorText(error))
-      }
-    },
-    [applyConfigView],
-  )
+    }
+  }, [applyConfigView])
 
   const refreshPlugins = useCallback(async () => {
     setPluginsLoading(true)
@@ -171,12 +191,12 @@ export function Page({ t }: PageProps): ReactElement {
   }, [])
 
   const refreshAll = useCallback(async () => {
-    await Promise.all([refreshStatus(true), refreshPlugins(), refreshHistory()])
+    await Promise.all([refreshStatus(), refreshPlugins(), refreshHistory()])
   }, [refreshStatus, refreshPlugins, refreshHistory])
 
   // Initial load.
   useEffect(() => {
-    void refreshStatus(false)
+    void refreshStatus()
     void refreshPlugins()
     void refreshHistory()
   }, [refreshStatus, refreshPlugins, refreshHistory])
@@ -185,10 +205,10 @@ export function Page({ t }: PageProps): ReactElement {
   useEffect(() => {
     const timer = window.setInterval(() => {
       if (document.visibilityState !== 'visible') return
-      void refreshStatus(true)
+      void refreshStatus()
     }, STATUS_POLL_MS)
     const onVisibilityChange = (): void => {
-      if (document.visibilityState === 'visible') void refreshStatus(true)
+      if (document.visibilityState === 'visible') void refreshStatus()
     }
     document.addEventListener('visibilitychange', onVisibilityChange)
     return () => {
@@ -215,9 +235,7 @@ export function Page({ t }: PageProps): ReactElement {
     }
     const outcomes = result.actionOutcomes
     if (outcomes.length > 0) {
-      parts.push(
-        t('actionOutcome', { ok: outcomes.filter(outcome => outcome.ok).length, total: outcomes.length }),
-      )
+      parts.push(t('actionOutcome', { ok: outcomes.filter(outcome => outcome.ok).length, total: outcomes.length }))
     }
     if (result.warnings.length > 0) parts.push(t('actionWarnings', { count: result.warnings.length }))
     setNotice(parts.join(' · '))
@@ -225,6 +243,61 @@ export function Page({ t }: PageProps): ReactElement {
 
   function operationFailed(label: string, error: unknown): void {
     setActionError(t('actionFailed', { message: `${label}: ${errorText(error)}` }))
+  }
+
+  // --- Confirmation dialog ----------------------------------------------
+  function confirmTitle(kind: ConfirmKind, commit?: string): string {
+    switch (kind) {
+      case 'backup':
+        return t('confirmBackupTitle')
+      case 'restore':
+        return t('confirmRestoreTitle')
+      case 'sync':
+        return t('confirmSyncTitle')
+      case 'rollback':
+        return t('confirmRollbackTitle', { commit: shortCommit(commit) })
+    }
+  }
+
+  function confirmDescription(kind: ConfirmKind): string {
+    switch (kind) {
+      case 'backup':
+        return t('confirmBackupDesc')
+      case 'restore':
+        return t('confirmRestoreDesc')
+      case 'sync':
+        return t('confirmSyncDesc')
+      case 'rollback':
+        return t('confirmRollbackDesc')
+    }
+  }
+
+  /** Open the dialog for a plan the Host asked us to acknowledge. */
+  function openConfirm(
+    kind: ConfirmKind,
+    plan: SyncPlan,
+    extras: { commit?: string; snapshotPlanned?: boolean; sourceCommit?: string | null; hint?: string } = {},
+  ): void {
+    setModal({
+      kind,
+      ...(extras.commit === undefined ? {} : { commit: extras.commit }),
+      title: confirmTitle(kind, extras.commit),
+      description: confirmDescription(kind),
+      plan,
+      snapshotPlanned: extras.snapshotPlanned === true,
+      sourceCommit: extras.sourceCommit ?? null,
+      resolutions: defaultResolutions(plan),
+      ...(extras.hint === undefined ? {} : { hint: extras.hint }),
+    })
+  }
+
+  /** Decide the request's resolutions from the dialog's current choices. */
+  function buildResolutions(current: ConfirmState): ConflictResolution[] | undefined {
+    if (current.plan.conflicts.length === 0) return undefined
+    return current.plan.conflicts.map(conflict => ({
+      pluginId: conflict.pluginId,
+      choice: current.resolutions[conflict.pluginId] ?? 'skip',
+    }))
   }
 
   // --- Configuration -----------------------------------------------------
@@ -260,7 +333,7 @@ export function Page({ t }: PageProps): ReactElement {
       markConfigDirty(false)
       applyConfigView(response.config)
       setNotice(t('configSaved'))
-      await refreshStatus(true)
+      await refreshStatus()
     } catch (error) {
       operationFailed(t('save'), error)
     } finally {
@@ -277,6 +350,7 @@ export function Page({ t }: PageProps): ReactElement {
     try {
       const response = await api.saveAutoSync({
         enabled: autoForm.enabled,
+        mode: autoForm.mode,
         intervalMinutes: autoForm.intervalMinutes,
         onStartup: autoForm.onStartup,
         onPluginChange: autoForm.onPluginChange,
@@ -286,7 +360,7 @@ export function Page({ t }: PageProps): ReactElement {
       applyConfigView(response.status.config)
       setStatus(current => (current === null ? current : { ...current, status: response.status }))
       setNotice(t('autoSaved'))
-      await refreshStatus(true)
+      await refreshStatus()
     } catch (error) {
       operationFailed(t('autoSave'), error)
     } finally {
@@ -304,7 +378,11 @@ export function Page({ t }: PageProps): ReactElement {
       reportOperation(result, 'actionBackupDone')
       await refreshAll()
     } catch (error) {
-      operationFailed(t('actionBackup'), error)
+      // A backup that would remove repository content comes back as
+      // `confirmation-required` with the plan; show it, then re-run on confirm.
+      const plan = planFromError(error)
+      if (plan === null) operationFailed(t('actionBackup'), error)
+      else openConfirm('backup', plan, { hint: errorText(error) })
     } finally {
       setBusy(null)
     }
@@ -315,7 +393,7 @@ export function Page({ t }: PageProps): ReactElement {
     setBusy('diff')
     setDiffLoading(true)
     try {
-      setDiff(await api.getDiff({}))
+      setDiff(await api.getDiff({ direction: diffDirection }))
     } catch (error) {
       setActionError(t('diffLoadFailed', { message: errorText(error) }))
     } finally {
@@ -330,21 +408,22 @@ export function Page({ t }: PageProps): ReactElement {
     setBusy('restore')
     try {
       const preview = await api.previewRestore(commit === undefined ? {} : { commit })
-      setModal({
-        kind,
+      openConfirm(kind, preview.plan, {
         ...(commit === undefined ? {} : { commit }),
-        title:
-          kind === 'rollback'
-            ? t('confirmRollbackTitle', { commit: shortCommit(commit) })
-            : t('confirmRestoreTitle'),
-        description: kind === 'rollback' ? t('confirmRollbackDesc') : t('confirmRestoreDesc'),
-        plan: preview.plan,
         snapshotPlanned: preview.snapshotPlanned,
         sourceCommit: preview.source.commit,
       })
     } catch (error) {
-      const key = kind === 'rollback' ? 'rollbackPreviewFailed' : 'restorePreviewFailed'
-      setActionError(t(key, { message: errorText(error) }))
+      const plan = planFromError(error)
+      if (plan !== null) {
+        openConfirm(kind, plan, {
+          ...(commit === undefined ? {} : { commit }),
+          hint: errorText(error),
+        })
+      } else {
+        const key = kind === 'rollback' ? 'rollbackPreviewFailed' : 'restorePreviewFailed'
+        setActionError(t(key, { message: errorText(error) }))
+      }
     } finally {
       setBusy(null)
     }
@@ -356,16 +435,13 @@ export function Page({ t }: PageProps): ReactElement {
     setBusy('sync')
     try {
       const preview = await api.previewSync()
-      setModal({
-        kind: 'sync',
-        title: t('confirmSyncTitle'),
-        description: t('confirmSyncDesc'),
-        plan: preview.plan,
-        snapshotPlanned: false,
-        sourceCommit: null,
-      })
+      // Even a clean plan goes through the dialog: the user asked to sync, so
+      // show what will happen before anything runs.
+      openConfirm('sync', preview.plan)
     } catch (error) {
-      setActionError(t('syncPreviewFailed', { message: errorText(error) }))
+      const plan = planFromError(error)
+      if (plan !== null) openConfirm('sync', plan, { hint: errorText(error) })
+      else setActionError(t('syncPreviewFailed', { message: errorText(error) }))
     } finally {
       setBusy(null)
     }
@@ -374,38 +450,84 @@ export function Page({ t }: PageProps): ReactElement {
   /** Run the previewed operation, then refresh every data source. */
   async function confirmModal(): Promise<void> {
     if (modal === null) return
+    const current = modal
     setModalBusy(true)
     clearMessages()
-    setBusy(modal.kind === 'sync' ? 'sync' : 'restore')
+    setBusy(current.kind)
     try {
+      const resolutions = buildResolutions(current)
+      const resolutionBody = resolutions === undefined ? {} : { resolutions }
       let result: OperationResponse
-      if (modal.kind === 'sync') {
-        result = await api.sync({ confirmDestructive: true })
-      } else if (modal.kind === 'rollback') {
-        if (modal.commit === undefined) throw new Error('rollback requires a commit')
-        result = await api.rollback({ commit: modal.commit, confirmDestructive: true })
-      } else {
-        result = await api.restore({
-          ...(modal.commit === undefined ? {} : { commit: modal.commit }),
-          confirmDestructive: true,
-        })
+      switch (current.kind) {
+        case 'backup':
+          result = await api.backup({ confirmDestructive: true })
+          break
+        case 'sync':
+          result = await api.sync({ confirmDestructive: true, ...resolutionBody })
+          break
+        case 'rollback':
+          if (current.commit === undefined) throw new Error('rollback requires a commit')
+          result = await api.rollback({ commit: current.commit, confirmDestructive: true, ...resolutionBody })
+          break
+        case 'restore':
+          result = await api.restore({
+            ...(current.commit === undefined ? {} : { commit: current.commit }),
+            confirmDestructive: true,
+            ...resolutionBody,
+          })
+          break
       }
       setModal(null)
       reportOperation(
         result,
-        modal.kind === 'sync' ? 'actionSyncDone' : modal.kind === 'rollback' ? 'actionRollbackDone' : 'actionRestoreDone',
+        current.kind === 'backup'
+          ? 'actionBackupDone'
+          : current.kind === 'sync'
+            ? 'actionSyncDone'
+            : current.kind === 'rollback'
+              ? 'actionRollbackDone'
+              : 'actionRestoreDone',
       )
       await refreshAll()
     } catch (error) {
-      setModal(null)
-      operationFailed(
-        modal.kind === 'sync' ? t('actionSync') : modal.kind === 'rollback' ? t('op_rollback') : t('actionRestore'),
-        error,
-      )
+      // The plan changed underneath the dialog (a race with another device, or
+      // conflicts the preview missed). Keep the dialog open with the fresh plan
+      // so the user decides on what is actually about to happen.
+      const plan = planFromError(error)
+      if (plan === null) {
+        setModal(null)
+        operationFailed(
+          current.kind === 'backup'
+            ? t('actionBackup')
+            : current.kind === 'sync'
+              ? t('actionSync')
+              : current.kind === 'rollback'
+                ? t('op_rollback')
+                : t('actionRestore'),
+          error,
+        )
+      } else {
+        setModal(previous =>
+          previous === null
+            ? previous
+            : {
+                ...previous,
+                plan,
+                resolutions: mergeResolutions(previous.resolutions, plan),
+                hint: errorText(error),
+              },
+        )
+      }
     } finally {
       setModalBusy(false)
       setBusy(null)
     }
+  }
+
+  function setResolution(pluginId: string, choice: ConflictChoice): void {
+    setModal(current =>
+      current === null ? current : { ...current, resolutions: { ...current.resolutions, [pluginId]: choice } },
+    )
   }
 
   // --- Plugin exclusions -------------------------------------------------
@@ -425,7 +547,7 @@ export function Page({ t }: PageProps): ReactElement {
       setExclusions(new Set(response.config.excludedPlugins))
       setNotice(t('pluginsExclusionSaved'))
       await refreshPlugins()
-      await refreshStatus(true)
+      await refreshStatus()
     } catch (error) {
       setExclusions(previous)
       setActionError(t('pluginsExclusionFailed', { message: errorText(error) }))
@@ -451,7 +573,7 @@ export function Page({ t }: PageProps): ReactElement {
       {statusError === null || view === null ? null : (
         <Banner tone="error">
           {t('statusLoadFailed', { message: statusError })}{' '}
-          <LinkButton onClick={() => void refreshStatus(false)}>{t('retry')}</LinkButton>
+          <LinkButton onClick={() => void refreshStatus()}>{t('retry')}</LinkButton>
         </Banner>
       )}
 
@@ -462,14 +584,12 @@ export function Page({ t }: PageProps): ReactElement {
           <Card title={t('statusTitle')}>
             <Banner tone="error">{t('statusLoadFailed', { message: statusError })}</Banner>
             <div className="dgs-btnRow">
-              <Button onClick={() => void refreshStatus(false)}>{t('retry')}</Button>
+              <Button onClick={() => void refreshStatus()}>{t('retry')}</Button>
             </div>
           </Card>
         )
       ) : (
         <>
-          <StatusSection t={t} status={view} />
-
           {form === null ? null : (
             <ConfigSection
               t={t}
@@ -485,6 +605,8 @@ export function Page({ t }: PageProps): ReactElement {
             />
           )}
 
+          <StatusSection t={t} status={view} />
+
           <ActionsSection
             t={t}
             busy={busy}
@@ -492,6 +614,8 @@ export function Page({ t }: PageProps): ReactElement {
             enabled={configured}
             diff={diff}
             diffLoading={diffLoading}
+            diffDirection={diffDirection}
+            onDiffDirectionChange={setDiffDirection}
             onBackup={() => void runBackup()}
             onRestore={() => void previewRestore('restore')}
             onSync={() => void previewSync()}
@@ -552,12 +676,34 @@ export function Page({ t }: PageProps): ReactElement {
             if (!modalBusy) setModal(null)
           }}
         >
-          <PlanPreview t={t} plan={modal.plan} snapshotPlanned={modal.snapshotPlanned} sourceCommit={modal.sourceCommit} />
+          {modal.hint === undefined || modal.hint === '' ? null : <Banner tone="warn">{modal.hint}</Banner>}
+          <PlanPreview
+            t={t}
+            plan={modal.plan}
+            snapshotPlanned={modal.snapshotPlanned}
+            sourceCommit={modal.sourceCommit}
+            resolutions={modal.resolutions}
+            onResolutionChange={setResolution}
+          />
         </Modal>
       )}
     </div>
   )
 }
 
-/** Unused re-exports kept out of the bundle; types only. */
-export type { OperationResult }
+/** Every conflict starts at `skip` — the user must choose deliberately. */
+function defaultResolutions(plan: SyncPlan): Record<string, ConflictChoice> {
+  const resolutions: Record<string, ConflictChoice> = {}
+  for (const conflict of plan.conflicts) resolutions[conflict.pluginId] = 'skip'
+  return resolutions
+}
+
+/** Keep choices the user already made; new conflicts start at `skip`. */
+function mergeResolutions(
+  previous: Record<string, ConflictChoice>,
+  plan: SyncPlan,
+): Record<string, ConflictChoice> {
+  const resolutions: Record<string, ConflictChoice> = {}
+  for (const conflict of plan.conflicts) resolutions[conflict.pluginId] = previous[conflict.pluginId] ?? 'skip'
+  return resolutions
+}

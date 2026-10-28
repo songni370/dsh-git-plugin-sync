@@ -10,10 +10,10 @@
  */
 
 import type { ReactElement } from 'react'
-import type { SyncPlan } from '../../../src/types'
+import type { ConflictChoice, SyncPlan } from '../../../src/types'
 import type { Translate } from '../i18n'
 import { planKindLabel } from '../format'
-import { Badge } from './controls'
+import { Badge, Select } from './controls'
 
 /** Props for {@link PlanPreview}. */
 export interface PlanPreviewProps {
@@ -23,6 +23,13 @@ export interface PlanPreviewProps {
   snapshotPlanned?: boolean
   /** Commit the plan was computed from, when known. */
   sourceCommit?: string | null
+  /**
+   * Per-conflict choice. When this and `onResolutionChange` are present the
+   * conflict list becomes editable; otherwise it is read-only (difference
+   * previews never need a decision).
+   */
+  resolutions?: Record<string, ConflictChoice>
+  onResolutionChange?: (pluginId: string, choice: ConflictChoice) => void
 }
 
 /** Render a plan's destructive steps, all steps, conflicts, and warnings. */
@@ -78,12 +85,32 @@ export function PlanPreview(props: PlanPreviewProps): ReactElement {
           <h4 className="dgs-planHeading">{t('planConflictsHeader', { count: plan.conflicts.length })}</h4>
           <p className="dgs-hint">{t('planConflictNote')}</p>
           <ul className="dgs-plainList">
-            {plan.conflicts.map(conflict => (
-              <li key={conflict.id}>
-                {conflict.pluginName}: {conflict.reason}
-                {conflict.fields.length === 0 ? null : ` (${conflict.fields.join(', ')})`}
-              </li>
-            ))}
+            {plan.conflicts.map(conflict =>
+              props.onResolutionChange === undefined ? (
+                <li key={conflict.id}>
+                  {conflict.pluginName}: {conflict.reason}
+                  {conflict.fields.length === 0 ? null : ` (${conflict.fields.join(', ')})`}
+                </li>
+              ) : (
+                <li key={conflict.id} className="dgs-field">
+                  <span className="dgs-label">{`${t('conflictChoiceLabel')}: ${conflict.pluginName}`}</span>
+                  <span className="dgs-hint">{conflict.reason}</span>
+                  <Select
+                    id={`dgs-conflict-${conflict.pluginId.replace(/[^a-zA-Z0-9_-]/g, '-')}`}
+                    className="dgs-selectInline"
+                    value={props.resolutions?.[conflict.pluginId] ?? 'skip'}
+                    options={[
+                      { value: 'skip', label: t('conflictChoiceSkip') },
+                      { value: 'local', label: t('conflictChoiceLocal') },
+                      { value: 'remote', label: t('conflictChoiceRemote') },
+                    ]}
+                    onChange={choice => {
+                      props.onResolutionChange?.(conflict.pluginId, choice)
+                    }}
+                  />
+                </li>
+              ),
+            )}
           </ul>
         </section>
       )}
