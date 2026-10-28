@@ -88,7 +88,14 @@ The backup is readable, diffable, rollback-friendly JSON. Commits carry `Operati
 
 ### 4.1 Install through the DSH plugin manager (recommended)
 
-Once published to npm, install `dsh-git-plugin-sync` through DSH's plugin manager (the settings/plugins page install entry, or by asking an agent to call the `plugin_manager` tool's `install_bundle` with the spec `dsh-git-plugin-sync`). The DSH plugin manager performs the package installation and activation; this plugin has no install script of its own. **It has not been published to npm yet**, so use the local-directory route in [4.2](#42-install-from-a-local-development-directory) first.
+Install with the DSH plugin manager (the install entry in Settings/Plugins, or let the Agent call the `plugin_manager` tool's `install_bundle`). **The package has not been published to npm yet**; two specs work:
+
+- **Install directly from GitHub** (recommended; verified with pnpm):
+  `git+ssh://git@github.com:songni370/dsh-git-plugin-sync.git`
+  (HTTPS form: `https://github.com/songni370/dsh-git-plugin-sync.git`)
+- After the npm release: spec `dsh-git-plugin-sync`.
+
+The built output `lib/` (host half and `lib/client.js`) is committed, so the pnpm-based DSH plugin manager can load the plugin **without running dependency build scripts**; the plugin manager performs package installation and activation, and this plugin ships no install scripts. Restart DSH (or refresh the page as prompted) after installation to load the new browser bundle.
 
 ### 4.2 Install from a local development directory
 

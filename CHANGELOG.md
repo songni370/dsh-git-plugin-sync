@@ -66,6 +66,7 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - **DSH 0.2.1-rc.3**：宿主 API 清单（`pluginManager`、`configEditor`、`settings`、`profileContext`、`connection.fetch.register`、`tools.register`）按该版本核对；本插件在该版本上实测可用。
 - 本机验证：`npm run typecheck`、`npm run build`、`node --check lib/client.js` 通过；`npx vitest run` = **13 个测试文件 / 191 个测试通过**（单元 + 双设备集成 + jsdom 渲染冒烟）。**注意**：渲染测试是 jsdom 环境下的页面挂载/交互测试，不等同于真实 Harness 页面的人工 GUI 验证。
 - 零运行时依赖、Node `>= 22.19.0`、`git` 需在 `PATH` 中（Git 2.30+ 建议，代码不强制校验版本）。
+- **从 Git 安装**：源码仓库提交了 `lib/` 构建产物；在临时目录用 `pnpm add git+ssh://git@github.com:songni370/dsh-git-plugin-sync.git` 实测安装成功（3.2s），安装后 `lib/index.js`、`lib/client.js`、`cordis.patch.yml` 均在位，Node 可正常导入入口并导出 `apply`。
 
 ### Notes
 

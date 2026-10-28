@@ -24,6 +24,8 @@ This is the release manual: GitHub, npm, the DSH plugin market, and the versioni
 ### 1.1 创建仓库
 
 > **当前状态**：源码已推送到 `git@github.com:songni370/dsh-git-plugin-sync.git`（`main` 分支 + `v0.1.0` 标签），但**尚未执行 `npm publish`**。下文 GitHub 地址使用实际所有者 `songni370`，npm 安装说明以「发布之后」为前提。
+>
+> **注意构建产物**：本仓库**提交了 `lib/`**（Host 半、类型声明与 `lib/client.js`）。原因是 DSH 用 pnpm 安装插件，pnpm 默认阻止依赖执行构建脚本；不提交 `lib/` 时，从 Git URL 安装会缺少入口而无法加载。因此每次发版前必须 `npm run build` 并把 `lib/` 一并提交；`npm pack` 仍会通过 `prepack` 重新构建。
 
 1. 在 GitHub 上创建仓库 `dsh-git-plugin-sync`（Public，MIT；如果暂时不公开可以先 Private，注意 `private` 会影响别人通过 npm 页面看到源码链接）。
 2. **不要**勾选初始化 README / .gitignore / license（仓库里已经有了）。

@@ -88,7 +88,14 @@ DSH 插件装得越多，「换台电脑重新装一遍」就越痛苦：插件�
 
 ### 4.1 通过 DSH 插件管理器安装（推荐）
 
-发布到 npm 之后，在 DSH 里用插件管理器安装 `dsh-git-plugin-sync` 即可（设置/插件页的安装入口，或让 Agent 调用 `plugin_manager` 工具的 `install_bundle`，spec 传 `dsh-git-plugin-sync`）。安装动作由 DSH 插件管理器完成包安装与启用，本插件自身没有安装脚本。**目前尚未发布到 npm**，请先用 [4.2 的本地目录方式](#42-从本地开发目录安装)。
+在 DSH 里用插件管理器安装即可（设置/插件页的安装入口，或让 Agent 调用 `plugin_manager` 工具的 `install_bundle`）。**目前尚未发布到 npm**，有两种可用的 spec：
+
+- **直接从 GitHub 安装**（推荐，已实测 pnpm 安装成功）：
+  `git+ssh://git@github.com:songni370/dsh-git-plugin-sync.git`
+  （HTTPS 形式为 `https://github.com/songni370/dsh-git-plugin-sync.git`）
+- npm 发布后：spec 传 `dsh-git-plugin-sync`。
+
+仓库已提交构建产物 `lib/`（Host 半与 `lib/client.js`），因此使用 pnpm 的 DSH 插件管理器**不需要运行依赖构建脚本**即可加载；安装动作由 DSH 插件管理器完成包安装与启用，本插件自身没有安装脚本。安装后请重启 DSH（或按提示刷新页面）以加载新的浏览器包。
 
 ### 4.2 从本地开发目录安装
 
