@@ -144,142 +144,129 @@ export function ConfigSection(props: ConfigSectionProps): ReactElement {
       }
     >
       <div id="dgs-config-body" hidden={!props.open}>
-      <div className="dgs-formGroup">
-        <span className="dgs-formGroupTitle">{t('configGroupConnection')}</span>
-        <div className="dgs-grid">
-          <Field id="dgs-config-repo" className="dgs-gridFull" label={t('configRepoUrl')} hint={t('configRepoUrlHint')}>
-            <TextInput
-              id="dgs-config-repo"
-              value={form.repoUrl}
-              placeholder="https://github.com/you/dsh-plugins.git"
+      <div className="dgs-grid">
+        <Field id="dgs-config-repo" className="dgs-gridFull" label={t('configRepoUrl')} hint={t('configRepoUrlHint')}>
+          <TextInput
+            id="dgs-config-repo"
+            value={form.repoUrl}
+            placeholder="https://github.com/you/dsh-plugins.git"
+            disabled={busy}
+            inputMode="url"
+            onChange={value => {
+              props.onChange({ repoUrl: value })
+            }}
+          />
+        </Field>
+
+        {transport === 'none' ? null : (
+          <div className="dgs-gridFull dgs-transportRow" role="status" aria-live="polite">
+            <Badge tone="idle">{meta.label}</Badge>
+            <span className="dgs-hint">{meta.hint}</span>
+          </div>
+        )}
+
+        <Field id="dgs-config-branch" label={t('configBranch')}>
+          <TextInput
+            id="dgs-config-branch"
+            value={form.branch}
+            placeholder="main"
+            disabled={busy}
+            onChange={value => {
+              props.onChange({ branch: value })
+            }}
+          />
+        </Field>
+        <Field id="dgs-config-backup-dir" label={t('configBackupDir')} hint={t('configBackupDirHint')}>
+          <TextInput
+            id="dgs-config-backup-dir"
+            value={form.backupDir}
+            placeholder="dsh-plugins"
+            disabled={busy}
+            onChange={value => {
+              props.onChange({ backupDir: value })
+            }}
+          />
+        </Field>
+
+        {authVisible ? (
+          <Field id="dgs-config-auth" label={t('configAuthMode')} hint={t(AUTH_HINT[effectiveAuth])}>
+            <Select
+              id="dgs-config-auth"
+              value={effectiveAuth}
               disabled={busy}
-              inputMode="url"
+              options={
+                transport === 'https'
+                  ? [
+                      { value: 'credential-helper' as const, label: t('configAuthCredentialHelper') },
+                      { value: 'https-token' as const, label: t('configAuthHttpsToken') },
+                    ]
+                  : [
+                      { value: 'credential-helper' as const, label: t('configAuthCredentialHelper') },
+                      { value: 'ssh' as const, label: t('configAuthSsh') },
+                      { value: 'https-token' as const, label: t('configAuthHttpsToken') },
+                    ]
+              }
               onChange={value => {
-                props.onChange({ repoUrl: value })
+                props.onChange({ authMode: value })
               }}
             />
           </Field>
+        ) : null}
 
-          {transport === 'none' ? null : (
-            <div className="dgs-gridFull dgs-transportRow" role="status" aria-live="polite">
-              <Badge tone="idle">{meta.label}</Badge>
-              <span className="dgs-hint">{meta.hint}</span>
-            </div>
-          )}
-
-          <Field id="dgs-config-branch" label={t('configBranch')}>
-            <TextInput
-              id="dgs-config-branch"
-              value={form.branch}
-              placeholder="main"
-              disabled={busy}
-              onChange={value => {
-                props.onChange({ branch: value })
-              }}
-            />
-          </Field>
-          <Field id="dgs-config-backup-dir" label={t('configBackupDir')} hint={t('configBackupDirHint')}>
-            <TextInput
-              id="dgs-config-backup-dir"
-              value={form.backupDir}
-              placeholder="dsh-plugins"
-              disabled={busy}
-              onChange={value => {
-                props.onChange({ backupDir: value })
-              }}
-            />
-          </Field>
-        </div>
-      </div>
-
-      {authVisible ? (
-        <div className="dgs-formGroup">
-          <span className="dgs-formGroupTitle">{t('configGroupAuth')}</span>
-          <div className="dgs-grid">
-            <Field id="dgs-config-auth" label={t('configAuthMode')} hint={t(AUTH_HINT[effectiveAuth])}>
-              <Select
-                id="dgs-config-auth"
-                value={effectiveAuth}
+        {tokenVisible ? (
+          <Field id="dgs-config-token-env" label={t('configTokenEnvVar')} hint={t('configTokenEnvVarHint')}>
+            <div className="dgs-inlineRow">
+              <TextInput
+                id="dgs-config-token-env"
+                value={form.tokenEnvVar}
+                placeholder="GITHUB_TOKEN"
                 disabled={busy}
-                options={
-                  transport === 'https'
-                    // An HTTPS URL cannot use the SSH agent; only HTTPS-capable
-                    // modes are offered.
-                    ? [
-                        { value: 'credential-helper' as const, label: t('configAuthCredentialHelper') },
-                        { value: 'https-token' as const, label: t('configAuthHttpsToken') },
-                      ]
-                    : [
-                        { value: 'credential-helper' as const, label: t('configAuthCredentialHelper') },
-                        { value: 'ssh' as const, label: t('configAuthSsh') },
-                        { value: 'https-token' as const, label: t('configAuthHttpsToken') },
-                      ]
-                }
                 onChange={value => {
-                  props.onChange({ authMode: value })
+                  props.onChange({ tokenEnvVar: value })
                 }}
               />
-            </Field>
+              {tokenState}
+            </div>
+          </Field>
+        ) : null}
 
-            {tokenVisible ? (
-              <>
-                <Field id="dgs-config-token-env" label={t('configTokenEnvVar')} hint={t('configTokenEnvVarHint')}>
-                  <div className="dgs-inlineRow">
-                    <TextInput
-                      id="dgs-config-token-env"
-                      value={form.tokenEnvVar}
-                      placeholder="GITHUB_TOKEN"
-                      disabled={busy}
-                      onChange={value => {
-                        props.onChange({ tokenEnvVar: value })
-                      }}
-                    />
-                    {tokenState}
-                  </div>
-                </Field>
-                <Field id="dgs-config-username" label={t('configUsername')} hint={t('configUsernameHint')}>
-                  <TextInput
-                    id="dgs-config-username"
-                    value={form.username}
-                    placeholder="git"
-                    disabled={busy}
-                    onChange={value => {
-                      props.onChange({ username: value })
-                    }}
-                  />
-                </Field>
-              </>
-            ) : null}
-          </div>
-        </div>
-      ) : null}
-
-      <div className="dgs-formGroup">
-        <span className="dgs-formGroupTitle">{t('configGroupDevice')}</span>
-        <div className="dgs-grid">
-          <Field id="dgs-config-device" label={t('configDeviceName')} hint={t('configDeviceNameHint')}>
+        {tokenVisible ? (
+          <Field id="dgs-config-username" label={t('configUsername')} hint={t('configUsernameHint')}>
             <TextInput
-              id="dgs-config-device"
-              value={form.deviceName}
+              id="dgs-config-username"
+              value={form.username}
+              placeholder="git"
               disabled={busy}
               onChange={value => {
-                props.onChange({ deviceName: value })
+                props.onChange({ username: value })
               }}
             />
           </Field>
-          <div className="dgs-field">
-            <span className="dgs-label">{t('configProfiles')}</span>
-            <div className="dgs-btnRow">
-              {profilesOf(view).map(profile => (
-                <Badge key={profile} tone={profile === view.activeProfile ? 'success' : 'idle'}>
-                  {profile === view.activeProfile
-                    ? `${profile} · ${t('profileActive')}`
-                    : `${profile} · ${t('profileUnsupported')}`}
-                </Badge>
-              ))}
-            </div>
-            <span className="dgs-hint">{t('configProfilesHint')}</span>
+        ) : null}
+
+        <Field id="dgs-config-device" label={t('configDeviceName')} hint={t('configDeviceNameHint')}>
+          <TextInput
+            id="dgs-config-device"
+            value={form.deviceName}
+            disabled={busy}
+            onChange={value => {
+              props.onChange({ deviceName: value })
+            }}
+          />
+        </Field>
+
+        <div className="dgs-gridFull dgs-field">
+          <span className="dgs-label">{t('configProfiles')}</span>
+          <div className="dgs-btnRow">
+            {profilesOf(view).map(profile => (
+              <Badge key={profile} tone={profile === view.activeProfile ? 'success' : 'idle'}>
+                {profile === view.activeProfile
+                  ? `${profile} · ${t('profileActive')}`
+                  : `${profile} · ${t('profileUnsupported')}`}
+              </Badge>
+            ))}
           </div>
+          <span className="dgs-hint">{t('configProfilesHint')}</span>
         </div>
       </div>
 

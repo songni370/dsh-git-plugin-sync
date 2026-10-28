@@ -42,8 +42,8 @@ export const CSS = `
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  margin: -2px 0 2px;
-  padding: 9px 11px;
+  margin: -2px 0 0;
+  padding: 7px 10px;
   border: 1px solid var(--dsw-alias-border-l1, #e1e5ee);
   border-radius: 8px;
   background: var(--dsw-alias-bg-layer-2, #f7f8fa);
@@ -95,7 +95,7 @@ export const CSS = `
 .dgs-card {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
   min-width: 0;
   box-sizing: border-box;
   padding: 16px;
@@ -133,26 +133,8 @@ export const CSS = `
 .dgs-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px 20px;
+  gap: 12px 16px;
   align-items: start;
-}
-.dgs-formGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-width: 0;
-}
-.dgs-formGroup + .dgs-formGroup {
-  margin-top: 4px;
-  padding-top: 16px;
-  border-top: 1px solid var(--dsw-alias-border-l1, #e5e7eb);
-}
-.dgs-formGroupTitle {
-  font-size: 11px;
-  line-height: 16px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--dsw-alias-label-secondary, #5c6570);
 }
 .dgs-formActions {
   margin-top: 2px;
@@ -160,7 +142,7 @@ export const CSS = `
 .dgs-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   min-width: 0;
 }
 .dgs-label {
@@ -178,8 +160,8 @@ export const CSS = `
 .dgs-select {
   box-sizing: border-box;
   width: 100%;
-  height: 34px;
-  padding: 0 11px;
+  height: 32px;
+  padding: 0 10px;
   border: 1px solid var(--dsw-alias-border-l1, #e1e5ee);
   border-radius: 8px;
   background: var(--dsw-alias-bg-base, #ffffff);
@@ -656,10 +638,10 @@ export const CSS = `
   white-space: nowrap;
   border: 0;
 }
-@media (max-width: 640px) {
+@media (max-width: 560px) {
   .dgs-grid {
     grid-template-columns: minmax(0, 1fr);
-    gap: 14px;
+    gap: 12px;
   }
 }
 @media (max-width: 520px) {
