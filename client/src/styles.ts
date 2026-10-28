@@ -27,6 +27,20 @@ export const CSS = `
   font-size: 14px;
   line-height: 22px;
 }
+.dgs-trailingRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.dgs-configSummary {
+  margin: 0 0 4px;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dsw-alias-label-secondary, #61666b);
+  overflow-wrap: anywhere;
+}
 .dgs-intro {
   margin: 0;
   font-size: 12px;

@@ -24,6 +24,10 @@ export type Vars = Record<string, string | number>
 export const zh: Record<string, string> = {
   nav: '插件备份',
   tab: '备份',
+  configConfigured: '已配置',
+  configNotConfigured: '未配置仓库',
+  configExpand: '展开编辑',
+  configCollapse: '收起',
   tabVisibilityTitle: '配置页面展示',
   tabVisibilityLabel: '在「插件」页面显示「备份」标签页',
   tabVisibilityHint: '关闭后只保留设置里的「插件备份」入口；已打开的备份标签会被移除。',
@@ -252,6 +256,10 @@ export const zh: Record<string, string> = {
 export const en: Record<string, string> = {
   nav: 'Plugin Backup',
   tab: 'Backup',
+  configConfigured: 'Configured',
+  configNotConfigured: 'No repository configured',
+  configExpand: 'Edit',
+  configCollapse: 'Collapse',
   tabVisibilityTitle: 'Page display',
   tabVisibilityLabel: 'Show a "Backup" tab on the Plugins page',
   tabVisibilityHint: 'When off, only the "Plugin Backup" settings entry remains; an open backup tab is removed.',

@@ -12,7 +12,7 @@ import type { ReactElement } from 'react'
 import type { ConnectionTestResult, GitAuthMode, SyncConfigView } from '../../../src/types'
 import type { Translate } from '../i18n'
 import { formatDateTime, shortCommit } from '../format'
-import { Badge, Banner, Button, Card, Field, Select, TextInput } from './controls'
+import { Badge, Banner, Button, Card, Field, LinkButton, Select, TextInput } from './controls'
 
 /** The editable subset of the Host configuration. */
 export interface ConfigForm {
@@ -59,6 +59,17 @@ export interface ConfigSectionProps {
   onChange: (patch: Partial<ConfigForm>) => void
   onTest: () => void
   onSave: () => void
+  /** Whether the form body is expanded. */
+  open: boolean
+  /** Expand/collapse the card body. */
+  onToggle: () => void
+}
+
+/** Human-readable auth label for the collapsed summary. */
+function authLabel(t: Translate, mode: GitAuthMode): string {
+  if (mode === 'ssh') return t('configAuthSsh')
+  if (mode === 'https-token') return t('configAuthHttpsToken')
+  return t('configAuthCredentialHelper')
 }
 
 /** Render the repository-configuration card. */
@@ -75,12 +86,33 @@ export function ConfigSection(props: ConfigSectionProps): ReactElement {
       <Badge tone="error">{t('configTokenUnavailable')}</Badge>
     )
 
+  const configured = view.repoUrl.trim() !== ''
+  const summary = configured
+    ? `${view.repoUrl} · ${view.branch} · ${authLabel(t, view.authMode)}`
+    : t('configNotConfigured')
+
   return (
     <Card
       title={t('configTitle')}
       description={t('configDesc')}
-      trailing={dirty ? <Badge tone="warn">{t('configUnsaved')}</Badge> : undefined}
+      trailing={
+        <span className="dgs-trailingRow">
+          {dirty ? <Badge tone="warn">{t('configUnsaved')}</Badge> : null}
+          <Badge tone={configured ? 'success' : 'idle'}>
+            {configured ? t('configConfigured') : t('configNotConfigured')}
+          </Badge>
+          <LinkButton onClick={props.onToggle} ariaExpanded={!props.open} controls="dgs-config-body">
+            {props.open ? t('configCollapse') : t('configExpand')}
+          </LinkButton>
+        </span>
+      }
     >
+      {props.open ? null : (
+        <p className={configured ? 'dgs-configSummary dgs-mono' : 'dgs-configSummary'}>
+          {summary}
+        </p>
+      )}
+      <div id="dgs-config-body" hidden={!props.open}>
       <div className="dgs-grid">
         <Field id="dgs-config-repo" label={t('configRepoUrl')} hint={t('configRepoUrlHint')}>
           <TextInput
@@ -211,6 +243,7 @@ export function ConfigSection(props: ConfigSectionProps): ReactElement {
           ) : null}
         </>
       )}
+      </div>
     </Card>
   )
 }

@@ -10,6 +10,17 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.7] - 2026-10-28
+
+### Added
+
+- **「仓库配置」卡片可折叠**：已配置仓库的设备打开页面时默认折叠，标题右侧显示「已配置」徽标与 `仓库地址 · 分支 · 认证方式` 摘要；点「展开编辑」修改，点「收起」恢复摘要。未配置（或刚安装）时默认展开完整表单。保存成功后按新的配置状态自动折叠/展开；有未保存修改时仍显示「未保存」徽标。
+- 折叠按钮带 `aria-expanded` / `aria-controls`，折叠时表单不渲染，键盘可达。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（15 个测试文件 / 204 个测试）通过；新增已配置默认折叠/展开与未配置默认展开的渲染测试。
+
 ## [0.1.6] - 2026-10-28
 
 ### Changed
@@ -150,7 +161,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.6...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.7...HEAD
+[0.1.7]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.3...v0.1.4

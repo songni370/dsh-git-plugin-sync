@@ -82,9 +82,23 @@ export function Button(props: {
 }
 
 /** Inline text button (retry links). */
-export function LinkButton(props: { children: ReactNode; onClick: () => void; disabled?: boolean }): ReactElement {
+export function LinkButton(props: {
+  children: ReactNode
+  onClick: () => void
+  disabled?: boolean
+  /** Optional disclosure semantics for cards whose body this button toggles. */
+  ariaExpanded?: boolean
+  controls?: string
+}): ReactElement {
   return (
-    <button type="button" className="dgs-linkBtn" onClick={props.onClick} disabled={props.disabled === true}>
+    <button
+      type="button"
+      className="dgs-linkBtn"
+      onClick={props.onClick}
+      disabled={props.disabled === true}
+      {...(props.ariaExpanded === undefined ? {} : { 'aria-expanded': props.ariaExpanded })}
+      {...(props.controls === undefined ? {} : { 'aria-controls': props.controls })}
+    >
       {props.children}
     </button>
   )

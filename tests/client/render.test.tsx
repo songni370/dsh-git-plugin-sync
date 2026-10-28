@@ -18,13 +18,16 @@ import type { HistoryResponse, PluginListResponse, StatusPayload } from '../../s
 
 const t = createTranslate(key => zh[key] ?? key)
 
+/** Per-test repository URL override (null = the configured default mock). */
+let repoUrlOverride: string | null = null
+
 /** Build the status payload the Host returns. */
 function statusPayload(): StatusPayload {
   return {
     status: {
       state: 'ahead',
       config: {
-        repoUrl: 'https://github.com/example/backup.git',
+        repoUrl: repoUrlOverride ?? 'https://github.com/example/backup.git',
         branch: 'main',
         backupDir: '',
         authMode: 'credential-helper',
@@ -150,6 +153,7 @@ let root: Root
 
 beforeEach(async () => {
   resetPluginsTabVisibility()
+  repoUrlOverride = null
   installFetchMock()
   container = document.createElement('div')
   document.body.appendChild(container)
@@ -164,6 +168,7 @@ afterEach(async () => {
     root.unmount()
   })
   container.remove()
+  repoUrlOverride = null
   vi.unstubAllGlobals()
 })
 
@@ -193,6 +198,38 @@ describe('settings page render', () => {
     await settle()
     expect(container.textContent).toContain('仓库配置')
     expect(container.textContent).toContain('同步状态')
+  })
+
+  it('collapses an already configured repository card and expands it on demand', async () => {
+    await settle()
+    expect(container.textContent).toContain('已配置')
+    const repoInput = () => container.querySelector('#dgs-config-repo')
+    expect(repoInput()?.closest('[hidden]')).not.toBeNull()
+    const edit = Array.from(container.querySelectorAll('button')).find(button => (button.textContent ?? '').trim() === '展开编辑')
+    expect(edit).toBeDefined()
+    await act(async () => {
+      edit?.dispatchEvent(new window.MouseEvent('click', { bubbles: true }))
+    })
+    expect(repoInput()?.closest('[hidden]')).toBeNull()
+    const collapse = Array.from(container.querySelectorAll('button')).find(button => (button.textContent ?? '').trim() === '收起')
+    expect(collapse).toBeDefined()
+  })
+
+  it('starts expanded on a fresh install with no repository configured', async () => {
+    repoUrlOverride = ''
+    await act(async () => {
+      root.unmount()
+    })
+    container.remove()
+    container = document.createElement('div')
+    document.body.appendChild(container)
+    root = createRoot(container)
+    await act(async () => {
+      root.render(<Page t={t} />)
+    })
+    await settle()
+    expect(container.textContent).toContain('未配置仓库')
+    expect(container.querySelector('#dgs-config-repo')?.closest('[hidden]')).toBeNull()
   })
 
   it('renders live status counts and the plugin list', async () => {

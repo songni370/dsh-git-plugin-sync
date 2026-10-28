@@ -69,7 +69,7 @@ The backup is readable, diffable, rollback-friendly JSON. Commits carry `Operati
 | **Version management** | This plugin only does **"sync the version"**: make the device match the version recorded in the repository (up or down; a downgrade is destructive and requires confirmation). It **does not** look up the latest version or perform a "version upgrade" for you — upgrade through the DSH plugin manager/market, and the next backup records the new version so other devices upgrade to it on their next sync. |
 | **History and rollback** | Pick any commit from the repository history and restore the device to the state recorded in that commit (a local snapshot is taken first). |
 | **Automatic sync** | Off by default. Supports an interval timer, a check after startup, and change-triggered syncs. Automatic runs **pause and wait** on conflicts or destructive plans: no prompts, no silent deletions. Includes debounce, mutual exclusion, cooldown, and failure backoff. |
-| **Settings page** | Settings → "Plugin Backup": status, repository configuration, manual operations, plugin list and exclusions, automatic sync, history. Status polls every 5 seconds; destructive operations always show a preview confirmation first. A "Page display" switch above the repository card controls the Plugins-page backup tab. |
+| **Settings page** | Settings → "Plugin Backup": status, repository configuration, manual operations, plugin list and exclusions, automatic sync, history. Status polls every 5 seconds; destructive operations always show a preview confirmation first. A "Page display" switch above the repository card controls the Plugins-page backup tab. **The repository card collapses**: a configured device shows a "Configured" summary (URL · branch · auth) and hides the form until "Edit" is clicked; a fresh install starts expanded. |
 | **Plugins-page tab** | The Plugins page (sidebar "插件") gains a "备份 / Backup" tab after 已安装 / 插件市场 / 发现, showing the same backup page; the settings-page "Page display" switch shows or hides it (shown by default, remembered per browser). |
 | **Agent tools** | Six read-only/read-write tools that call the same engine as the settings page. Destructive operations are two-phase (preview first, then execute). |
 | **Security** | No secrets, tokens, passwords, private keys, or cookies are uploaded; no machine absolute paths; only whitelisted non-secret configuration; never force-push; snapshot before restore; logs and Git errors are redacted. |
@@ -119,6 +119,8 @@ Then call `plugin_manager`'s `install_bundle` with the **absolute path** of that
 ### 4.3 Where to find it after installation
 
 Open the DSH settings window and select the "**Plugin Backup**" section (the plugin itself is listed in the plugin inventory as "DSH 插件 Git 同步 / DSH Plugin Git Sync"). The page shows sync status at the top, followed by repository configuration, operations, the plugin list, automatic sync, and history.
+
+**Collapsible repository card**: on a device that already has a repository configured, "Repository" starts collapsed with a "Configured" badge and a `URL · branch · auth` summary; click "Edit" to change it. A fresh install (or an empty URL) starts expanded. Saving a configuration collapses it again.
 
 **Page display**: a "Page display" switch above the repository card controls whether the Plugins page's tab row shows the "**备份 / Backup**" tab (after 已安装 / 插件市场 / 发现, with the same content as the settings page). It is shown by default and remembered per browser; turning it off also removes an open backup tab.
 

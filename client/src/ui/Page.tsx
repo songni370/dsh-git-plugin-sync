@@ -109,6 +109,8 @@ export function Page({ t }: PageProps): ReactElement {
 
   // --- Editable state ----------------------------------------------------
   const [pluginsTab, setPluginsTab] = useState<boolean>(pluginsTabEnabled)
+  /** null until the first status arrives: configured -> collapsed, empty -> open. */
+  const [configOpen, setConfigOpen] = useState<boolean | null>(null)
   const [form, setForm] = useState<ConfigForm | null>(null)
   const [autoForm, setAutoForm] = useState<AutoForm | null>(null)
   const [configDirty, setConfigDirty] = useState(false)
@@ -159,6 +161,9 @@ export function Page({ t }: PageProps): ReactElement {
     if (!configDirtyRef.current) setForm(configFormFromView(view))
     if (!autoDirtyRef.current) setAutoForm(autoFormFromView(view))
     if (!exclusionBusyRef.current) setExclusions(new Set(view.excludedPlugins))
+    // A configured machine opens on the collapsed summary; a fresh install
+    // starts expanded so the first setup is one glance away.
+    setConfigOpen(current => current ?? view.repoUrl.trim() === '')
   }, [])
 
   const refreshStatus = useCallback(async () => {
@@ -340,6 +345,8 @@ export function Page({ t }: PageProps): ReactElement {
       const response = await api.saveConfig({ config: form })
       markConfigDirty(false)
       applyConfigView(response.config)
+      // Saved successfully: a configured machine shows the collapsed summary.
+      setConfigOpen(response.config.repoUrl.trim() === '')
       setNotice(t('configSaved'))
       await refreshStatus()
     } catch (error) {
@@ -616,6 +623,8 @@ export function Page({ t }: PageProps): ReactElement {
               saving={savingConfig}
               testing={testing}
               connection={connection}
+              open={configOpen ?? true}
+              onToggle={() => setConfigOpen(current => !(current ?? true))}
               onChange={changeConfig}
               onTest={() => void testRepository()}
               onSave={() => void saveRepository()}
