@@ -1,0 +1,79 @@
+{
+  "name": "dsh-git-plugin-sync",
+  "version": "0.1.0",
+  "description": "DSH 插件 Git 同步 — 使用 Git 仓库备份、恢复并多设备同步 DeepSeek Harness 插件与配置。 / DSH Plugin Git Sync — back up, restore, and synchronize DSH plugins and configurations across devices using Git repositories.",
+  "keywords": [
+    "deepseek",
+    "harness",
+    "dsh",
+    "dsh-plugin",
+    "git",
+    "sync",
+    "backup",
+    "restore",
+    "plugins"
+  ],
+  "license": "MIT",
+  "author": "dsh-git-plugin-sync contributors",
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "icon": "./icon.svg",
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "scripts": {
+    "build": "npm run build:host && npm run build:client",
+    "build:host": "tsc -p tsconfig.build.json",
+    "build:client": "node scripts/build-client.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.client.json --noEmit",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:watch": "vitest",
+    "clean": "node -e \"require('node:fs').rmSync('lib',{recursive:true,force:true})\"",
+    "prepack": "npm run clean && npm run build",
+    "verify": "npm run typecheck && npm run build && npm test"
+  },
+  "dsh": {
+    "manifestVersion": 1,
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-client-ui-theme"
+      ]
+    }
+  },
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": "./lib/client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "locale",
+    "cordis.patch.yml",
+    "icon.svg",
+    "README.md",
+    "README_EN.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "@types/react": "^18.3.31",
+    "esbuild": "^0.28.2",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.5"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "DSH 插件 Git 同步",
+    "description": "使用 Git 仓库备份、恢复并多设备同步 DSH 插件与配置。"
+  }
+}

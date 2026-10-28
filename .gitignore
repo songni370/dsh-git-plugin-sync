@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+lib/
+dist/
+*.tsbuildinfo
+
+# Test and tool output
+coverage/
+.vitest/
+test-results/
+*.log
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+Thumbs.db
+
+# Local scratch (never commit runtime state, backups or auth material)
+.dsh-sync-test/
+tmp/
+*.tgz
