@@ -12,6 +12,12 @@ import type { ReactElement } from 'react'
 import type { ConnectionTestResult, GitAuthMode, SyncConfigView } from '../../../src/types'
 import type { Translate } from '../i18n'
 import { formatDateTime, shortCommit } from '../format'
+import {
+  authForTransport,
+  detectRepoTransport,
+  transportUsesAuth,
+  type RepoTransport,
+} from '../repo-transport'
 import { Badge, Banner, Button, Card, Field, Select, TextInput } from './controls'
 
 /** The editable subset of the Host configuration. */
@@ -31,7 +37,9 @@ export function configFormFromView(view: SyncConfigView): ConfigForm {
     repoUrl: view.repoUrl,
     branch: view.branch,
     backupDir: view.backupDir,
-    authMode: view.authMode,
+    // A legacy HTTPS URL saved with SSH auth (or the reverse) must not render
+    // an auth selector with no matching option; show the mode that fits.
+    authMode: authForTransport(detectRepoTransport(view.repoUrl), view.authMode),
     tokenEnvVar: view.tokenEnvVar,
     username: view.username,
     deviceName: view.deviceName,
@@ -66,10 +74,31 @@ export interface ConfigSectionProps {
 }
 
 
+/** Label + hint for one detected transport. */
+function transportMeta(t: Translate, transport: RepoTransport): { label: string; hint: string } {
+  switch (transport) {
+    case 'https':
+      return { label: t('configDetectedHttps'), hint: t('configTransportHttpsHint') }
+    case 'ssh':
+      return { label: t('configDetectedSsh'), hint: t('configTransportSshHint') }
+    case 'local':
+      return { label: t('configDetectedLocal'), hint: t('configTransportLocalHint') }
+    case 'other':
+      return { label: t('configDetectedOther'), hint: t('configTransportOtherHint') }
+    case 'none':
+      return { label: '', hint: '' }
+  }
+}
+
 /** Render the repository-configuration card. */
 export function ConfigSection(props: ConfigSectionProps): ReactElement {
   const { t, form, view, dirty } = props
   const busy = props.saving || props.testing
+  const transport = detectRepoTransport(form.repoUrl)
+  const meta = transportMeta(t, transport)
+  const effectiveAuth = authForTransport(transport, form.authMode)
+  const authVisible = transportUsesAuth(transport)
+  const tokenVisible = authVisible && effectiveAuth === 'https-token'
 
   const tokenState =
     form.tokenEnvVar !== view.tokenEnvVar ? (
@@ -122,6 +151,7 @@ export function ConfigSection(props: ConfigSectionProps): ReactElement {
             value={form.repoUrl}
             placeholder="https://github.com/you/dsh-plugins.git"
             disabled={busy}
+            inputMode="url"
             onChange={value => {
               props.onChange({ repoUrl: value })
             }}
@@ -138,6 +168,14 @@ export function ConfigSection(props: ConfigSectionProps): ReactElement {
             }}
           />
         </Field>
+
+        {transport === 'none' ? null : (
+          <div className="dgs-gridFull dgs-transportRow" role="status" aria-live="polite">
+            <Badge tone="idle">{meta.label}</Badge>
+            <span className="dgs-hint">{meta.hint}</span>
+          </div>
+        )}
+
         <Field id="dgs-config-backup-dir" label={t('configBackupDir')} hint={t('configBackupDirHint')}>
           <TextInput
             id="dgs-config-backup-dir"
@@ -149,46 +187,64 @@ export function ConfigSection(props: ConfigSectionProps): ReactElement {
             }}
           />
         </Field>
-        <Field id="dgs-config-auth" label={t('configAuthMode')} hint={t(AUTH_HINT[form.authMode])}>
-          <Select
-            id="dgs-config-auth"
-            value={form.authMode}
-            disabled={busy}
-            options={[
-              { value: 'credential-helper', label: t('configAuthCredentialHelper') },
-              { value: 'ssh', label: t('configAuthSsh') },
-              { value: 'https-token', label: t('configAuthHttpsToken') },
-            ]}
-            onChange={value => {
-              props.onChange({ authMode: value })
-            }}
-          />
-        </Field>
-        <Field id="dgs-config-token-env" label={t('configTokenEnvVar')} hint={t('configTokenEnvVarHint')}>
-          <div className="dgs-inlineRow">
-            <TextInput
-              id="dgs-config-token-env"
-              value={form.tokenEnvVar}
-              placeholder="GITHUB_TOKEN"
+
+        {authVisible ? (
+          <Field id="dgs-config-auth" label={t('configAuthMode')} hint={t(AUTH_HINT[effectiveAuth])}>
+            <Select
+              id="dgs-config-auth"
+              value={effectiveAuth}
               disabled={busy}
+              options={
+                transport === 'https'
+                  // An HTTPS URL cannot use the SSH agent; only HTTPS-capable
+                  // modes are offered.
+                  ? [
+                      { value: 'credential-helper' as const, label: t('configAuthCredentialHelper') },
+                      { value: 'https-token' as const, label: t('configAuthHttpsToken') },
+                    ]
+                  : [
+                      { value: 'credential-helper' as const, label: t('configAuthCredentialHelper') },
+                      { value: 'ssh' as const, label: t('configAuthSsh') },
+                      { value: 'https-token' as const, label: t('configAuthHttpsToken') },
+                    ]
+              }
               onChange={value => {
-                props.onChange({ tokenEnvVar: value })
+                props.onChange({ authMode: value })
               }}
             />
-            {tokenState}
-          </div>
-        </Field>
-        <Field id="dgs-config-username" label={t('configUsername')} hint={t('configUsernameHint')}>
-          <TextInput
-            id="dgs-config-username"
-            value={form.username}
-            placeholder="git"
-            disabled={busy}
-            onChange={value => {
-              props.onChange({ username: value })
-            }}
-          />
-        </Field>
+          </Field>
+        ) : null}
+
+        {tokenVisible ? (
+          <>
+            <Field id="dgs-config-token-env" label={t('configTokenEnvVar')} hint={t('configTokenEnvVarHint')}>
+              <div className="dgs-inlineRow">
+                <TextInput
+                  id="dgs-config-token-env"
+                  value={form.tokenEnvVar}
+                  placeholder="GITHUB_TOKEN"
+                  disabled={busy}
+                  onChange={value => {
+                    props.onChange({ tokenEnvVar: value })
+                  }}
+                />
+                {tokenState}
+              </div>
+            </Field>
+            <Field id="dgs-config-username" label={t('configUsername')} hint={t('configUsernameHint')}>
+              <TextInput
+                id="dgs-config-username"
+                value={form.username}
+                placeholder="git"
+                disabled={busy}
+                onChange={value => {
+                  props.onChange({ username: value })
+                }}
+              />
+            </Field>
+          </>
+        ) : null}
+
         <Field id="dgs-config-device" label={t('configDeviceName')} hint={t('configDeviceNameHint')}>
           <TextInput
             id="dgs-config-device"

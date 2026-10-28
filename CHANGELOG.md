@@ -10,6 +10,22 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.9] - 2026-10-28
+
+### Added
+
+- **仓库地址自动识别传输方式**：根据填写的地址自动判断 HTTPS / SSH / 本地路径（含 `file://`、绝对路径、`~/`），并只展示对应的认证字段：
+  - HTTPS：认证方式可选「Git 凭据助手 / HTTPS 令牌」；只有选择 HTTPS 令牌时才显示「令牌环境变量」和「用户名」。
+  - SSH（`ssh://`、`git@host:path`）：显示「使用系统 SSH Agent / ~/.ssh 密钥，无需 Token」提示，隐藏认证方式选择与 Token 字段。
+  - 本地路径：显示「无需认证」提示，隐藏所有认证字段。
+  - 未识别形式：保留完整的认证方式选择。
+- 编辑仓库地址时自动切换匹配的认证方式（HTTPS 下已选的「HTTPS 令牌」会保留；从 SSH 改为 HTTPS 时回落到凭据助手）。
+- 仓库地址下方新增识别结果条（徽标 + 说明），随输入实时更新。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（17 个测试文件 / 216 个测试）通过；新增传输识别、认证方式推导与各传输下字段显示的测试。
+
 ## [0.1.8] - 2026-10-28
 
 ### Changed
@@ -172,7 +188,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.8...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.9...HEAD
+[0.1.9]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.5...v0.1.6

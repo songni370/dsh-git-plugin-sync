@@ -50,6 +50,7 @@ import {
   setPluginsTabEnabled,
   subscribePluginsTab,
 } from '../plugins-tab-visibility'
+import { authForTransport, detectRepoTransport } from '../repo-transport'
 import type { Translate } from '../i18n'
 import { CSS } from '../styles'
 import { ActionsSection } from './ActionsSection'
@@ -315,7 +316,15 @@ export function Page({ t }: PageProps): ReactElement {
 
   // --- Configuration -----------------------------------------------------
   function changeConfig(patch: Partial<ConfigForm>): void {
-    setForm(current => (current === null ? current : { ...current, ...patch }))
+    setForm(current => {
+      if (current === null) return current
+      const next = { ...current, ...patch }
+      // Editing the repository URL re-derives the authentication mode that
+      // fits the transport (SSH URL → SSH; HTTPS URL → helper/token). The
+      // form then shows only the fields that apply.
+      if (patch.repoUrl !== undefined) next.authMode = authForTransport(detectRepoTransport(patch.repoUrl), next.authMode)
+      return next
+    })
     // The reported connection result belongs to the previous values.
     setConnection(null)
     markConfigDirty(true)

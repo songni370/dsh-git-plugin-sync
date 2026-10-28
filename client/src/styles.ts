@@ -34,6 +34,22 @@ export const CSS = `
   flex-wrap: wrap;
   justify-content: flex-end;
 }
+.dgs-gridFull {
+  grid-column: 1 / -1;
+}
+.dgs-transportRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 10px;
+  border: 1px solid var(--dsw-alias-border-l1, #e1e5ee);
+  border-radius: 8px;
+  background: var(--dsw-alias-bg-layer-2, #f7f8fa);
+}
+.dgs-transportRow .dgs-hint {
+  margin: 0;
+}
 .dgs-disclosure {
   display: inline-flex;
   align-items: center;
