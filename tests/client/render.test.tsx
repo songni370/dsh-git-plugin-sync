@@ -235,6 +235,17 @@ describe('settings page render', () => {
     expect(container.querySelector('#dgs-config-repo')?.closest('[hidden]')).toBeNull()
   })
 
+  it('renders the redesigned automatic-sync card', async () => {
+    await settle()
+    expect(container.querySelector('.dgs-autoMaster')).not.toBeNull()
+    const options = container.querySelector('.dgs-autoOptions')
+    expect(options).not.toBeNull()
+    expect(options?.querySelectorAll('.dgs-segmented button')).toHaveLength(3)
+    expect(options?.querySelectorAll('[role="switch"]')).toHaveLength(2)
+    expect(container.textContent).toContain('自动同步行为')
+    expect(container.textContent).toContain('保存自动同步')
+  })
+
   it('renders the status tile row and metadata grid', async () => {
     await settle()
     const text = container.textContent ?? ''

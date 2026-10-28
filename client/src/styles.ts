@@ -624,6 +624,44 @@ export const CSS = `
   opacity: 0.5;
   cursor: not-allowed;
 }
+.dgs-autoMaster {
+  padding: 10px 12px;
+  border: 1px solid var(--dsw-alias-border-l1, #e5e7eb);
+  border-radius: 8px;
+  background: var(--dsw-alias-bg-layer-2, #f7f8fa);
+}
+.dgs-autoOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.dgs-autoOptionsOff {
+  opacity: 0.55;
+}
+.dgs-formRowControlInline {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.dgs-formRowControlInline .dgs-formRowHint {
+  flex: 1 1 auto;
+}
+.dgs-autoNumber {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dgs-autoNumber .dgs-input {
+  flex: 0 0 auto;
+  width: 96px;
+}
+.dgs-autoUnit {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-secondary, #5c6570);
+}
 .dgs-statusTiles {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
