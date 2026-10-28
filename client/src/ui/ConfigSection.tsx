@@ -181,7 +181,11 @@ export function ConfigSection(props: ConfigSectionProps): ReactElement {
               ) : (
                 <>
                   <Badge tone="idle">{meta.label}</Badge>
-                  <span className="dgs-formRowHint">{meta.hint}</span>
+                  {/* HTTPS is explained by its auth rows below; SSH/local/other
+                      are fully explained here so no second hint repeats them. */}
+                  {transport === 'https' ? null : (
+                    <span className="dgs-formRowHint">{meta.hint}</span>
+                  )}
                 </>
               )}
             </span>
@@ -249,14 +253,7 @@ export function ConfigSection(props: ConfigSectionProps): ReactElement {
                 </>
               ) : null}
             </>
-          ) : transport === 'none' ? null : (
-            <FormRow label={t('configAuthMode')}>
-              <span className="dgs-formRowMeta">
-                <Badge tone="idle">{meta.label}</Badge>
-                <span className="dgs-formRowHint">{meta.hint}</span>
-              </span>
-            </FormRow>
-          )}
+          ) : null}
 
           <div className="dgs-advanced">
             <button

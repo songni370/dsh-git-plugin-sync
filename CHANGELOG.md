@@ -10,6 +10,17 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.14] - 2026-10-28
+
+### Fixed
+
+- **仓库地址下方重复提示**：SSH / 本地 / 未识别地址此前在地址行和「认证方式」行各显示一次徽标+说明；现在只在地址下方显示一次，HTTPS 只显示「HTTPS 仓库」徽标（认证说明由下方认证行负责）。
+- **SSH 地址不再出现「认证方式」行**：非 HTTPS 地址完全隐藏认证行，只保留一行地址识别结果；HTTPS 仍显示凭据助手 / 令牌分段选择与对应字段。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（17 个测试文件 / 220 个测试）通过；新增“提示只出现一次 / SSH 无认证行”回归测试。
+
 ## [0.1.13] - 2026-10-28
 
 ### Changed
@@ -239,7 +250,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.13...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.14...HEAD
+[0.1.14]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.12...v0.1.13
 [0.1.12]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.10...v0.1.11

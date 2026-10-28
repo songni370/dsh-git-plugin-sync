@@ -78,10 +78,11 @@ describe('repository card transport fields', () => {
     expect(html).toContain('id="dgs-config-username"')
   })
 
-  it('SSH: no auth selector or credential fields, just the SSH hint', () => {
+  it('SSH: one hint only, no auth row or credential fields', () => {
     const html = render('git@github.com:songni370/dsh-git-plugin-sync.git', 'ssh')
-    expect(html).toContain('SSH 仓库')
+    expect(html.split('>SSH 仓库<')).toHaveLength(2) // exactly one badge
     expect(html).toContain('SSH Agent')
+    expect(html).not.toContain('认证方式')
     expect(html).not.toContain('id="dgs-config-auth"')
     expect(html).not.toContain('id="dgs-config-token-env"')
     expect(html).not.toContain('id="dgs-config-username"')
@@ -118,8 +119,9 @@ describe('repository card transport fields', () => {
 
   it('local: no auth selector or credential fields', () => {
     const html = render('/tmp/backup.git', 'credential-helper')
-    expect(html).toContain('本地仓库')
+    expect(html.split('>本地仓库<')).toHaveLength(2) // exactly one badge
     expect(html).toContain('本地仓库无需认证')
+    expect(html).not.toContain('认证方式')
     expect(html).not.toContain('id="dgs-config-auth"')
     expect(html).not.toContain('id="dgs-config-token-env"')
   })
