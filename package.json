@@ -34,7 +34,8 @@
     "clean": "node -e \"require('node:fs').rmSync('lib',{recursive:true,force:true})\"",
     "prepack": "npm run clean && npm run build",
     "verify": "npm run typecheck && npm run build && npm test",
-    "test:client": "vitest run tests/client"
+    "test:client": "vitest run tests/client",
+    "prepare": "npm run build"
   },
   "dsh": {
     "manifestVersion": 1,
