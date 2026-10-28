@@ -396,8 +396,10 @@ export const CSS = `
   transition: transform 120ms ease;
 }
 .dgs-switch[aria-checked='true'] {
-  border-color: var(--dsw-alias-brand-primary, #4f6ef7);
-  background: var(--dsw-alias-brand-primary, #4f6ef7);
+  /* On = success green in both themes (#22c55e in the shipped palette);
+     the knob stays bg-base (white in light, near-black in dark). */
+  border-color: var(--dsw-alias-state-success-primary, #22c55e);
+  background: var(--dsw-alias-state-success-primary, #22c55e);
 }
 .dgs-switch[aria-checked='true']::after {
   transform: translateX(16px);
