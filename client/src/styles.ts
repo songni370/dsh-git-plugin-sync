@@ -42,7 +42,8 @@ export const CSS = `
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  padding: 8px 10px;
+  margin: -2px 0 2px;
+  padding: 9px 11px;
   border: 1px solid var(--dsw-alias-border-l1, #e1e5ee);
   border-radius: 8px;
   background: var(--dsw-alias-bg-layer-2, #f7f8fa);
@@ -94,7 +95,7 @@ export const CSS = `
 .dgs-card {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   min-width: 0;
   box-sizing: border-box;
   padding: 16px;
@@ -131,13 +132,35 @@ export const CSS = `
 }
 .dgs-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 12px 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 20px;
+  align-items: start;
+}
+.dgs-formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.dgs-formGroup + .dgs-formGroup {
+  margin-top: 4px;
+  padding-top: 16px;
+  border-top: 1px solid var(--dsw-alias-border-l1, #e5e7eb);
+}
+.dgs-formGroupTitle {
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--dsw-alias-label-secondary, #5c6570);
+}
+.dgs-formActions {
+  margin-top: 2px;
 }
 .dgs-field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
 }
 .dgs-label {
@@ -155,24 +178,40 @@ export const CSS = `
 .dgs-select {
   box-sizing: border-box;
   width: 100%;
-  height: 32px;
-  padding: 0 10px;
-  border: 1px solid var(--dsw-alias-border-l2, #d9dde3);
-  border-radius: 6px;
+  height: 34px;
+  padding: 0 11px;
+  border: 1px solid var(--dsw-alias-border-l1, #e1e5ee);
+  border-radius: 8px;
   background: var(--dsw-alias-bg-base, #ffffff);
   color: var(--dsw-alias-label-primary, #1f2328);
   font: inherit;
   font-size: 13px;
   line-height: 20px;
+  transition: border-color 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+}
+.dgs-select {
+  padding-right: 30px;
+  cursor: pointer;
+}
+.dgs-input:hover,
+.dgs-select:hover {
+  border-color: var(--dsw-alias-border-l2, #cfd3d6);
+}
+.dgs-input:focus,
+.dgs-select:focus {
+  outline: none;
+  border-color: var(--dsw-alias-brand-primary, #0f1115);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--dsw-alias-brand-primary, #0f1115) 14%, transparent);
 }
 .dgs-input::placeholder {
   color: var(--dsw-alias-label-secondary, #5c6570);
-  opacity: 1;
+  opacity: 0.65;
 }
 .dgs-input:disabled,
 .dgs-select:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  background: var(--dsw-alias-bg-layer-2, #f7f8fa);
 }
 .dgs-inlineRow {
   display: flex;
@@ -616,6 +655,12 @@ export const CSS = `
   clip: rect(0 0 0 0);
   white-space: nowrap;
   border: 0;
+}
+@media (max-width: 640px) {
+  .dgs-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
 }
 @media (max-width: 520px) {
   .dgs-card {

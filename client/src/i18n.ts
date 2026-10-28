@@ -24,6 +24,9 @@ export type Vars = Record<string, string | number>
 export const zh: Record<string, string> = {
   nav: '插件备份',
   tab: '备份',
+  configGroupConnection: '连接',
+  configGroupAuth: '认证',
+  configGroupDevice: '设备与 Profile',
   configDetectedHttps: 'HTTPS 仓库',
   configDetectedSsh: 'SSH 仓库',
   configDetectedLocal: '本地仓库',
@@ -264,6 +267,9 @@ export const zh: Record<string, string> = {
 export const en: Record<string, string> = {
   nav: 'Plugin Backup',
   tab: 'Backup',
+  configGroupConnection: 'Connection',
+  configGroupAuth: 'Authentication',
+  configGroupDevice: 'Device & profile',
   configDetectedHttps: 'HTTPS repository',
   configDetectedSsh: 'SSH repository',
   configDetectedLocal: 'Local repository',

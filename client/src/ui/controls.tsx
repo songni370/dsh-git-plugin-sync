@@ -126,10 +126,12 @@ export function Field(props: {
   id: string
   label: string
   hint?: string
+  /** Optional layout class (e.g. a full-width grid cell). */
+  className?: string
   children: ReactNode
 }): ReactElement {
   return (
-    <div className="dgs-field">
+    <div className={props.className === undefined ? 'dgs-field' : `dgs-field ${props.className}`}>
       <label className="dgs-label" htmlFor={props.id}>
         {props.label}
       </label>
