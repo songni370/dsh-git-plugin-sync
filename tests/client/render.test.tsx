@@ -235,6 +235,17 @@ describe('settings page render', () => {
     expect(container.querySelector('#dgs-config-repo')?.closest('[hidden]')).toBeNull()
   })
 
+  it('renders the status tile row and metadata grid', async () => {
+    await settle()
+    const text = container.textContent ?? ''
+    for (const label of ['本地插件', '仓库插件', '待上传', '待下载', '冲突', '设备', '分支', '上次同步']) {
+      expect(text).toContain(label)
+    }
+    expect(container.querySelector('.dgs-statusTiles')).not.toBeNull()
+    expect(container.querySelectorAll('.dgs-statusTile')).toHaveLength(5)
+    expect(container.querySelectorAll('.dgs-statusMetaItem')).toHaveLength(6)
+  })
+
   it('renders live status counts and the plugin list', async () => {
     await settle()
     const text = container.textContent ?? ''

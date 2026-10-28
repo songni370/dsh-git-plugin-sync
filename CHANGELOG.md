@@ -10,6 +10,20 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.17] - 2026-10-28
+
+### Changed
+
+- **重构「同步状态」卡片**：
+  - 数量指标改为 5 个紧凑磁贴：本地插件 / 仓库插件 / 待上传 / 待下载 / 冲突；待上传、待下载非零时用警示色，冲突非零时用错误色，数字使用等宽数字对齐；
+  - 设备、分支、上次同步、最新提交、最近操作、连接状态改为两列「标签 + 值」定义网格，值单行省略（`title` 悬停可看完整内容），长设备名/分支/提交不再把卡片撑乱；
+  - 连接失败的消息最多两行并自动换行；长错误信息在 Banner 内换行而不是溢出；
+  - 移除旧的 11 行 KeyValue 列表，状态区更紧凑易读。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（17 个测试文件 / 221 个测试）通过；新增状态磁贴/元数据网格渲染断言。
+
 ## [0.1.16] - 2026-10-28
 
 ### Changed
@@ -270,7 +284,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.16...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.17...HEAD
+[0.1.17]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.16...v0.1.17
 [0.1.16]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.15...v0.1.16
 [0.1.15]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.14...v0.1.15
 [0.1.14]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.13...v0.1.14

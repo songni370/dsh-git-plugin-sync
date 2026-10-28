@@ -624,6 +624,101 @@ export const CSS = `
   opacity: 0.5;
   cursor: not-allowed;
 }
+.dgs-statusTiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+  gap: 8px;
+}
+.dgs-statusTile {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--dsw-alias-border-l1, #e5e7eb);
+  border-radius: 8px;
+  background: var(--dsw-alias-bg-layer-2, #f7f8fa);
+}
+.dgs-statusTileValue {
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--dsw-alias-label-primary, #1f2328);
+  font-variant-numeric: tabular-nums;
+}
+.dgs-statusTileLabel {
+  min-width: 0;
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--dsw-alias-label-secondary, #5c6570);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dgs-statusTileWarn .dgs-statusTileValue {
+  color: var(--dsw-alias-state-warn-primary, #b45309);
+}
+.dgs-statusTileError .dgs-statusTileValue {
+  color: var(--dsw-alias-state-error-primary, #dc2626);
+}
+.dgs-statusMeta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 20px;
+  min-width: 0;
+}
+.dgs-statusMetaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.dgs-statusMetaLabel {
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--dsw-alias-label-secondary, #5c6570);
+}
+.dgs-statusMetaValue {
+  display: block;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--dsw-alias-label-primary, #1f2328);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dgs-statusMetaValueWrap {
+  display: -webkit-box;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.dgs-statusConnection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.dgs-statusConnectionText {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 12px;
+  color: var(--dsw-alias-label-secondary, #5c6570);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dgs-statusMetaValueWrap .dgs-statusConnection {
+  display: block;
+}
+.dgs-statusMetaValueWrap .dgs-statusConnectionText {
+  display: inline;
+  white-space: normal;
+}
 .dgs-planSection {
   display: flex;
   flex-direction: column;
@@ -768,6 +863,10 @@ export const CSS = `
   .dgs-formRow {
     grid-template-columns: minmax(0, 1fr);
     gap: 4px;
+  }
+  .dgs-statusMeta {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
   }
   .dgs-formRowLabel {
     padding-top: 0;
