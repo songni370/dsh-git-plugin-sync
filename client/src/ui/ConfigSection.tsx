@@ -158,30 +158,26 @@ export function ConfigSection(props: ConfigSectionProps): ReactElement {
       <div id="dgs-config-body" hidden={!props.open}>
         <div className="dgs-formRows">
           <FormRow label={t('configRepoUrl')}>
-            <TextInput
-              id="dgs-config-repo"
-              value={form.repoUrl}
-              placeholder="https://github.com/you/dsh-plugins.git"
-              disabled={busy}
-              inputMode="url"
-              onChange={value => {
-                props.onChange({ repoUrl: value })
-              }}
-            />
-            <span className="dgs-formRowMeta">
-              {transport === 'none' ? (
-                <span className="dgs-formRowHint">{t('configRepoUrlHint')}</span>
-              ) : (
-                <>
-                  <Badge tone="idle">{meta.label}</Badge>
-                  {/* HTTPS is explained by its auth rows below; SSH/local/other
-                      are fully explained here so no second hint repeats them. */}
-                  {transport === 'https' ? null : (
-                    <span className="dgs-formRowHint">{meta.hint}</span>
-                  )}
-                </>
-              )}
-            </span>
+            <div className="dgs-inputWithBadge">
+              <TextInput
+                id="dgs-config-repo"
+                value={form.repoUrl}
+                placeholder="https://github.com/you/dsh-plugins.git"
+                disabled={busy}
+                inputMode="url"
+                onChange={value => {
+                  props.onChange({ repoUrl: value })
+                }}
+              />
+              {transport === 'none' ? null : <Badge tone="idle">{meta.label}</Badge>}
+            </div>
+            {transport === 'none' ? (
+              <span className="dgs-formRowHint">{t('configRepoUrlHint')}</span>
+            ) : transport === 'https' ? null : (
+              // HTTPS is explained by its auth rows below; SSH/local/other
+              // keep one short hint under the address.
+              <span className="dgs-formRowHint">{meta.hint}</span>
+            )}
           </FormRow>
 
           {transport === 'https' ? (

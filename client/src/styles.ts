@@ -162,6 +162,19 @@ export const CSS = `
   gap: 5px;
   min-width: 0;
 }
+.dgs-inputWithBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.dgs-inputWithBadge > .dgs-input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.dgs-inputWithBadge > .dgs-badge {
+  flex: none;
+}
 .dgs-formRowMeta {
   display: flex;
   align-items: center;
