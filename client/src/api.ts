@@ -76,19 +76,29 @@ export function errorText(error: unknown): string {
   return String(error)
 }
 
+/** How long one Host call may take before the UI reports a timeout. */
+const REQUEST_TIMEOUT_MS = 20_000
+
 /** POST one route and unwrap the Host envelope. */
 async function request<T>(route: string, body: unknown = {}): Promise<T> {
   let response: Response
+  // A hung route must surface as an error instead of an endless loading state.
+  const controller = new AbortController()
+  const timer = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
   try {
     response = await fetch(`${PREFIX}/${route}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(body ?? {}),
       credentials: 'same-origin',
+      signal: controller.signal,
     })
   } catch (error) {
-    // Offline, Host restarting, proxy dropped the connection.
-    throw new ApiRequestError('network', errorText(error))
+    // Offline, Host restarting, proxy dropped the connection, or our timeout.
+    const message = controller.signal.aborted ? '请求超时 / request timed out' : errorText(error)
+    throw new ApiRequestError(controller.signal.aborted ? 'timeout' : 'network', message)
+  } finally {
+    window.clearTimeout(timer)
   }
 
   let payload: ApiResult<T> | null = null

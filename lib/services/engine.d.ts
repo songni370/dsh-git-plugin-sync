@@ -81,6 +81,17 @@ export declare class SyncEngine {
     private readonly snapshots;
     private scanCache;
     private scanInFlight;
+    /**
+     * One prepared RepoStore per configuration.
+     *
+     * A RepoStore prepares once (clone/fetch/reset) and then reads the local work
+     * tree; creating a fresh store for every status poll made each poll run a
+     * full `fetch`+`reset`, so concurrent page requests raced on the same working
+     * tree and the settings page appeared to load forever. The key covers every
+     * setting that changes the remote or its auth, so a configuration change
+     * gets a fresh store.
+     */
+    private repoCache;
     private busy;
     private lastError;
     constructor(deps: EngineDeps);
@@ -158,6 +169,8 @@ export declare class SyncEngine {
     private planInput;
     /** Build the repository file set for one plan. */
     private buildRemoteFiles;
+    /** Return the cached store for this configuration, creating it on change. */
+    private repoFor;
     /** Read everything needed from the repository. */
     private readRemote;
     /** Read a repository state at one commit. */

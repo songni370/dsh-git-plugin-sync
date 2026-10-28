@@ -545,6 +545,8 @@ export interface RepoStore {
     prepare(options?: {
         signal?: AbortSignal;
     }): Promise<RepoPrepareResult>;
+    /** Whether this store instance already prepared (read-only local access is safe). */
+    prepared(): boolean;
     /** Read the root manifest, or null when the repository is empty. */
     readManifest(): Promise<Manifest | null>;
     /** Read one profile's shared state. */

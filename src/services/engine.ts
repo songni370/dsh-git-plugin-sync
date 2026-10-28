@@ -216,6 +216,17 @@ export class SyncEngine {
   private readonly snapshots: SnapshotService
   private scanCache: { at: number; profile: string; inventory: DeviceInventory } | null = null
   private scanInFlight: Promise<DeviceInventory> | null = null
+  /**
+   * One prepared RepoStore per configuration.
+   *
+   * A RepoStore prepares once (clone/fetch/reset) and then reads the local work
+   * tree; creating a fresh store for every status poll made each poll run a
+   * full `fetch`+`reset`, so concurrent page requests raced on the same working
+   * tree and the settings page appeared to load forever. The key covers every
+   * setting that changes the remote or its auth, so a configuration change
+   * gets a fresh store.
+   */
+  private repoCache: { key: string; store: RepoStore; workDir: string } | null = null
   private busy = false
   private lastError: string | null = null
 
@@ -259,7 +270,7 @@ export class SyncEngine {
     let read: RemoteRead = EMPTY_REMOTE
     let connection = state.connection
     if (config.repoUrl !== '') {
-      const { store, workDir } = this.deps.createRepo(config)
+      const { store, workDir } = this.repoFor(config)
       const hasLocalCopy = await fileExists(workDir)
       // Opening the settings page must not clone or fetch. Until a work tree
       // exists the remote side is simply unknown; only `refresh: true` (an
@@ -287,7 +298,7 @@ export class SyncEngine {
             authMethod: this.authMethod(config),
           }
         }
-      } else if (hasLocalCopy) {
+      } else if (hasLocalCopy && store.prepared()) {
         try {
           read = await this.readRemote(store, config, state.lastCommit)
         } catch {
@@ -376,7 +387,7 @@ export class SyncEngine {
     if (config.repoUrl.trim() === '') {
       throw new SyncError('not-configured', '请先填写 Git 仓库地址 / configure a repository URL first')
     }
-    const { store } = this.deps.createRepo(config)
+    const { store } = this.repoFor(config)
     const result = await store.testConnection()
     const state = await this.readState()
     state.connection = result
@@ -392,8 +403,10 @@ export class SyncEngine {
     let read: RemoteRead = EMPTY_REMOTE
     if (config.repoUrl !== '') {
       try {
-        const { store, workDir } = this.deps.createRepo(config)
-        if (await fileExists(workDir)) read = await this.readRemote(store, config, state.lastCommit)
+        const { store, workDir } = this.repoFor(config)
+        if ((await fileExists(workDir)) && store.prepared()) {
+          read = await this.readRemote(store, config, state.lastCommit)
+        }
       } catch {
         read = EMPTY_REMOTE
       }
@@ -487,7 +500,7 @@ export class SyncEngine {
         this.ensureConfigured(config)
         let state = await this.readState()
         state = await this.persistDeviceIfChanged(state, config)
-        const { store } = this.deps.createRepo(config)
+        const { store } = this.repoFor(config)
         const prepared = await store.prepare({ signal: options.signal })
         const local = await this.scanLocal(config, true)
         const read = await this.readRemote(store, config, prepared.head)
@@ -591,7 +604,7 @@ export class SyncEngine {
       const config = await this.readConfig()
       this.ensureConfigured(config)
       const state = await this.readState()
-      const { store } = this.deps.createRepo(config)
+      const { store } = this.repoFor(config)
       const prepared = await store.prepare({ signal: options.signal })
       const read = options.commit === undefined || options.commit === ''
         ? await this.readRemote(store, config, prepared.head)
@@ -626,7 +639,7 @@ export class SyncEngine {
       const config = await this.readConfig()
       this.ensureConfigured(config)
       const state = await this.readState()
-      const { store } = this.deps.createRepo(config)
+      const { store } = this.repoFor(config)
       const prepared = await store.prepare({ signal })
       const read = await this.readRemote(store, config, prepared.head)
       const local = await this.scanLocal(config)
@@ -645,7 +658,7 @@ export class SyncEngine {
         this.ensureConfigured(config)
         let state = await this.readState()
         state = await this.persistDeviceIfChanged(state, config)
-        const { store } = this.deps.createRepo(config)
+        const { store } = this.repoFor(config)
         const prepared = await store.prepare({ signal: options.signal })
         const local = await this.scanLocal(config, true)
         const read = await this.readRemote(store, config, prepared.head)
@@ -809,16 +822,13 @@ export class SyncEngine {
     const config = await this.readConfig()
     this.ensureConfigured(config)
     const state = await this.readState()
-    const { store, workDir } = this.deps.createRepo(config)
+    const { store, workDir } = this.repoFor(config)
     // No local copy yet: show an empty history instead of cloning on page
     // open. The first backup/restore/sync creates the work tree.
     if (!(await fileExists(workDir))) return { entries: [], lastOperation: state.lastOperation }
-    try {
-      await store.prepare({ signal: options.signal })
-    } catch (error) {
-      // A history view on an unreachable remote may still read the last clone.
-      if (!(await fileExists(workDir))) throw error
-    }
+    // A cached store is already prepared; only the first call in a process
+    // prepares (and that is what may touch the network), so opening the page
+    // does not fetch the remote on every request.
     const entries = await store.history({ limit: options.limit ?? 100, signal: options.signal })
     return { entries, lastOperation: state.lastOperation }
   }
@@ -996,6 +1006,22 @@ export class SyncEngine {
     })
   }
 
+  /** Return the cached store for this configuration, creating it on change. */
+  private repoFor(config: SyncConfig): { store: RepoStore; workDir: string } {
+    const key = [
+      config.repoUrl,
+      config.branch,
+      config.backupDir,
+      config.authMode,
+      config.tokenEnvVar,
+      config.username,
+    ].join('\u0000')
+    if (this.repoCache !== null && this.repoCache.key === key) return this.repoCache
+    const created = this.deps.createRepo(config)
+    this.repoCache = { key, ...created }
+    return this.repoCache
+  }
+
   /** Read everything needed from the repository. */
   private async readRemote(store: RepoStore, config: SyncConfig, head: string | null): Promise<RemoteRead> {
     let manifest: Manifest | null = null
@@ -1050,7 +1076,7 @@ export class SyncEngine {
         const config = await this.readConfig()
         this.ensureConfigured(config)
         const state = await this.readState()
-        const { store } = this.deps.createRepo(config)
+        const { store } = this.repoFor(config)
         const prepared = await store.prepare({ signal: options.signal })
         const read = options.commit === undefined || options.commit === ''
           ? await this.readRemote(store, config, prepared.head)
@@ -1192,7 +1218,7 @@ export class SyncEngine {
   private async resolveTarballSpec(spec: string, store: RepoStore): Promise<string> {
     const relative = spec.slice('backup-tarball:'.length)
     const config = await this.readConfig()
-    const workDir = this.deps.createRepo(config).workDir
+    const workDir = this.repoFor(config).workDir
     const { safeJoin } = await import('../core/paths.js')
     const absolute = safeJoin(workDir, relative.startsWith(config.backupDir) ? relative : `${config.backupDir === '' ? '' : `${config.backupDir}/`}${relative}`)
     if (!(await fileExists(absolute))) {
@@ -1206,7 +1232,7 @@ export class SyncEngine {
     const config = await this.readConfig()
     this.ensureConfigured(config)
     const state = await this.readState()
-    const { store } = this.deps.createRepo(config)
+    const { store } = this.repoFor(config)
     const prepared = await store.prepare({ signal })
     const read = await this.readRemote(store, config, prepared.head)
     const local = await this.scanLocal(config)

@@ -624,6 +624,8 @@ export interface GitRunResult {
 export interface RepoStore {
   /** Clone or refresh the work tree; returns the current HEAD commit. */
   prepare(options?: { signal?: AbortSignal }): Promise<RepoPrepareResult>
+  /** Whether this store instance already prepared (read-only local access is safe). */
+  prepared(): boolean
   /** Read the root manifest, or null when the repository is empty. */
   readManifest(): Promise<Manifest | null>
   /** Read one profile's shared state. */

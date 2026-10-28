@@ -1003,6 +1003,7 @@ export function createRepoStore(options: RepoStoreOptions): RepoStore {
 
   return {
     prepare,
+    prepared: () => preparedOnce,
     readManifest,
     readProfileState,
     readConfigs,
