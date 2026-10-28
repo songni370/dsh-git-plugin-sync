@@ -10,6 +10,16 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.19] - 2026-10-28
+
+### Fixed
+
+- **误报的「已被排除，未同步」警告**：`cordis:include`（DSH 加载器内部条目）与本插件自身（`dsh-git-plugin-sync`）按设计永不参与同步，但同步预览曾把它们当作“用户排除的插件”报警。现在只有用户在配置里明确加入排除列表的插件才会显示该警告；内置插件、DSH 内部条目、本插件及未启用的本地开发插件都静默跳过。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（17 个测试文件 / 222 个测试）通过；新增“内部/自身插件不产生排除警告”测试。
+
 ## [0.1.18] - 2026-10-28
 
 ### Fixed
@@ -298,7 +308,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.18...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.19...HEAD
+[0.1.19]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.18...v0.1.19
 [0.1.18]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.17...v0.1.18
 [0.1.17]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.16...v0.1.17
 [0.1.16]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.15...v0.1.16

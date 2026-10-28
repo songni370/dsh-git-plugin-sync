@@ -302,6 +302,11 @@ function toRemoteShim(state: PluginState): RemotePluginEntry {
   }
 }
 
+/** Whether the user explicitly excluded this plugin in the configuration. */
+function isUserExcluded(config: SyncConfig, state: PluginState): boolean {
+  return config.excludedPlugins.includes(state.id) || config.excludedPlugins.includes(state.name)
+}
+
 /** Whether a local state can be installed elsewhere. */
 function isRestorable(state: PluginState): boolean {
   if (state.builtIn) return false
@@ -351,7 +356,12 @@ export function planBackup(input: PlanInput): SyncPlan {
     const remote = input.remote[id] ?? null
     const base = input.base[id] ?? null
     if (local !== null && (local.builtIn || !local.syncable)) {
-      if (!local.builtIn) warnings.push(`插件 ${local.name} 已被排除，未备份 / plugin excluded from backup`)
+      // Only a plugin the USER excluded deserves a warning. Built-in rows,
+      // DSH loader internals (cordis:*) and this plugin itself are marked
+      // non-syncable by design and would otherwise look like user mistakes.
+      if (!local.builtIn && isUserExcluded(input.config, local)) {
+        warnings.push(`插件 ${local.name} 已被排除，未备份 / plugin excluded from backup`)
+      }
       continue
     }
     if (local !== null) {
@@ -530,7 +540,9 @@ export function planSync(input: PlanInput): SyncPlan {
     const base = input.base[id] ?? null
     const meta = input.remoteMeta[id]
     if (local !== null && (local.builtIn || !local.syncable)) {
-      if (!local.builtIn) warnings.push(`插件 ${local.name} 已被排除，未同步 / plugin excluded from sync`)
+      if (!local.builtIn && isUserExcluded(input.config, local)) {
+        warnings.push(`插件 ${local.name} 已被排除，未同步 / plugin excluded from sync`)
+      }
       continue
     }
     if (remote !== null && (remote.builtIn || !remote.syncable)) continue

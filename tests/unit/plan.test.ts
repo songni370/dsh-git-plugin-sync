@@ -89,8 +89,9 @@ describe('backup plan', () => {
     expect(plan.diffs[0]?.kind).toBe('deleted-remote')
   })
 
-  it('skips built-in and excluded plugins', () => {
+  it('skips built-in and user-excluded plugins', () => {
     const plan = planBackup(input({
+      config: { ...input().config, excludedPlugins: ['excluded'] },
       local: {
         official: plugin('official', { builtIn: true }),
         excluded: plugin('excluded', { syncable: false }),
@@ -98,6 +99,17 @@ describe('backup plan', () => {
     }))
     expect(plan.actions).toHaveLength(0)
     expect(plan.warnings.join('\n')).toContain('excluded')
+  })
+
+  it('does not warn about internal/self plugins that are non-syncable by design', () => {
+    const plan = planBackup(input({
+      local: {
+        internal: plugin('cordis:include', { syncable: false }),
+        self: plugin('dsh-git-plugin-sync', { syncable: false }),
+      },
+    }))
+    expect(plan.actions).toHaveLength(0)
+    expect(plan.warnings).toEqual([])
   })
 })
 
