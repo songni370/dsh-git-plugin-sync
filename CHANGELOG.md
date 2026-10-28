@@ -72,9 +72,5 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-<!-- 发布到 GitHub 后把 <owner> 替换成实际仓库所有者，并取消下面两行的注释。
-     Replace <owner> with the real repository owner once the GitHub repository exists.
-
-[Unreleased]: https://github.com/<owner>/dsh-git-plugin-sync/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/<owner>/dsh-git-plugin-sync/releases/tag/v0.1.0
--->
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/songni370/dsh-git-plugin-sync/releases/tag/v0.1.0

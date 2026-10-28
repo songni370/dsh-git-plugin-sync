@@ -95,7 +95,7 @@ DSH 插件装得越多，「换台电脑重新装一遍」就越痛苦：插件�
 在仓库根目录先构建，再把本地目录交给插件管理器：
 
 ```bash
-git clone https://github.com/<owner>/dsh-git-plugin-sync.git
+git clone https://github.com/songni370/dsh-git-plugin-sync.git
 cd dsh-git-plugin-sync
 npm ci
 npm run build          # 生成 lib/（Host 半 + lib/client.js 浏览器半）
@@ -535,7 +535,7 @@ npm pack --dry-run     # 检查实际打包文件列表（会先执行 prepack =
 
 ## 16. 发布
 
-发布分三件事，详见 [docs/PUBLISHING.md](docs/PUBLISHING.md)。**当前这个仓库还没有配置 git remote，也尚未执行过 `npm publish`**，所以下文所有 GitHub 地址都用 `<owner>` 占位，npm 安装说明也以「发布之后」为前提；第一版请先从本地目录安装（见 [4.2](#42-从本地开发目录安装)）或先按发布文档发布。
+发布分三件事，详见 [docs/PUBLISHING.md](docs/PUBLISHING.md)。**代码已发布到 [github.com/songni370/dsh-git-plugin-sync](https://github.com/songni370/dsh-git-plugin-sync)，但尚未执行 `npm publish`**，因此 npm 安装说明以「发布之后」为前提；第一版请先从 GitHub 克隆后按 [4.2](#42-从本地开发目录安装) 从本地目录安装，或先按发布文档发布到 npm。
 
 1. **发布到 GitHub**：创建仓库、推送 `main`、打 `v0.1.0` 标签、创建 Release；
 2. **发布到 npm**：`npm publish`（`prepack` 会先 `clean` + `build`；发布前用 `npm pack --dry-run` 检查文件列表与体积）；

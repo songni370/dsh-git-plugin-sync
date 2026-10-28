@@ -23,19 +23,19 @@ This is the release manual: GitHub, npm, the DSH plugin market, and the versioni
 
 ### 1.1 创建仓库
 
-> **当前状态**：这个 checkout **没有配置任何 git remote**，也**没有执行过 `npm publish`**；文档里的 `<owner>` 都是占位符。先完成下面的创建/发布步骤，再回填实际地址。
+> **当前状态**：源码已推送到 `git@github.com:songni370/dsh-git-plugin-sync.git`（`main` 分支 + `v0.1.0` 标签），但**尚未执行 `npm publish`**。下文 GitHub 地址使用实际所有者 `songni370`，npm 安装说明以「发布之后」为前提。
 
 1. 在 GitHub 上创建仓库 `dsh-git-plugin-sync`（Public，MIT；如果暂时不公开可以先 Private，注意 `private` 会影响别人通过 npm 页面看到源码链接）。
 2. **不要**勾选初始化 README / .gitignore / license（仓库里已经有了）。
 3. 绑定远程并推送 `main`：
 
    ```bash
-   git remote add origin git@github.com:<owner>/dsh-git-plugin-sync.git
+   git remote add origin git@github.com:songni370/dsh-git-plugin-sync.git
    git branch -M main
    git push -u origin main
    ```
 
-   如果是 HTTPS 认证，把地址换成 `https://github.com/<owner>/dsh-git-plugin-sync.git`。
+   如果是 HTTPS 认证，把地址换成 `https://github.com/songni370/dsh-git-plugin-sync.git`。
 
 4. 确认 CI 通过：`.github/workflows/ci.yml` 会在 `ubuntu-latest` / `macos-latest` / `windows-latest`、Node 22 与 24 上执行 `npm ci`、`npm run typecheck`、`npm run build`、`npm test`（单元 + 集成 + `tests/client` 渲染测试），并在 Node 24 上额外执行 `npm pack --dry-run`。
 
@@ -64,7 +64,7 @@ Release 里可以附上 `npm pack` 产物 `dsh-git-plugin-sync-0.1.0.tgz`（可�
 ### 1.3 发布后
 
 - 在 README 顶部补上 GitHub 链接（仓库地址确定后）；
-- 确认 `CHANGELOG.md` 底部的 `[0.1.0]` 比较链接里的 `<owner>` 已替换；
+- `CHANGELOG.md` 底部的 `[0.1.0]` 比较链接已指向 `songni370/dsh-git-plugin-sync`；
 - 打开 Issues / Discussions / Security Advisories（漏洞报告用，见 [SECURITY.md](SECURITY.md#9-漏洞报告--reporting-a-vulnerability)）。
 
 ## 2. 发布到 npm
@@ -176,7 +176,7 @@ npm publish --access public
 2. 打开精选列表仓库 `https://github.com/awesome-dsh-plugin/awesome-dsh-plugin`，阅读它的贡献说明 / 条目模板（**以该仓库的 `CONTRIBUTING`/README 为准**；本文不复制一个可能过期的模板）。
 3. Fork 该仓库，在插件列表中添加**一条**条目，包含：
    - 插件名称：`dsh-git-plugin-sync`；
-   - 仓库 URL：`https://github.com/<owner>/dsh-git-plugin-sync`；
+   - 仓库 URL：`https://github.com/songni370/dsh-git-plugin-sync`；
    - npm 包名：`dsh-git-plugin-sync`；
    - 分类（category）：建议 `git`（Git & Code Review）或按列表分类里的实际 id 选择；
    - 中英文描述（`description` 支持按语言提供，见 3.3）；

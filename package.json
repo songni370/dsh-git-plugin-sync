@@ -14,7 +14,7 @@
     "plugins"
   ],
   "license": "MIT",
-  "author": "dsh-git-plugin-sync contributors",
+  "author": "songni370",
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -80,5 +80,13 @@
     "react-dom": "^18.3.1",
     "typescript": "^5.9.3",
     "vitest": "^5.0.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/songni370/dsh-git-plugin-sync.git"
+  },
+  "homepage": "https://github.com/songni370/dsh-git-plugin-sync#readme",
+  "bugs": {
+    "url": "https://github.com/songni370/dsh-git-plugin-sync/issues"
   }
 }

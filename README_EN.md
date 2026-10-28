@@ -95,7 +95,7 @@ Once published to npm, install `dsh-git-plugin-sync` through DSH's plugin manage
 Build in the repository root first, then hand the directory to the plugin manager:
 
 ```bash
-git clone https://github.com/<owner>/dsh-git-plugin-sync.git
+git clone https://github.com/songni370/dsh-git-plugin-sync.git
 cd dsh-git-plugin-sync
 npm ci
 npm run build          # produces lib/ (host half + lib/client.js browser half)
@@ -535,7 +535,7 @@ npm pack --dry-run     # inspect the actual packed file list (runs prepack = cle
 
 ## 16. Publishing
 
-Publishing is three things; see [docs/PUBLISHING.md](docs/PUBLISHING.md) for the full process. **This checkout currently has no git remote configured and has never been `npm publish`ed**, so every GitHub address below uses an `<owner>` placeholder and the npm instructions assume a previous publish; for the first version, install from the local directory ([4.2](#42-install-from-a-local-development-directory)) or follow the publishing guide first.
+Publishing is three things; see [docs/PUBLISHING.md](docs/PUBLISHING.md) for the full process. **The source is published at [github.com/songni370/dsh-git-plugin-sync](https://github.com/songni370/dsh-git-plugin-sync) but has not been `npm publish`ed yet**, so the npm instructions assume a previous publish; for the first version, clone from GitHub and install from the local directory ([4.2](#42-install-from-a-local-development-directory)), or follow the publishing guide first.
 
 1. **Publish to GitHub**: create the repository, push `main`, tag `v0.1.0`, create a Release;
 2. **Publish to npm**: `npm publish` (`prepack` runs `clean` + `build` first; inspect the file list and size with `npm pack --dry-run` before publishing);
