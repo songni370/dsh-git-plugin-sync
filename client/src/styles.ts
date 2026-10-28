@@ -136,8 +136,117 @@ export const CSS = `
   gap: 12px 16px;
   align-items: start;
 }
-.dgs-formActions {
+.dgs-formRows {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.dgs-formRow {
+  display: grid;
+  grid-template-columns: 116px minmax(0, 1fr);
+  gap: 4px 16px;
+  align-items: start;
+  min-width: 0;
+}
+.dgs-formRowLabel {
+  padding-top: 7px;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+  color: var(--dsw-alias-label-secondary, #5c6570);
+}
+.dgs-formRowControl {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+.dgs-formRowMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.dgs-formRowHint {
+  font-size: 12px;
+  line-height: 17px;
+  color: var(--dsw-alias-label-secondary, #5c6570);
+}
+.dgs-segmented {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  width: fit-content;
+  max-width: 100%;
+  border: 1px solid var(--dsw-alias-border-l1, #e1e5ee);
+  border-radius: 8px;
+  background: var(--dsw-alias-bg-layer-2, #f7f8fa);
+}
+.dgs-segmented > button {
+  height: 26px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--dsw-alias-label-secondary, #5c6570);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
+}
+.dgs-segmented > button:hover {
+  color: var(--dsw-alias-label-primary, #1f2328);
+}
+.dgs-segmented > button[aria-checked='true'] {
+  background: var(--dsw-alias-bg-layer-1, #ffffff);
+  color: var(--dsw-alias-label-primary, #1f2328);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+}
+.dgs-segmented > button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.dgs-advanced {
   margin-top: 2px;
+  padding-top: 10px;
+  border-top: 1px solid var(--dsw-alias-border-l1, #e5e7eb);
+}
+.dgs-advancedToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  color: var(--dsw-alias-label-secondary, #5c6570);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  cursor: pointer;
+}
+.dgs-advancedToggle svg {
+  transition: transform 150ms ease;
+}
+.dgs-advancedToggle[aria-expanded='true'] svg {
+  transform: rotate(180deg);
+}
+.dgs-advancedToggle:hover {
+  color: var(--dsw-alias-label-primary, #1f2328);
+}
+.dgs-advancedBody {
+  padding-top: 12px;
+}
+.dgs-formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
 }
 .dgs-field {
   display: flex;
@@ -642,6 +751,13 @@ export const CSS = `
   .dgs-grid {
     grid-template-columns: minmax(0, 1fr);
     gap: 12px;
+  }
+  .dgs-formRow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+  .dgs-formRowLabel {
+    padding-top: 0;
   }
 }
 @media (max-width: 520px) {

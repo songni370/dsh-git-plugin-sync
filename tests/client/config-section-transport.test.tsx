@@ -87,6 +87,18 @@ describe('repository card transport fields', () => {
     expect(html).not.toContain('id="dgs-config-username"')
   })
 
+  it('secondary options are collapsed on a configured card', () => {
+    const html = render('https://github.com/songni370/dsh-git-plugin-sync.git', 'credential-helper')
+    expect(html).toContain('高级设置')
+    expect(html).toContain('id="dgs-config-advanced" class="dgs-formRows dgs-advancedBody" hidden')
+  })
+
+  it('secondary options are expanded on a fresh card', () => {
+    const html = render('', 'credential-helper')
+    expect(html).toContain('高级设置')
+    expect(html).toContain('id="dgs-config-advanced" class="dgs-formRows dgs-advancedBody"><')
+  })
+
   it('empty address: nothing auth-related is shown before detection', () => {
     const html = render('', 'credential-helper')
     expect(html).not.toContain('id="dgs-config-auth"')
@@ -107,7 +119,7 @@ describe('repository card transport fields', () => {
   it('local: no auth selector or credential fields', () => {
     const html = render('/tmp/backup.git', 'credential-helper')
     expect(html).toContain('本地仓库')
-    expect(html).toContain('file://')
+    expect(html).toContain('本地仓库无需认证')
     expect(html).not.toContain('id="dgs-config-auth"')
     expect(html).not.toContain('id="dgs-config-token-env"')
   })

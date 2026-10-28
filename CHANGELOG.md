@@ -10,6 +10,20 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.13] - 2026-10-28
+
+### Changed
+
+- **重做「仓库配置」为简洁的设置行布局**（参考宿主设置页与 Git 配置类产品的常见做法：左侧标签、右侧控件、辅助说明只留一行、次要项渐进披露）：
+  - 默认只显示「仓库地址」与（HTTPS 时的）「认证方式」；认证方式改为紧凑的分段控件（凭据助手 / HTTPS 令牌），选令牌时才出现令牌变量与用户名；
+  - 「分支 / 备份目录 / 设备名称 / Profile」收进「高级设置」折叠区：已配置设备默认收起，未配置/刚安装默认展开；
+  - 地址下方用一行徽标+短说明展示识别结果，不再有大段提示；整体行距、控件高度与宿主设置页一致（32px 输入框、12px 行距）；
+  - 保存/测试按钮右对齐，放在表单末尾。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（17 个测试文件 / 220 个测试）通过；新增“已配置时高级设置收起 / 新配置展开”测试。
+
 ## [0.1.12] - 2026-10-28
 
 ### Changed
@@ -225,7 +239,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.12...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.13...HEAD
+[0.1.13]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.12...v0.1.13
 [0.1.12]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.9...v0.1.10
