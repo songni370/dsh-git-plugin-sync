@@ -28,6 +28,9 @@ const result = await build({
   platform: 'browser',
   target: ['es2022'],
   jsx: 'automatic',
+  // Keep the zh/en dictionaries readable in the emitted artifact: the host
+  // serves UTF-8, and a searchable label makes the generated file debuggable.
+  charset: 'utf8',
   sourcemap: false,
   minify: false,
   legalComments: 'none',

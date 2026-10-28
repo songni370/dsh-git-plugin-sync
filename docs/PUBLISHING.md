@@ -142,7 +142,7 @@ npm publish --access public
   node -e "import('dsh-git-plugin-sync').then(m => console.log(m.name, typeof m.apply))"
   ```
 
-- 然后在本机 DSH 里用插件管理器安装 `dsh-git-plugin-sync`（`plugin_manager` 的 `install_bundle`），确认插件清单里出现标题/描述/图标，设置页出现「Git 同步」分区并能测试连接。**只有观察到这两点，才算安装验证通过。**
+- 然后在本机 DSH 里用插件管理器安装 `dsh-git-plugin-sync`（`plugin_manager` 的 `install_bundle`），确认插件清单里出现标题/描述/图标，设置页出现「插件备份」分区并能测试连接。**只有观察到这两点，才算安装验证通过。**
 
 ### 2.5 发错了怎么办
 
@@ -231,7 +231,7 @@ DSH 0.2.1 起，市场说明里给出的入口是：**插件 → 发现（Discov
 ## 5. 发布后回归检查
 
 1. 在一台**干净**的设备（或新的 DSH Profile）上通过插件管理器安装 `dsh-git-plugin-sync`；
-2. 设置里出现「Git 同步」，标题/描述/图标正确（中英文都检查）；
+2. 设置里出现「插件备份」，标题/描述/图标正确（中英文都检查）；
 3. 用一个**新的私有空仓库**跑完整流程：测试连接 → 备份 → 在第二个 Profile/设备恢复 → 同步 → 历史回滚；
 4. 确认仓库里没有秘密与绝对路径（`git log -p` 抽查，或按 [SECURITY.md](SECURITY.md#7-永远不会上传的内容) 的清单检查）；
 5. 确认市场/索引源能搜到并安装该版本（若已收录）。

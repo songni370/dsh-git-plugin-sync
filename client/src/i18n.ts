@@ -22,7 +22,7 @@ export type Vars = Record<string, string | number>
 
 /** Chinese dictionary (source of truth for the key set). */
 export const zh: Record<string, string> = {
-  nav: 'DSH 插件 Git 同步',
+  nav: '插件备份',
 
   intro: '通过 Git 仓库备份、恢复并跨设备同步 DSH 插件与配置。',
   loading: '加载中…',
@@ -246,7 +246,7 @@ export const zh: Record<string, string> = {
 
 /** English dictionary; every {@link zh} key must appear here. */
 export const en: Record<string, string> = {
-  nav: 'DSH Plugin Git Sync',
+  nav: 'Plugin Backup',
 
   intro: 'Back up, restore, and synchronize DSH plugins and configurations across devices through a Git repository.',
   loading: 'Loading…',

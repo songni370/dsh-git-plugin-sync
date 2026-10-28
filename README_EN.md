@@ -53,7 +53,7 @@ The backup is readable, diffable, rollback-friendly JSON. Commits carry `Operati
 | --- | --- |
 | Plugin display name (Chinese) | DSH 插件 Git 同步 |
 | Plugin display name (English) | DSH Plugin Git Sync |
-| Settings navigation label | "Git 同步" / "Git Sync" |
+| Settings navigation label | "插件备份" / "Plugin Backup" |
 | npm package / GitHub repository | `dsh-git-plugin-sync` |
 | Backup manifest schema version | `1` |
 
@@ -68,7 +68,7 @@ The backup is readable, diffable, rollback-friendly JSON. Commits carry `Operati
 | **Version management** | This plugin only does **"sync the version"**: make the device match the version recorded in the repository (up or down; a downgrade is destructive and requires confirmation). It **does not** look up the latest version or perform a "version upgrade" for you — upgrade through the DSH plugin manager/market, and the next backup records the new version so other devices upgrade to it on their next sync. |
 | **History and rollback** | Pick any commit from the repository history and restore the device to the state recorded in that commit (a local snapshot is taken first). |
 | **Automatic sync** | Off by default. Supports an interval timer, a check after startup, and change-triggered syncs. Automatic runs **pause and wait** on conflicts or destructive plans: no prompts, no silent deletions. Includes debounce, mutual exclusion, cooldown, and failure backoff. |
-| **Settings page** | Settings → "Git Sync": status, repository configuration, manual operations, plugin list and exclusions, automatic sync, history. Status polls every 5 seconds; destructive operations always show a preview confirmation first. |
+| **Settings page** | Settings → "Plugin Backup": status, repository configuration, manual operations, plugin list and exclusions, automatic sync, history. Status polls every 5 seconds; destructive operations always show a preview confirmation first. |
 | **Agent tools** | Six read-only/read-write tools that call the same engine as the settings page. Destructive operations are two-phase (preview first, then execute). |
 | **Security** | No secrets, tokens, passwords, private keys, or cookies are uploaded; no machine absolute paths; only whitelisted non-secret configuration; never force-push; snapshot before restore; logs and Git errors are redacted. |
 
@@ -116,7 +116,9 @@ Then call `plugin_manager`'s `install_bundle` with the **absolute path** of that
 
 ### 4.3 Where to find it after installation
 
-Open the DSH settings window and select the "**Git Sync**" section (the plugin itself is listed in the plugin inventory as "DSH 插件 Git 同步 / DSH Plugin Git Sync"). The page shows sync status at the top, followed by repository configuration, operations, the plugin list, automatic sync, and history.
+Open the DSH settings window and select the "**Plugin Backup**" section (the plugin itself is listed in the plugin inventory as "DSH 插件 Git 同步 / DSH Plugin Git Sync"). The page shows sync status at the top, followed by repository configuration, operations, the plugin list, automatic sync, and history.
+
+**Usable from both the web page and the desktop client**: the host half (scanning, Git, agent tools, automatic sync) and the browser half (settings page) are one code base. The DSH Desktop client window and a DSH page opened in a browser both load the Web client platform, so the settings page appears in both; the agent tools and automatic sync also work in a headless `dsh` session with no UI. The plugin is installed per Profile: if you also use another Profile (for example `dsh web --profile web`), install it there once more; each Profile's inventory is written to its own `profiles/<profile>/` directory in the same backup repository, without overwriting the other.
 
 > If the section is missing from Settings: confirm the current profile has a Web/Desktop UI, the plugin is enabled, and the host provides the `connection` service; check the host log for "Web 设置页不可用：缺少 connection 服务" (settings page unavailable: no connection service).
 
@@ -198,7 +200,7 @@ Restore boundaries (important):
 
 1. Install DSH and this plugin on device B (see [Installation](#4-installation)).
 2. Make sure device B's DSH process environment has the token variable (if device A used `https-token`), or has SSH keys / a credential helper configured.
-3. Open Settings → "Git Sync", enter the **same repository URL and branch**, choose the authentication method, click "Test connection".
+3. Open Settings → "Plugin Backup", enter the **same repository URL and branch**, choose the authentication method, click "Test connection".
 4. Save the configuration.
 5. Click "Restore from Git" → review the preview: it should list "install N plugins" and similar steps; skipped plugins explain why (for example "no install source recorded").
 6. Confirm and wait for the result; restart DSH if the host says so (`application: restart-required` means installed but not active until restart).
@@ -455,7 +457,7 @@ Honest boundaries of v0.1.0:
 
 ## 14. Troubleshooting
 
-Start with "Last error" and the history in Settings → "Git Sync", then inspect `$DSH_HOME/dsh-git-plugin-sync/sync.log` (already redacted). Common error codes:
+Start with "Last error" and the history in Settings → "Plugin Backup", then inspect `$DSH_HOME/dsh-git-plugin-sync/sync.log` (already redacted). Common error codes:
 
 | Symptom / error code | Common cause | Fix |
 | --- | --- | --- |
@@ -473,7 +475,7 @@ Start with "Last error" and the history in Settings → "Git Sync", then inspect
 | `install-failed` | The plugin manager failed to install (missing package, unreachable registry, invalid spec) | Check `application` and the message in the result; a failing step does not abort the rest. When build scripts are needed, approve them in the plugin manager. |
 | `repo-empty` / nothing to restore on first restore | The repository holds no backup data yet (new repository/branch) | Run "Back up to Git" on the source device first. |
 | DSH version shows `unknown` in status/history | The runtime exposes neither the application bundle (`resources/app.asar/package.json`) nor `@deepseek-ai/dsh` in the profile | Does not affect synchronization; device ID and plugin version still work. Confirm how DSH was installed and restart. |
-| No "Git Sync" in Settings | The profile has no Web/Desktop UI, the plugin is disabled, the host is too old, or the `connection` service is missing | Check the host log for "settings page unavailable"; upgrade/switch profile; agent tools can cover most operations. |
+| No "Plugin Backup" in Settings | The profile has no Web/Desktop UI, the plugin is disabled, the host is too old, or the `connection` service is missing | Check the host log for "settings page unavailable"; upgrade/switch profile; agent tools can cover most operations. |
 | Plugins restored but not active | `application: restart-required` (the host needs a restart) | Restart DSH as the host instructs. |
 | Remote changes exist but "check on startup" did not sync | The startup check is read-only (logs only) | Enable timer/change-triggered automatic sync, or click "Sync now". |
 
@@ -535,7 +537,7 @@ npm pack --dry-run     # inspect the actual packed file list (runs prepack = cle
 
 1. `npm run build`;
 2. Point `plugin_manager`'s `install_bundle` at this repository directory, or copy it into the profile's `node_modules` and enable it the way the host expects;
-3. Restart DSH (or refresh the page as instructed) and confirm in Settings → "Git Sync" that the page appears, configuration saves, and "Test connection" succeeds;
+3. Restart DSH (or refresh the page as instructed) and confirm in Settings → "Plugin Backup" that the page appears, configuration saves, and "Test connection" succeeds;
 4. Rehearse backup/restore against a **throwaway private test repository** (a local bare repository is recommended: `git init --bare /tmp/backup.git`, and put `/tmp/backup.git` in the repository URL field).
 
 > A local-directory install links the working copy, so the `files` field does not apply: rebuild and restart the host to load new host/browser code.

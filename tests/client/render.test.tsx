@@ -12,7 +12,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { Page } from '../../client/src/ui/Page'
-import { createTranslate, zh } from '../../client/src/i18n'
+import { createTranslate, en, zh } from '../../client/src/i18n'
 import type { HistoryResponse, PluginListResponse, StatusPayload } from '../../src/http/api-types'
 
 const t = createTranslate(key => zh[key] ?? key)
@@ -176,6 +176,12 @@ async function settle(): Promise<void> {
 }
 
 describe('settings page render', () => {
+  it('registers the settings menu label as 插件备份 / Plugin Backup', () => {
+    expect(zh.nav).toBe('插件备份')
+    expect(en.nav).toBe('Plugin Backup')
+    expect(createTranslate(key => (key === 'nav' ? 'Plugin Backup' : key))('nav')).toBe('Plugin Backup')
+  })
+
   it('mounts and renders the repository configuration', async () => {
     await settle()
     expect(container.textContent).toContain('仓库配置')

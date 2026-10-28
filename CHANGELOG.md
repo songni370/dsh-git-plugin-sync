@@ -10,6 +10,18 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.1] - 2026-10-28
+
+### Changed
+
+- **设置页菜单名称**由「DSH 插件 Git 同步」改为「插件备份」（英文界面为 “Plugin Backup”）。插件清单中的显示名称仍是「DSH 插件 Git 同步 / DSH Plugin Git Sync」，`name`、包名与仓库名不变。
+- **明确网页端与客户端可用性**：同一套宿主半（扫描、Git、Agent 工具、自动同步）与 Web 客户端半（设置页）在 DSH Desktop 客户端窗口、浏览器打开的 DSH 页面以及无 UI 的 headless 会话中均可用；插件按 Profile 安装，同一备份仓库按 `profiles/<profile>/` 分开保存各 Profile 的清单。
+- 文档同步更新菜单名称，并新增「网页端 / 客户端」可用性说明。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（13 个测试文件 / 191 个测试）通过；客户端渲染测试断言菜单文案为「插件备份」。
+
 ## [0.1.0] - 2026-10-28
 
 首个公开版本，**在 DSH 0.2.1-rc.3 上实测**（First public release, **verified on DSH 0.2.1-rc.3**）。
@@ -73,5 +85,6 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/songni370/dsh-git-plugin-sync/releases/tag/v0.1.0
