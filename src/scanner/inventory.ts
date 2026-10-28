@@ -16,7 +16,7 @@
 
 import { lstat, readFile, realpath } from 'node:fs/promises'
 import { isAbsolute, join, resolve } from 'node:path'
-import { MANIFEST_SCHEMA_VERSION, NPM_NAME_PATTERN } from '../constants.js'
+import { MANIFEST_SCHEMA_VERSION, NPM_NAME_PATTERN, PACKAGE_NAME } from '../constants.js'
 import { SyncError, errorMessage } from '../core/errors.js'
 import { expandHomePath } from '../core/paths.js'
 import { redactGitUrl } from '../core/redact.js'
@@ -327,6 +327,11 @@ function computeSyncable(args: {
   context: ScanContext
 }): boolean {
   if (args.builtIn) return false
+  // This plugin is the backup tool itself: never back it up into its own
+  // repository (self-sync would resurrect it on other devices unexpectedly).
+  if (args.name === PACKAGE_NAME) return false
+  // DSH loader internals are not installable plugins.
+  if (args.name.startsWith('cordis:')) return false
   if (args.context.excluded.includes(args.id) || args.context.excluded.includes(args.name)) return false
   if (args.origin === 'local-path') return args.context.includeLocalPlugins
   if (args.origin === 'official' || args.origin === 'unknown') return false

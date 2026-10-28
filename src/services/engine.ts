@@ -9,6 +9,7 @@
  * @module services/engine
  */
 
+import { PACKAGE_NAME } from '../constants.js'
 import { compareVersions } from '../core/version.js'
 import { SyncError, errorMessage, toSyncError } from '../core/errors.js'
 import { displayPath } from '../core/paths.js'
@@ -407,10 +408,19 @@ export class SyncEngine {
       // A malformed remote must not break the local plugin list.
     }
     const ids = [...new Set([...Object.keys(localMap), ...Object.keys(remoteMap)])]
-      // Built-in/official plugins are inventory-only: they are never installed
-      // or removed by this plugin, so they do not belong in the selectable
-      // list (and a full profile would otherwise render 200+ dead rows).
-      .filter(id => !(localMap[id]?.builtIn ?? false) && !(remoteMap[id]?.builtIn ?? false))
+      // Only user-installed third-party plugins belong in the selectable
+      // list: DSH built-ins are inventory-only, the DSH loader's internal
+      // `cordis:*` entries are not installable plugins, and this plugin never
+      // backs itself up (avoiding a self-sync loop).
+      .filter(id => {
+        const local = localMap[id]
+        const remote = remoteMap[id]
+        if ((local?.builtIn ?? false) || (remote?.builtIn ?? false)) return false
+        const name = local?.name ?? remote?.name ?? id
+        if (name === PACKAGE_NAME) return false
+        if (name.startsWith('cordis:')) return false
+        return true
+      })
       .sort()
     const rows: PluginListRow[] = ids.map(id => {
       const localState = localMap[id]

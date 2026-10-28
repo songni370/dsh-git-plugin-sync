@@ -12,6 +12,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { Page } from '../../client/src/ui/Page'
+import { resetPluginsTabVisibility } from '../../client/src/plugins-tab-visibility'
 import { createTranslate, en, zh } from '../../client/src/i18n'
 import type { HistoryResponse, PluginListResponse, StatusPayload } from '../../src/http/api-types'
 
@@ -148,6 +149,7 @@ let container: HTMLDivElement
 let root: Root
 
 beforeEach(async () => {
+  resetPluginsTabVisibility()
   installFetchMock()
   container = document.createElement('div')
   document.body.appendChild(container)
@@ -183,7 +185,8 @@ describe('settings page render', () => {
     // Plugins-page tab and the settings-page shortcut label.
     expect(zh.tab).toBe('备份')
     expect(en.tab).toBe('Backup')
-    expect(zh.openInPlugins).toBe('在插件页打开')
+    expect(zh.tabVisibilityTitle).toBe('配置页面展示')
+    expect(zh.tabVisibilityLabel).toContain('备份')
   })
 
   it('mounts and renders the repository configuration', async () => {
@@ -198,6 +201,17 @@ describe('settings page render', () => {
     expect(text).toContain('通过 Git 仓库备份、恢复并跨设备同步 DSH 插件与配置。')
     expect(text).toContain('dsh-context')
     expect(text).toContain('有待上传变更')
+  })
+
+  it('shows the 配置页面展示 switch and persists switching the Plugins tab off', async () => {
+    await settle()
+    const switchButton = container.querySelector('[role="switch"][aria-label="在「插件」页面显示「备份」标签页"]')
+    expect(switchButton).not.toBeNull()
+    expect(container.textContent).toContain('配置页面展示')
+    await act(async () => {
+      switchButton?.dispatchEvent(new window.MouseEvent('click', { bubbles: true }))
+    })
+    expect(localStorage.getItem('dsh-git-plugin-sync.plugins-tab')).toBe('0')
   })
 
   it('opens the confirmation dialog with the destructive plan from the Host', async () => {

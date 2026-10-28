@@ -27,19 +27,6 @@ export const CSS = `
   font-size: 14px;
   line-height: 22px;
 }
-.dgs-pageHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-.dgs-pageHeader .dgs-intro {
-  margin-bottom: 12px;
-}
-.dgs-pageHeader button {
-  flex: none;
-  margin-top: 2px;
-}
 .dgs-intro {
   margin: 0;
   font-size: 12px;

@@ -24,7 +24,9 @@ export type Vars = Record<string, string | number>
 export const zh: Record<string, string> = {
   nav: '插件备份',
   tab: '备份',
-  openInPlugins: '在插件页打开',
+  tabVisibilityTitle: '配置页面展示',
+  tabVisibilityLabel: '在「插件」页面显示「备份」标签页',
+  tabVisibilityHint: '关闭后只保留设置里的「插件备份」入口；已打开的备份标签会被移除。',
 
   intro: '通过 Git 仓库备份、恢复并跨设备同步 DSH 插件与配置。',
   loading: '加载中…',
@@ -178,7 +180,7 @@ export const zh: Record<string, string> = {
 
   // Plugin list.
   pluginsTitle: '插件列表',
-  pluginsDesc: '本机与仓库中的插件及其同步状态。取消勾选会把该插件加入排除列表，之后不再同步。',
+  pluginsDesc: '仅列出用户安装的第三方插件（DSH 内置插件不参与备份）。取消勾选会把该插件加入排除列表，之后不再同步。',
   pluginsCount: '共 {count} 个插件',
   pluginsEmpty: '本机与仓库中都没有插件。',
   pluginsNoMatch: '没有匹配的插件。',
@@ -250,7 +252,9 @@ export const zh: Record<string, string> = {
 export const en: Record<string, string> = {
   nav: 'Plugin Backup',
   tab: 'Backup',
-  openInPlugins: 'Open in Plugins page',
+  tabVisibilityTitle: 'Page display',
+  tabVisibilityLabel: 'Show a "Backup" tab on the Plugins page',
+  tabVisibilityHint: 'When off, only the "Plugin Backup" settings entry remains; an open backup tab is removed.',
 
   intro: 'Back up, restore, and synchronize DSH plugins and configurations across devices through a Git repository.',
   loading: 'Loading…',
@@ -398,7 +402,7 @@ export const en: Record<string, string> = {
   confirmRunning: 'Running…',
 
   pluginsTitle: 'Plugins',
-  pluginsDesc: 'Plugins on this device and in the repository with their sync state. Clearing a checkbox adds the plugin to the exclusion list so it is never synced.',
+  pluginsDesc: 'Only user-installed third-party plugins are listed (DSH built-ins never participate in backup). Clearing a checkbox excludes that plugin from future syncs.',
   pluginsCount: '{count} plugins',
   pluginsEmpty: 'No plugins exist locally or in the repository.',
   pluginsNoMatch: 'No plugins match the filter.',

@@ -10,6 +10,17 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.4] - 2026-10-28
+
+### Changed
+
+- **「在插件页打开」按钮改为「配置页面展示」开关**：位置移到仓库配置卡片上方一行；开关控制「插件」页面是否显示「备份」标签（默认显示，选择保存在浏览器 localStorage，关闭时移除已注册的标签）。不再自动切页/点击标签。
+- **明确并收紧备份范围**：只备份用户后装的第三方插件。DSH 内置/官方插件、DSH 加载器内部条目（`cordis:*`）以及本插件自身都不参与备份，也不再出现在可选插件列表中（此前内置插件已在 0.1.2 过滤，本版补上内部条目与自身）。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（15 个测试文件 / 202 个测试）通过；新增开关持久化/订阅、自身与内部条目不参与同步、设置页开关渲染与写回测试。
+
 ## [0.1.3] - 2026-10-28
 
 ### Added
@@ -116,7 +127,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.4...HEAD
+[0.1.4]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.0...v0.1.1

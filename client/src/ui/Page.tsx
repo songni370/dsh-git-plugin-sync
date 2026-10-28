@@ -45,13 +45,18 @@ import * as api from '../api'
 import { errorText, planFromError } from '../api'
 import type { DiffDirection } from '../api'
 import { shortCommit } from '../format'
+import {
+  pluginsTabEnabled,
+  setPluginsTabEnabled,
+  subscribePluginsTab,
+} from '../plugins-tab-visibility'
 import type { Translate } from '../i18n'
 import { CSS } from '../styles'
 import { ActionsSection } from './ActionsSection'
 import type { ActionName } from './ActionsSection'
 import { AutoSyncSection, autoFormFromView } from './AutoSyncSection'
 import type { AutoForm } from './AutoSyncSection'
-import { Banner, Button, Card, LinkButton, Loading } from './controls'
+import { Banner, Button, Card, LinkButton, Loading, Switch } from './controls'
 import { ConfigSection, configFormFromView } from './ConfigSection'
 import type { ConfigForm } from './ConfigSection'
 import { HistorySection } from './HistorySection'
@@ -69,8 +74,6 @@ const HISTORY_LIMIT = 20
 /** Props handed to the section by the slot registration. */
 export interface PageProps {
   t: Translate
-  /** Settings page only: switch to the Plugins page and select the backup tab. */
-  openInPlugins?: () => void
 }
 
 /** Operation a confirmation dialog will execute. */
@@ -93,7 +96,7 @@ interface ConfirmState {
 }
 
 /** Render the whole settings page. */
-export function Page({ t, openInPlugins }: PageProps): ReactElement {
+export function Page({ t }: PageProps): ReactElement {
   // --- Host data ---------------------------------------------------------
   const [status, setStatus] = useState<StatusPayload | null>(null)
   const [statusError, setStatusError] = useState<string | null>(null)
@@ -105,6 +108,7 @@ export function Page({ t, openInPlugins }: PageProps): ReactElement {
   const [historyError, setHistoryError] = useState<string | null>(null)
 
   // --- Editable state ----------------------------------------------------
+  const [pluginsTab, setPluginsTab] = useState<boolean>(pluginsTabEnabled)
   const [form, setForm] = useState<ConfigForm | null>(null)
   const [autoForm, setAutoForm] = useState<AutoForm | null>(null)
   const [configDirty, setConfigDirty] = useState(false)
@@ -112,6 +116,8 @@ export function Page({ t, openInPlugins }: PageProps): ReactElement {
   const [filter, setFilter] = useState('')
   const [exclusions, setExclusions] = useState<ReadonlySet<string>>(() => new Set<string>())
   const [diffDirection, setDiffDirection] = useState<DiffDirection>('two-way')
+
+  useEffect(() => subscribePluginsTab(() => setPluginsTab(pluginsTabEnabled())), [])
 
   // Refs mirror the state that async callbacks and the poll loop must read
   // WITHOUT re-creating themselves: a stale closure here would silently drop
@@ -568,12 +574,7 @@ export function Page({ t, openInPlugins }: PageProps): ReactElement {
   return (
     <div className="dgs-root">
       <style>{CSS}</style>
-      <div className="dgs-pageHeader">
-        <p className="dgs-intro">{t('intro')}</p>
-        {openInPlugins === undefined ? null : (
-          <Button onClick={openInPlugins}>{t('openInPlugins')}</Button>
-        )}
-      </div>
+      <p className="dgs-intro">{t('intro')}</p>
 
       {notice === null ? null : <Banner tone="success">{notice}</Banner>}
       {actionError === null ? null : <Banner tone="error">{actionError}</Banner>}
@@ -597,6 +598,15 @@ export function Page({ t, openInPlugins }: PageProps): ReactElement {
         )
       ) : (
         <>
+          <Card title={t('tabVisibilityTitle')}>
+            <Switch
+              label={t('tabVisibilityLabel')}
+              hint={t('tabVisibilityHint')}
+              checked={pluginsTab}
+              onChange={setPluginsTabEnabled}
+            />
+          </Card>
+
           {form === null ? null : (
             <ConfigSection
               t={t}
