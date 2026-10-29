@@ -8,9 +8,9 @@ Back up, restore, and synchronize **DeepSeek Harness (DSH) plugins and configura
 [![CI](https://github.com/songni370/dsh-plugins-git-sync/actions/workflows/ci.yml/badge.svg)](https://github.com/songni370/dsh-plugins-git-sync/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-![Plugin Backup settings page](https://raw.githubusercontent.com/songni370/dsh-plugins-git-sync/main/docs/images/settings-overview.png)
+![Plugin Backup initial configuration](https://raw.githubusercontent.com/songni370/dsh-plugins-git-sync/main/docs/images/settings-config.png)
 
-*Sync status, manual operations and automatic sync on one page; the repository card is collapsed once configured.*
+*Initial state: enter a Git repository URL to start; the device name is only an example.*
 
 Reinstalling DSH or moving to another machine no longer means rebuilding a plugin list from memory: push the inventory to a private repository and pull it down elsewhere. The backup is plain JSON, readable and diffable with ordinary Git tools.
 
@@ -30,9 +30,9 @@ Only **user-installed third-party plugins** participate. DSH built-ins, loader i
 
 Settings → "**Plugin Backup**". The Plugins page can also show a "Backup" tab with the same content.
 
-![Repository configuration](https://raw.githubusercontent.com/songni370/dsh-plugins-git-sync/main/docs/images/settings-config.png)
+![Sync status and automatic sync](https://raw.githubusercontent.com/songni370/dsh-plugins-git-sync/main/docs/images/settings-status.png)
 
-*The URL is detected as HTTPS / SSH / local and only the matching authentication fields are shown.*
+*Sync status, count tiles and the automatic-sync switch on one page; nothing runs in the background until a repository is configured.*
 
 - **Repository card**: detects HTTPS / SSH / local paths and shows only the matching auth fields; collapsed once configured.
 - **Operations**: `Sync`, `Check differences`; `Back up to Git` and `Restore from Git` live under "More actions".
