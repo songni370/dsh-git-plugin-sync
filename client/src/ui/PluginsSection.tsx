@@ -14,10 +14,22 @@ import type { ReactElement } from 'react'
 import type { PluginListResponse, PluginListRow } from '../../../src/http/api-types'
 import type { Translate } from '../i18n'
 import type { Feedback, Tone } from './controls'
-import { Badge, Banner, Button, Card, Checkbox, LinkButton, Loading } from './controls'
+import { Badge, Banner, Button, Card, Checkbox, LinkButton, Loading, Select } from './controls'
 
-/** Rows per page in the plugin table. */
-const PAGE_SIZE = 20
+/** Rows-per-page choices for the plugin table. */
+const PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const
+const DEFAULT_PAGE_SIZE = 20
+const PAGE_SIZE_STORAGE_KEY = 'dsh-git-plugin-sync.plugins-page-size'
+
+/** Remember the user's page size across visits. */
+function storedPageSize(): number {
+  try {
+    const saved = Number.parseInt(window.localStorage.getItem(PAGE_SIZE_STORAGE_KEY) ?? '', 10)
+    return (PAGE_SIZE_OPTIONS as readonly number[]).includes(saved) ? saved : DEFAULT_PAGE_SIZE
+  } catch {
+    return DEFAULT_PAGE_SIZE
+  }
+}
 
 /** Copy + tone for every sync status the Host reports for one row. */
 const SYNC_META: Record<PluginListRow['syncStatus'], { key: string; tone: Tone }> = {
@@ -60,15 +72,16 @@ export function PluginsSection(props: PluginsSectionProps): ReactElement {
       : rows.filter(row => `${row.displayName ?? ''}\n${row.name}\n${row.id}`.toLowerCase().includes(needle))
 
   const [page, setPage] = useState(1)
-  // A new filter always starts from the first page.
+  const [pageSize, setPageSize] = useState(storedPageSize)
+  // A new filter or page size always starts from the first page.
   useEffect(() => {
     setPage(1)
-  }, [props.filter])
+  }, [props.filter, pageSize])
 
-  const totalPages = Math.max(1, Math.ceil(visible.length / PAGE_SIZE))
+  const totalPages = Math.max(1, Math.ceil(visible.length / pageSize))
   const currentPage = Math.min(page, totalPages)
-  const start = (currentPage - 1) * PAGE_SIZE
-  const pageRows = visible.slice(start, start + PAGE_SIZE)
+  const start = (currentPage - 1) * pageSize
+  const pageRows = visible.slice(start, start + pageSize)
 
   return (
     <Card
@@ -89,19 +102,42 @@ export function PluginsSection(props: PluginsSectionProps): ReactElement {
         </Banner>
       )}
 
-      <label className="dgs-srOnly" htmlFor="dgs-plugins-filter">
-        {t('pluginsFilterPlaceholder')}
-      </label>
-      <input
-        id="dgs-plugins-filter"
-        className="dgs-input"
-        type="search"
-        value={props.filter}
-        placeholder={t('pluginsFilterPlaceholder')}
-        onChange={event => {
-          props.onFilterChange(event.target.value)
-        }}
-      />
+      <div className="dgs-pluginsToolbar">
+        <label className="dgs-srOnly" htmlFor="dgs-plugins-filter">
+          {t('pluginsFilterPlaceholder')}
+        </label>
+        <input
+          id="dgs-plugins-filter"
+          className="dgs-input"
+          type="search"
+          value={props.filter}
+          placeholder={t('pluginsFilterPlaceholder')}
+          onChange={event => {
+            props.onFilterChange(event.target.value)
+          }}
+        />
+        <div className="dgs-pluginsPageSize">
+          <label className="dgs-hint" htmlFor="dgs-plugins-page-size">
+            {t('pluginsPageSize')}
+          </label>
+          <Select
+            id="dgs-plugins-page-size"
+            className="dgs-pageSizeSelect"
+            value={String(pageSize)}
+            options={PAGE_SIZE_OPTIONS.map(size => ({ value: String(size), label: String(size) }))}
+            onChange={value => {
+              const next = Number.parseInt(value, 10)
+              setPageSize(next)
+              try {
+                window.localStorage.setItem(PAGE_SIZE_STORAGE_KEY, String(next))
+              } catch {
+                // Storage can be unavailable in private mode; the choice still
+                // applies for this visit.
+              }
+            }}
+          />
+        </div>
+      </div>
 
       {props.loading && props.plugins === null ? <Loading text={t('loading')} /> : null}
 
@@ -166,12 +202,12 @@ export function PluginsSection(props: PluginsSectionProps): ReactElement {
           </table>
         </div>
       )}
-      {visible.length <= PAGE_SIZE ? null : (
+      {visible.length <= pageSize ? null : (
         <div className="dgs-pagination">
           <span className="dgs-hint">
             {t('pluginsPageRange', {
               from: start + 1,
-              to: Math.min(start + PAGE_SIZE, visible.length),
+              to: Math.min(start + pageSize, visible.length),
               total: visible.length,
             })}
           </span>
