@@ -9,7 +9,10 @@
  */
 
 /** localStorage key; keeps its own namespace. */
-export const PLUGINS_TAB_STORAGE_KEY = 'dsh-git-plugin-sync.plugins-tab'
+export const PLUGINS_TAB_STORAGE_KEY = 'dsh-plugins-git-sync.plugins-tab'
+
+/** Pre-rename key; read once so an upgrade keeps the saved choice. */
+const LEGACY_PLUGINS_TAB_STORAGE_KEY = 'dsh-git-plugin-sync.plugins-tab'
 
 /** Default: the tab is shown, matching the shipped behaviour. */
 const DEFAULT_ENABLED = true
@@ -20,7 +23,9 @@ const listeners = new Set<Listener>()
 /** Read without throwing when storage is disabled (private mode, policies). */
 function readStored(): boolean {
   try {
-    const value = localStorage.getItem(PLUGINS_TAB_STORAGE_KEY)
+    const value =
+      localStorage.getItem(PLUGINS_TAB_STORAGE_KEY) ??
+      localStorage.getItem(LEGACY_PLUGINS_TAB_STORAGE_KEY)
     if (value === null) return DEFAULT_ENABLED
     return value !== '0'
   } catch {

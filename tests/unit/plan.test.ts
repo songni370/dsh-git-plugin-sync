@@ -105,7 +105,7 @@ describe('backup plan', () => {
     const plan = planBackup(input({
       local: {
         internal: plugin('cordis:include', { syncable: false }),
-        self: plugin('dsh-git-plugin-sync', { syncable: false }),
+        self: plugin('dsh-plugins-git-sync', { syncable: false }),
       },
     }))
     expect(plan.actions).toHaveLength(0)

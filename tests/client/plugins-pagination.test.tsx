@@ -67,6 +67,14 @@ describe('plugin list pagination', () => {
   })
 
   it('honours a stored custom page size', () => {
+    window.localStorage.setItem('dsh-plugins-git-sync.plugins-page-size', '20')
+    const html = render(25)
+    expect(html).toContain('第 1 / 2 页')
+    expect(html).toContain('显示 1–20，共 25 个')
+    expect(html.split('class="dgs-pluginName"')).toHaveLength(21)
+  })
+
+  it('reads the pre-rename page-size key once', () => {
     window.localStorage.setItem('dsh-git-plugin-sync.plugins-page-size', '20')
     const html = render(25)
     expect(html).toContain('第 1 / 2 页')

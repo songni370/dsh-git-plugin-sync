@@ -45,7 +45,7 @@ function statusPayload(): StatusPayload {
         device: { id: 'device-1', name: 'mac', platform: 'darwin', arch: 'arm64', dshVersion: '0.2.1-rc.3', pluginVersion: '0.1.0' },
         activeProfile: 'desktop',
         availableProfiles: ['desktop', 'web'],
-        dataDir: '~/.dsh/dsh-git-plugin-sync',
+        dataDir: '~/.dsh/dsh-plugins-git-sync',
       },
       branch: 'main',
       lastSyncAt: null,
@@ -93,7 +93,7 @@ function historyPayload(): HistoryResponse {
       shortCommit: 'abcdef1',
       date: '2026-10-28T07:13:55.045Z',
       author: 'DSH',
-      subject: '[dsh-git-plugin-sync] backup desktop',
+      subject: '[dsh-plugins-git-sync] backup desktop',
       operation: 'backup',
       deviceName: 'mac',
       result: 'ok',
@@ -389,7 +389,7 @@ describe('settings page render', () => {
     await act(async () => {
       switchButton?.dispatchEvent(new window.MouseEvent('click', { bubbles: true }))
     })
-    expect(localStorage.getItem('dsh-git-plugin-sync.plugins-tab')).toBe('0')
+    expect(localStorage.getItem('dsh-plugins-git-sync.plugins-tab')).toBe('0')
   })
 
   it('starts the plugin list collapsed and expands on demand', async () => {

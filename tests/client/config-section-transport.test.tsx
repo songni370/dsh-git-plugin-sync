@@ -35,7 +35,7 @@ function viewFor(repoUrl: string, authMode: GitAuthMode): SyncConfigView {
     device: { id: 'd', name: 'mac', platform: 'darwin', arch: 'arm64', dshVersion: '0.2.1-rc.3', pluginVersion: '0.1.0' },
     activeProfile: 'desktop',
     availableProfiles: ['desktop'],
-    dataDir: '~/.dsh/dsh-git-plugin-sync',
+    dataDir: '~/.dsh/dsh-plugins-git-sync',
   } as SyncConfigView
 }
 
@@ -105,7 +105,7 @@ describe('auto-sync startup delay', () => {
 
 describe('repository card feedback', () => {
   it('renders the save result inside the card body', () => {
-    const html = render('https://github.com/songni370/dsh-git-plugin-sync.git', 'credential-helper', {}, {
+    const html = render('https://github.com/songni370/dsh-plugins-git-sync.git', 'credential-helper', {}, {
       tone: 'success',
       text: '仓库配置已保存。',
     })
@@ -117,7 +117,7 @@ describe('repository card feedback', () => {
 
 describe('repository card transport fields', () => {
   it('HTTPS + credential helper: helper/token choice, no token value fields', () => {
-    const html = render('https://github.com/songni370/dsh-git-plugin-sync.git', 'credential-helper')
+    const html = render('https://github.com/songni370/dsh-plugins-git-sync.git', 'credential-helper')
     expect(html).toContain('HTTPS 仓库')
     expect(html).toContain('id="dgs-config-auth"')
     expect(html).toContain('Git 凭据助手')
@@ -127,14 +127,14 @@ describe('repository card transport fields', () => {
   })
 
   it('HTTPS + token: token env var and username are shown', () => {
-    const html = render('https://github.com/songni370/dsh-git-plugin-sync.git', 'https-token')
+    const html = render('https://github.com/songni370/dsh-plugins-git-sync.git', 'https-token')
     expect(html).toContain('HTTPS 令牌')
     expect(html).toContain('id="dgs-config-token-env"')
     expect(html).toContain('id="dgs-config-username"')
   })
 
   it('SSH: one hint only, no auth row or credential fields', () => {
-    const html = render('git@github.com:songni370/dsh-git-plugin-sync.git', 'ssh')
+    const html = render('git@github.com:songni370/dsh-plugins-git-sync.git', 'ssh')
     expect(html.split('>SSH 仓库<')).toHaveLength(2) // exactly one badge
     expect(html).toContain('SSH Agent')
     expect(html).not.toContain('认证方式')
@@ -144,7 +144,7 @@ describe('repository card transport fields', () => {
   })
 
   it('shows the current client instead of profile internals', () => {
-    const html = render('https://github.com/songni370/dsh-git-plugin-sync.git', 'credential-helper')
+    const html = render('https://github.com/songni370/dsh-plugins-git-sync.git', 'credential-helper')
     expect(html).toContain('当前客户端')
     expect(html).toContain('桌面端')
     expect(html).not.toContain('暂不支持')
@@ -152,7 +152,7 @@ describe('repository card transport fields', () => {
   })
 
   it('secondary options are collapsed on a configured card', () => {
-    const html = render('https://github.com/songni370/dsh-git-plugin-sync.git', 'credential-helper')
+    const html = render('https://github.com/songni370/dsh-plugins-git-sync.git', 'credential-helper')
     expect(html).toContain('高级设置')
     expect(html).toContain('id="dgs-config-advanced" class="dgs-formRows dgs-advancedBody" hidden')
   })

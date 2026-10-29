@@ -1,6 +1,6 @@
 # 发布流程 / Publishing
 
-本文是 **dsh-git-plugin-sync** 的发布手册：发布到 GitHub、发布到 npm、提交到 DSH 插件市场，以及版本策略。面向维护者。
+本文是 **dsh-plugins-git-sync** 的发布手册：发布到 GitHub、发布到 npm、提交到 DSH 插件市场，以及版本策略。面向维护者。
 
 This is the release manual: GitHub, npm, the DSH plugin market, and the versioning policy.
 
@@ -8,7 +8,7 @@ This is the release manual: GitHub, npm, the DSH plugin market, and the versioni
 
 ## 0. 发布前检查清单
 
-- [ ] `package.json` 的 `version` 是本次要发布的版本（当前 `0.1.0`）；
+- [ ] `package.json` 的 `version` 是本次要发布的版本（当前 `0.2.0`）；
 - [ ] 若清单 schema 有变化，`src/constants.ts` 的 `MANIFEST_SCHEMA_VERSION` 已提升，并按 [架构文档的迁移策略](ARCHITECTURE.md#102-版本化与迁移) 处理旧数据；
 - [ ] 备份仓库里的 `generator.version` 是**运行中的插件版本**：`buildManifest({ generatorVersion })` / `buildSchemaDocument(pluginVersion)` 由引擎传入 `deps.pluginVersion`，无需手动改常量；确认 `package.json` 版本正确即可；
 - [ ] `CHANGELOG.md` 有本次版本的条目（日期、Added/Fixed/Security、`verified on DSH <version>`）；
@@ -23,21 +23,21 @@ This is the release manual: GitHub, npm, the DSH plugin market, and the versioni
 
 ### 1.1 创建仓库
 
-> **当前状态**：源码已推送到 `git@github.com:songni370/dsh-git-plugin-sync.git`（`main` 分支 + `v0.1.0` 标签），但**尚未执行 `npm publish`**。下文 GitHub 地址使用实际所有者 `songni370`，npm 安装说明以「发布之后」为前提。
+> **当前状态**：源码已推送到 `git@github.com:songni370/dsh-plugins-git-sync.git`（`main` 分支 + `v0.2.0` 标签），但**尚未执行 `npm publish`**。下文 GitHub 地址使用实际所有者 `songni370`，npm 安装说明以「发布之后」为前提。
 >
 > **注意构建产物**：本仓库**提交了 `lib/`**（Host 半、类型声明与 `lib/client.js`）。原因是 DSH 用 pnpm 安装插件，pnpm 默认阻止依赖执行构建脚本；不提交 `lib/` 时，从 Git URL 安装会缺少入口而无法加载。因此每次发版前必须 `npm run build` 并把 `lib/` 一并提交；`npm pack` 仍会通过 `prepack` 重新构建。
 
-1. 在 GitHub 上创建仓库 `dsh-git-plugin-sync`（Public，MIT；如果暂时不公开可以先 Private，注意 `private` 会影响别人通过 npm 页面看到源码链接）。
+1. 在 GitHub 上创建仓库 `dsh-plugins-git-sync`（Public，MIT；如果暂时不公开可以先 Private，注意 `private` 会影响别人通过 npm 页面看到源码链接）。
 2. **不要**勾选初始化 README / .gitignore / license（仓库里已经有了）。
 3. 绑定远程并推送 `main`：
 
    ```bash
-   git remote add origin git@github.com:songni370/dsh-git-plugin-sync.git
+   git remote add origin git@github.com:songni370/dsh-plugins-git-sync.git
    git branch -M main
    git push -u origin main
    ```
 
-   如果是 HTTPS 认证，把地址换成 `https://github.com/songni370/dsh-git-plugin-sync.git`。
+   如果是 HTTPS 认证，把地址换成 `https://github.com/songni370/dsh-plugins-git-sync.git`。
 
 4. 确认 CI 通过：`.github/workflows/ci.yml` 会在 `ubuntu-latest` / `macos-latest` / `windows-latest`、Node 22 与 24 上执行 `npm ci`、`npm run typecheck`、`npm run build`、`npm test`（单元 + 集成 + `tests/client` 渲染测试），并在 Node 24 上额外执行 `npm pack --dry-run`。
 
@@ -47,26 +47,26 @@ This is the release manual: GitHub, npm, the DSH plugin market, and the versioni
 
 ```bash
 # 确认版本号
-node -p "require('./package.json').version"       # 0.1.0
+node -p "require('./package.json').version"       # 0.2.0
 
-git tag -a v0.1.0 -m "dsh-git-plugin-sync 0.1.0"
-git push origin v0.1.0
+git tag -a v0.2.0 -m "dsh-plugins-git-sync 0.2.0"
+git push origin v0.2.0
 ```
 
-在 GitHub 的 Releases 页面基于 `v0.1.0` 创建 Release，把 `CHANGELOG.md` 对应段落粘贴为说明（或使用 GitHub CLI）：
+在 GitHub 的 Releases 页面基于 `v0.2.0` 创建 Release，把 `CHANGELOG.md` 对应段落粘贴为说明（或使用 GitHub CLI）：
 
 ```bash
-gh release create v0.1.0 \
-  --title "v0.1.0 — DSH Plugin Git Sync" \
-  --notes-file <(sed -n '/## \[0.1.0\]/,/## \[/p' CHANGELOG.md)
+gh release create v0.2.0 \
+  --title "v0.2.0 — DSH Plugin Git Sync" \
+  --notes-file <(sed -n '/## \[0.2.0\]/,/## \[/p' CHANGELOG.md)
 ```
 
-Release 里可以附上 `npm pack` 产物 `dsh-git-plugin-sync-0.1.0.tgz`（可选；npm 上已经有 tarball 时通常不必）。
+Release 里可以附上 `npm pack` 产物 `dsh-plugins-git-sync-0.2.0.tgz`（可选；npm 上已经有 tarball 时通常不必）。
 
 ### 1.3 发布后
 
 - 在 README 顶部补上 GitHub 链接（仓库地址确定后）；
-- `CHANGELOG.md` 底部的 `[0.1.0]` 比较链接已指向 `songni370/dsh-git-plugin-sync`；
+- `CHANGELOG.md` 底部的 `[0.2.0]` 比较链接已指向 `songni370/dsh-plugins-git-sync`；
 - 打开 Issues / Discussions / Security Advisories（漏洞报告用，见 [SECURITY.md](SECURITY.md#9-漏洞报告--reporting-a-vulnerability)）。
 
 ## 2. 发布到 npm
@@ -80,11 +80,11 @@ npm login
 npm whoami
 ```
 
-- 需要该包名（`dsh-git-plugin-sync`）的发布权限；若名字已被占用，需要换包名**或**联系持有者，不要抢注相近名字。
+- 需要该包名（`dsh-plugins-git-sync`）的发布权限；若名字已被占用，需要换包名**或**联系持有者，不要抢注相近名字。
 - 发布前确认名称可用（返回 404 = 未发布；返回 JSON = 已存在）：
 
   ```bash
-  npm view dsh-git-plugin-sync version
+  npm view dsh-plugins-git-sync version
   ```
 
 - 建议开启 2FA；`npm publish` 会要求 OTP。
@@ -105,7 +105,7 @@ npm whoami
 npm pack --dry-run
 # 或先产出真实 tarball 检查内容
 npm pack
-tar -tzf dsh-git-plugin-sync-0.1.0.tgz | sort
+tar -tzf dsh-plugins-git-sync-0.2.0.tgz | sort
 ```
 
 必须确认：
@@ -128,8 +128,8 @@ npm publish --access public
 - 发布后验证：
 
   ```bash
-  npm view dsh-git-plugin-sync version dist.tarball
-  npm pack dsh-git-plugin-sync@0.1.0 --dry-run   # 看已发布版本的文件列表
+  npm view dsh-plugins-git-sync version dist.tarball
+  npm pack dsh-plugins-git-sync@0.2.0 --dry-run   # 看已发布版本的文件列表
   node --check lib/client.js                     # 浏览器半的语法自检
   ```
 
@@ -138,16 +138,16 @@ npm publish --access public
   ```bash
   mkdir -p /tmp/dsh-git-sync-check && cd /tmp/dsh-git-sync-check
   npm init -y
-  npm i dsh-git-plugin-sync@0.1.0
-  node -e "import('dsh-git-plugin-sync').then(m => console.log(m.name, typeof m.apply))"
+  npm i dsh-plugins-git-sync@0.2.0
+  node -e "import('dsh-plugins-git-sync').then(m => console.log(m.name, typeof m.apply))"
   ```
 
-- 然后在本机 DSH 里用插件管理器安装 `dsh-git-plugin-sync`（`plugin_manager` 的 `install_bundle`），确认插件清单里出现标题/描述/图标，设置页出现「插件备份」分区并能测试连接。**只有观察到这两点，才算安装验证通过。**
+- 然后在本机 DSH 里用插件管理器安装 `dsh-plugins-git-sync`（`plugin_manager` 的 `install_bundle`），确认插件清单里出现标题/描述/图标，设置页出现「插件备份」分区并能测试连接。**只有观察到这两点，才算安装验证通过。**
 
 ### 2.5 发错了怎么办
 
 - **不要** `npm unpublish`（已发布版本通常无法撤销，且会让依赖者断掉；npm 对未满 72 小时/无依赖的版本才可能允许删除）；
-- 用 `npm deprecate dsh-git-plugin-sync@0.1.0 "reason"` 标记，再发布修正版本（`0.1.1`）；
+- 用 `npm deprecate dsh-plugins-git-sync@0.2.0 "reason"` 标记，再发布修正版本（`0.2.1`）；
 - 如果只是文档错误，发 patch 版本。
 
 ## 3. 提交到 DSH 插件市场
@@ -177,15 +177,15 @@ npm publish --access public
 1. **先完成 npm 发布**（第 2 节）。市场安装的是 npm 包；目录条目通过 npm 包名映射到可安装目标，npm 上没有的版本装不上。
 2. 打开精选列表仓库 `https://github.com/awesome-dsh-plugin/awesome-dsh-plugin`，阅读它的贡献说明 / 条目模板（**以该仓库的 `CONTRIBUTING`/README 为准**；本文不复制一个可能过期的模板）。
 3. Fork 该仓库，在插件列表中添加**一条**条目，包含：
-   - 插件名称：`dsh-git-plugin-sync`；
-   - 仓库 URL：`https://github.com/songni370/dsh-git-plugin-sync`；
-   - npm 包名：`dsh-git-plugin-sync`；
+   - 插件名称：`dsh-plugins-git-sync`；
+   - 仓库 URL：`https://github.com/songni370/dsh-plugins-git-sync`；
+   - npm 包名：`dsh-plugins-git-sync`；
    - 分类（category）：建议 `git`（Git & Code Review）或按列表分类里的实际 id 选择；
    - 中英文描述（`description` 支持按语言提供，见 3.3）；
    - 图标（若该列表的条目模板支持 `icon` 字段）：指向一个稳定的、可公开访问的图片 URL。
 4. 提交 PR，说明这是一个「用 Git 备份/恢复/多设备同步 DSH 插件与配置」的插件，附上 npm 链接与 README。
 5. 等待 CI 合并；合并后目录通常一天内更新：`awesome-dsh-plugin.com` 的站点、`plugins.json`、`dsh-plugin-catalog` npm 包、以及本机市场（实时拉取）。
-6. 在本机验证收录：打开市场的「发现 / Discover」页搜索 `dsh-git-plugin-sync`，或在插件市场的索引源配置里刷新（见 3.4）；确认卡片标题、描述、图标、版本、安装按钮正常。
+6. 在本机验证收录：打开市场的「发现 / Discover」页搜索 `dsh-plugins-git-sync`，或在插件市场的索引源配置里刷新（见 3.4）；确认卡片标题、描述、图标、版本、安装按钮正常。
 
 > 本机没有安装 `awesome-dsh-plugin` 仓库，**未能核对条目模板的确切字段**；如果该仓库提供了字段说明，以它为准。下面 3.3 列出的是**市场侧实际读取**的字段，可作为自检依据。
 
@@ -214,14 +214,14 @@ DSH 0.2.1 起，市场说明里给出的入口是：**插件 → 发现（Discov
 
 | 变化 | 版本位 | 例子 |
 | --- | --- | --- |
-| 修 bug、文档、兼容性修补，不改变备份格式与行为契约 | patch `0.1.x` | 修复某类 Git 错误分类、修正文案 |
+| 修 bug、文档、兼容性修补，不改变备份格式与行为契约 | patch `0.2.x` | 修复某类 Git 错误分类、修正文案 |
 | 新增向后兼容能力（新工具、新动作、新认证方式、新 UI 元素） | minor `0.x.0`（1.0 前） | 实现本地插件归档恢复、多 Profile 同步 |
 | 破坏性变化（备份 schema 升版且不兼容、配置字段语义变化、删除 API/工具、行为契约改变） | 1.0 前用 minor，1.0 后用 major | 清单 `schemaVersion` 2、`resolutions` 结构变化 |
 | 备份格式或本机状态格式变化 | 必须同时提升对应的 `schemaVersion`，并给出读取旧版本 → 迁移的路径 | `MANIFEST_SCHEMA_VERSION` / `STATE_SCHEMA_VERSION` |
 
 约定：
 
-- **git tag 与 npm 版本一致**（`v0.1.0` ↔ `0.1.0`），并在 Release 说明里引用 CHANGELOG；
+- **git tag 与 npm 版本一致**（`v0.2.0` ↔ `0.2.0`），并在 Release 说明里引用 CHANGELOG；
 - 每个发布都更新 `CHANGELOG.md`（新增条目，不覆盖历史），末尾补比较链接；
 - 发布前跑 `npm run verify`；发布后按第 2.4 节验证 npm 产物与宿主安装；
 - 目录/市场收录的是 npm 包：**先发 npm，再提市场更新**；市场通常会在一天内自动同步版本；
@@ -230,7 +230,7 @@ DSH 0.2.1 起，市场说明里给出的入口是：**插件 → 发现（Discov
 
 ## 5. 发布后回归检查
 
-1. 在一台**干净**的设备（或新的 DSH Profile）上通过插件管理器安装 `dsh-git-plugin-sync`；
+1. 在一台**干净**的设备（或新的 DSH Profile）上通过插件管理器安装 `dsh-plugins-git-sync`；
 2. 设置里出现「插件备份」，标题/描述/图标正确（中英文都检查）；
 3. 用一个**新的私有空仓库**跑完整流程：测试连接 → 备份 → 在第二个 Profile/设备恢复 → 同步 → 历史回滚；
 4. 确认仓库里没有秘密与绝对路径（`git log -p` 抽查，或按 [SECURITY.md](SECURITY.md#7-永远不会上传的内容) 的清单检查）；

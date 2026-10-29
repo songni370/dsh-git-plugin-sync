@@ -81,7 +81,7 @@ function routesOf(engine: SyncEngine): Map<string, CapturedRoute> {
   const routes: CapturedRoute[] = []
   registerHttpRoutes({ ctx: fakeContext(routes), engine, logger: silentLogger() })
   const map = new Map<string, CapturedRoute>()
-  for (const route of routes) map.set(route.path.replace('/api/dsh-git-plugin-sync/', ''), route)
+  for (const route of routes) map.set(route.path.replace('/api/dsh-plugins-git-sync/', ''), route)
   return map
 }
 
@@ -99,7 +99,7 @@ describe('HTTP surface', () => {
     const routes = routesOf(fakeEngine())
     expect(routes.size).toBe(14)
     for (const [name, route] of routes) {
-      expect(route.path.startsWith('/api/dsh-git-plugin-sync/'), name).toBe(true)
+      expect(route.path.startsWith('/api/dsh-plugins-git-sync/'), name).toBe(true)
       expect(route.methods).toEqual(['POST'])
       expect(route.requestBody).toBe('buffered')
     }

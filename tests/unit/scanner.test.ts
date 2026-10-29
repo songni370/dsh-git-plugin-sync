@@ -587,11 +587,11 @@ describe('profile discovery', () => {
     await writeProfile(profilesRoot, 'default', { dependencies: {} })
     const bundles = [
       // Normally npm-installable, but this is the backup tool itself.
-      bundle({ name: 'dsh-git-plugin-sync', version: '1.0.0' }),
+      bundle({ name: 'dsh-plugins-git-sync', version: '1.0.0' }),
       bundle({ name: 'community-plugin', version: '1.0.0' }),
     ]
     const plugins = [
-      plugin({ entryId: 'entry-self', moduleName: 'dsh-git-plugin-sync' }),
+      plugin({ entryId: 'entry-self', moduleName: 'dsh-plugins-git-sync' }),
       plugin({ entryId: 'entry-community', moduleName: 'community-plugin' }),
       // A DSH loader internal row without bundle metadata (orphan path).
       plugin({ entryId: 'include', moduleName: 'cordis:include' }),
@@ -600,7 +600,7 @@ describe('profile discovery', () => {
       pluginManager: fakeManager(bundles, plugins),
     }).scan({ config: makeConfig(), profile: 'default' })
 
-    expect(inventory.plugins.find(record => record.name === 'dsh-git-plugin-sync')?.syncable).toBe(false)
+    expect(inventory.plugins.find(record => record.name === 'dsh-plugins-git-sync')?.syncable).toBe(false)
     expect(inventory.plugins.find(record => record.name === 'community-plugin')?.syncable).toBe(true)
     const internal = inventory.plugins.find(record => record.name === 'cordis:include')
     expect(internal === undefined || internal.syncable === false).toBe(true)

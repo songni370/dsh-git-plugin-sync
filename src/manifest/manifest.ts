@@ -118,7 +118,7 @@ export function checkSchemaVersion(value: unknown, label: string): number {
   if (value > MANIFEST_SCHEMA_VERSION) {
     throw new SyncError(
       'invalid-manifest',
-      `备份仓库使用了更新的 schema 版本 v${value}（当前插件支持 v${MANIFEST_SCHEMA_VERSION}），请升级 dsh-git-plugin-sync / backup uses schema version v${value}, but this plugin supports v${MANIFEST_SCHEMA_VERSION}; please upgrade dsh-git-plugin-sync`,
+      `备份仓库使用了更新的 schema 版本 v${value}（当前插件支持 v${MANIFEST_SCHEMA_VERSION}），请升级 dsh-plugins-git-sync / backup uses schema version v${value}, but this plugin supports v${MANIFEST_SCHEMA_VERSION}; please upgrade dsh-plugins-git-sync`,
       { details: { schemaVersion: value, supported: MANIFEST_SCHEMA_VERSION } },
     )
   }

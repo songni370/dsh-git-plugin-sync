@@ -1,6 +1,6 @@
 {
-  "name": "dsh-git-plugin-sync",
-  "version": "0.1.47",
+  "name": "dsh-plugins-git-sync",
+  "version": "0.2.0",
   "description": "DSH 插件 Git 同步 — 使用 Git 仓库备份、恢复并多设备同步 DeepSeek Harness 插件与配置。 / DSH Plugin Git Sync — back up, restore, and synchronize DSH plugins and configurations across devices using Git repositories.",
   "keywords": [
     "deepseek",
@@ -83,10 +83,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/songni370/dsh-git-plugin-sync.git"
+    "url": "git+https://github.com/songni370/dsh-plugins-git-sync.git"
   },
-  "homepage": "https://github.com/songni370/dsh-git-plugin-sync#readme",
+  "homepage": "https://github.com/songni370/dsh-plugins-git-sync#readme",
   "bugs": {
-    "url": "https://github.com/songni370/dsh-git-plugin-sync/issues"
+    "url": "https://github.com/songni370/dsh-plugins-git-sync/issues"
   }
 }

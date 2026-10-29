@@ -1,5 +1,5 @@
 /**
- * Browser half of dsh-git-plugin-sync.
+ * Browser half of dsh-plugins-git-sync.
  *
  * Registers one native settings section, "DSH 插件 Git 同步 / DSH Plugin Git
  * Sync", in the Harness Settings dialog. Built by `scripts/build-client.mjs`
@@ -104,7 +104,7 @@ class SectionBoundary extends Component<BoundaryProps, BoundaryState> {
   }
 
   override componentDidCatch(error: unknown, info: ErrorInfo): void {
-    console.warn('[dsh-git-plugin-sync] settings section crashed:', error, info.componentStack)
+    console.warn('[dsh-plugins-git-sync] settings section crashed:', error, info.componentStack)
   }
 
   override render(): ReactNode {
@@ -131,7 +131,7 @@ class SectionBoundary extends Component<BoundaryProps, BoundaryState> {
 }
 
 /** Cordis plugin name (equals the package name). */
-export const name = 'dsh-git-plugin-sync'
+export const name = 'dsh-plugins-git-sync'
 
 /** Services required before the browser half mounts. */
 export const inject = ['slots', 'locale', 'theme']
@@ -142,14 +142,14 @@ export function apply(ctx: ClientContext): void {
   try {
     // Dictionaries first: the section label and every string resolve through
     // this namespace. `ctx.effect` owns the returned disposers.
-    ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'dsh-git-plugin-sync: locale dictionaries')
+    ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'dsh-plugins-git-sync: locale dictionaries')
     // Method call on purpose: the host's bind reads its own receiver.
     const bound = ctx.locale.bind(NS)
     t = createTranslate(bound)
   } catch (error) {
     // A moved locale contract costs the localized copy, not the page: keep
     // going with our own dictionaries and the browser language.
-    console.warn('[dsh-git-plugin-sync] locale service unavailable, using browser language:', error)
+    console.warn('[dsh-plugins-git-sync] locale service unavailable, using browser language:', error)
     t = fallbackTranslate()
   }
 
@@ -186,7 +186,7 @@ export function apply(ctx: ClientContext): void {
     // Contain anything the host's bootstrap throws: the rest of the app,
     // settings included, keeps working without this section.
     console.warn(
-      '[dsh-git-plugin-sync] settings section registration failed; the rest of Settings is unaffected:',
+      '[dsh-plugins-git-sync] settings section registration failed; the rest of Settings is unaffected:',
       error,
     )
   }
@@ -246,12 +246,12 @@ export function apply(ctx: ClientContext): void {
         slotAvailable = false
         unregister()
       }
-    }, 'dsh-git-plugin-sync: plugins tab visibility')
+    }, 'dsh-plugins-git-sync: plugins tab visibility')
   } catch (error) {
     // Contain anything the host's bootstrap throws: the rest of the app,
     // settings included, keeps working without this section.
     console.warn(
-      '[dsh-git-plugin-sync] settings section registration failed; the rest of Settings is unaffected:',
+      '[dsh-plugins-git-sync] settings section registration failed; the rest of Settings is unaffected:',
       error,
     )
   }

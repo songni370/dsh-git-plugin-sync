@@ -31,7 +31,7 @@ async function settle(): Promise<void> {
 describe('settings nav icon', () => {
   beforeEach(() => {
     document.body.innerHTML = ''
-    document.head.querySelectorAll('style[data-plugin="dsh-git-plugin-sync"]').forEach(node => node.remove())
+    document.head.querySelectorAll('style[data-plugin="dsh-plugins-git-sync"]').forEach(node => node.remove())
   })
 
   afterEach(() => {
@@ -74,7 +74,7 @@ describe('settings nav icon', () => {
     const marked = () => Array.from(document.querySelectorAll(`[${NAV_ICON_MARKER}]`))
     expect(marked()).toHaveLength(1)
     expect(marked()[0]?.getAttribute('data-row')).toBe('插件备份')
-    expect(document.head.querySelector('style[data-plugin="dsh-git-plugin-sync"]')).not.toBeNull()
+    expect(document.head.querySelector('style[data-plugin="dsh-plugins-git-sync"]')).not.toBeNull()
 
     // Locale switch: the shell re-renders the row with the English label.
     label = 'Plugin Backup'
@@ -88,6 +88,6 @@ describe('settings nav icon', () => {
     disposer?.()
     await settle()
     expect(marked()).toHaveLength(0)
-    expect(document.head.querySelector('style[data-plugin="dsh-git-plugin-sync"]')).toBeNull()
+    expect(document.head.querySelector('style[data-plugin="dsh-plugins-git-sync"]')).toBeNull()
   })
 })

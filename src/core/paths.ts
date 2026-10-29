@@ -9,8 +9,10 @@
  * @module core/paths
  */
 
+import { existsSync } from 'node:fs'
 import { homedir, tmpdir } from 'node:os'
 import { isAbsolute, join, normalize, resolve, sep } from 'node:path'
+import { APP_DIR_NAME, LEGACY_APP_DIR_NAME } from '../constants.js'
 
 /** Expand `~`, `~/` and `~\` against the OS home. */
 export function expandHomePath(input: string): string {
@@ -78,9 +80,17 @@ export function safeFileName(id: string, maxLength = 120): string {
   return base.length > maxLength ? base.slice(0, maxLength) : base
 }
 
-/** Default data directory for a DSH home. */
+/**
+ * Data directory for a DSH home.
+ *
+ * The package was renamed (dsh-git-plugin-sync → dsh-plugins-git-sync), so an
+ * existing install keeps using its old directory instead of losing config,
+ * state and snapshots; a fresh install uses the new name.
+ */
 export function dataDirFor(dshHome: string): string {
-  return join(dshHome, 'dsh-git-plugin-sync')
+  const next = join(dshHome, APP_DIR_NAME)
+  const legacy = join(dshHome, LEGACY_APP_DIR_NAME)
+  return existsSync(next) || !existsSync(legacy) ? next : legacy
 }
 
 /** OS temp root used by tests and snapshot staging. */

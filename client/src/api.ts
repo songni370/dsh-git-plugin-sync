@@ -7,7 +7,7 @@
  * `tsc` instead of silently breaking the page.
  *
  * Wire rules (see api-types.ts):
- *  - every route is POSTed relative to the page (`api/dsh-git-plugin-sync/...`),
+ *  - every route is POSTed relative to the page (`api/dsh-plugins-git-sync/...`),
  *    through the Host connection's authenticated same-origin channel;
  *  - the body is JSON, `{ ok: true, value }` on success and
  *    `{ ok: false, error: { code, message } }` on failure;
@@ -46,7 +46,7 @@ import type {
 import type { SyncPlan } from '../../src/types'
 
 /** Route prefix, relative to the page the UI is served from. */
-const PREFIX = 'api/dsh-git-plugin-sync'
+const PREFIX = 'api/dsh-plugins-git-sync'
 
 /**
  * A failed Host call, carrying the Host's machine code so a caller can branch

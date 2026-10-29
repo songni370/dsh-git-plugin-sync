@@ -55,10 +55,10 @@ export function createLogger(options: LoggerOptions = {}): FileSyncLogger {
     const host = options.host
     if (host !== undefined) {
       try {
-        if (level === 'error') host.error(`[${'dsh-git-plugin-sync'}] ${safeMessage}`, safeDetails ?? '')
-        else if (level === 'warn') host.warn(`[${'dsh-git-plugin-sync'}] ${safeMessage}`, safeDetails ?? '')
-        else if (level === 'debug') host.debug(`[${'dsh-git-plugin-sync'}] ${safeMessage}`, safeDetails ?? '')
-        else host.info(`[${'dsh-git-plugin-sync'}] ${safeMessage}`, safeDetails ?? '')
+        if (level === 'error') host.error(`[${'dsh-plugins-git-sync'}] ${safeMessage}`, safeDetails ?? '')
+        else if (level === 'warn') host.warn(`[${'dsh-plugins-git-sync'}] ${safeMessage}`, safeDetails ?? '')
+        else if (level === 'debug') host.debug(`[${'dsh-plugins-git-sync'}] ${safeMessage}`, safeDetails ?? '')
+        else host.info(`[${'dsh-plugins-git-sync'}] ${safeMessage}`, safeDetails ?? '')
       } catch {
         // Host logger availability is not worth failing an operation for.
       }

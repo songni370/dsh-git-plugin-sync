@@ -1,6 +1,6 @@
 # 架构说明 / Architecture
 
-本文面向维护者，说明 **DSH 插件 Git 同步（`dsh-git-plugin-sync`）** 的模块边界、数据流、状态文件、双向同步算法、安全不变量与扩展点。用户文档见 [README.md](../README.md)。
+本文面向维护者，说明 **DSH 插件 Git 同步（`dsh-plugins-git-sync`）** 的模块边界、数据流、状态文件、双向同步算法、安全不变量与扩展点。用户文档见 [README.md](../README.md)。
 
 This document is for maintainers: module boundaries, data flow, state files, the two-way synchronization algorithm, safety invariants, and extension points. User documentation is in [README_EN.md](../README_EN.md).
 
@@ -171,14 +171,14 @@ run(reason)
 
 ## 4. 本机状态文件
 
-| 路径（`$DSH_HOME/dsh-git-plugin-sync/`） | 写入者 | 内容 |
+| 路径（`$DSH_HOME/dsh-plugins-git-sync/`） | 写入者 | 内容 |
 | --- | --- | --- |
 | `config.json` | `state/store.ts` `ConfigStore` | 归一化后的 `SyncConfig`（无秘密；`tokenEnvVar` 只是变量名） |
 | `state.json` | `StateStore` | `LocalState`：设备身份、`lastSyncAt`、`lastCommit`、`lastOperation`、`lastError`、`baselines`、`conflicts`、`connection`、`autoSyncFailures` |
 | `sync.log` | `core/logger.ts` | JSONL，每行 `{at, level, message, details?}`（已脱敏）；内存环形缓冲 500 条 |
 | `snapshots/<id>/snapshot.json` | `services/snapshot.ts` | 快照：`{schemaVersion, createdAt, operation, profile, device, inventory, configs}`；id 形如 `20261028-150501-ab12` |
 | `work/<hash>/` | `git/repo-store.ts` | 备份仓库的工作副本；`hash = sha256(repoUrl + "\n" + branch)` 前 20 个十六进制字符；纯缓存，可删除 |
-| `archives/` | — | 预留（v0.1.0 不写入任何归档） |
+| `archives/` | — | 预留（当前版本不写入任何归档） |
 
 ### 基线（baseline）语义
 
@@ -332,7 +332,7 @@ Windows: 同理（它会把 A 从 1.2.0 与本机推不上去）→ 冲突
 
 ## 8. HTTP 接口（设置页 ↔ Host）
 
-- 前缀：`/api/dsh-git-plugin-sync`
+- 前缀：`/api/dsh-plugins-git-sync`
 - 全部为 **POST**，请求体 JSON（上限 1 MiB），响应统一信封：
   - 成功：`{ "ok": true, "value": <payload> }`
   - 失败：`{ "ok": false, "error": { "code": <SyncErrorCode>, "message": <本地化消息>, "details"?: <JSON> } }`
@@ -355,7 +355,7 @@ Windows: 同理（它会把 A 从 1.2.0 与本机推不上去）→ 冲突
 | `auto-sync` | `{enabled, mode?, intervalMinutes?, onStartup?, onPluginChange?, debounceMs?}` | `{ status: StatusView }` |
 | `logs` | `{limit?: number}` | `{ entries: LogEntry[] }` |
 
-浏览器侧入口在 `client/src/api.ts`（相对路径 `api/dsh-git-plugin-sync/<route>`，`credentials: 'same-origin'`）。`confirmation-required` / `conflict-present` 错误的 `details.plan` 会被客户端取出并渲染为确认对话框。
+浏览器侧入口在 `client/src/api.ts`（相对路径 `api/dsh-plugins-git-sync/<route>`，`credentials: 'same-origin'`）。`confirmation-required` / `conflict-present` 错误的 `details.plan` 会被客户端取出并渲染为确认对话框。
 
 ## 9. Agent 工具契约
 

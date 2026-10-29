@@ -27,7 +27,13 @@ export declare function normalizeBackupDir(input: string): string;
 export declare function repoPath(...segments: string[]): string;
 /** A filesystem-safe file name derived from a plugin id. */
 export declare function safeFileName(id: string, maxLength?: number): string;
-/** Default data directory for a DSH home. */
+/**
+ * Data directory for a DSH home.
+ *
+ * The package was renamed (dsh-git-plugin-sync → dsh-plugins-git-sync), so an
+ * existing install keeps using its old directory instead of losing config,
+ * state and snapshots; a fresh install uses the new name.
+ */
 export declare function dataDirFor(dshHome: string): string;
 /** OS temp root used by tests and snapshot staging. */
 export declare function tempRoot(): string;

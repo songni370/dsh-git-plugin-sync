@@ -8,13 +8,13 @@ import { authForTransport, detectRepoTransport, transportUsesAuth } from '../../
 
 describe('detectRepoTransport', () => {
   it('recognises HTTPS URLs', () => {
-    expect(detectRepoTransport('https://github.com/songni370/dsh-git-plugin-sync.git')).toBe('https')
+    expect(detectRepoTransport('https://github.com/songni370/dsh-plugins-git-sync.git')).toBe('https')
     expect(detectRepoTransport('http://git.internal/repo.git')).toBe('https')
     expect(detectRepoTransport('  https://github.com/a/b  ')).toBe('https')
   })
 
   it('recognises SSH URLs and scp-like syntax', () => {
-    expect(detectRepoTransport('git@github.com:songni370/dsh-git-plugin-sync.git')).toBe('ssh')
+    expect(detectRepoTransport('git@github.com:songni370/dsh-plugins-git-sync.git')).toBe('ssh')
     expect(detectRepoTransport('ssh://git@example.com:2222/repo.git')).toBe('ssh')
     expect(detectRepoTransport('sftp://git@example.com/repo.git')).toBe('ssh')
     expect(detectRepoTransport('gitlab.example.com:group/repo.git')).toBe('other')

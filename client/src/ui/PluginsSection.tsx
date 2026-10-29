@@ -19,12 +19,19 @@ import { Badge, Banner, Button, Card, Checkbox, LinkButton, Loading, Select } fr
 /** Rows-per-page choices for the plugin table. */
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50, 100] as const
 const DEFAULT_PAGE_SIZE = 10
-const PAGE_SIZE_STORAGE_KEY = 'dsh-git-plugin-sync.plugins-page-size'
+const PAGE_SIZE_STORAGE_KEY = 'dsh-plugins-git-sync.plugins-page-size'
+/** Pre-rename key; read once so an upgrade keeps the saved page size. */
+const LEGACY_PAGE_SIZE_STORAGE_KEY = 'dsh-git-plugin-sync.plugins-page-size'
 
 /** Remember the user's page size across visits. */
 function storedPageSize(): number {
   try {
-    const saved = Number.parseInt(window.localStorage.getItem(PAGE_SIZE_STORAGE_KEY) ?? '', 10)
+    const saved = Number.parseInt(
+      window.localStorage.getItem(PAGE_SIZE_STORAGE_KEY) ??
+        window.localStorage.getItem(LEGACY_PAGE_SIZE_STORAGE_KEY) ??
+        '',
+      10,
+    )
     return (PAGE_SIZE_OPTIONS as readonly number[]).includes(saved) ? saved : DEFAULT_PAGE_SIZE
   } catch {
     return DEFAULT_PAGE_SIZE

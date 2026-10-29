@@ -1377,7 +1377,7 @@ export class SyncEngine {
 
   /** Compose a commit message. */
   private commitMessage(operation: string, userMessage: string | undefined): string {
-    const subject = `[dsh-git-plugin-sync] ${operation} ${this.deps.activeProfile}`
+    const subject = `[dsh-plugins-git-sync] ${operation} ${this.deps.activeProfile}`
     if (userMessage === undefined || userMessage.trim() === '') return subject
     return `${subject}: ${userMessage.trim().slice(0, 200)}`
   }

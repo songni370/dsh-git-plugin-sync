@@ -8,7 +8,7 @@
  */
 
 /** npm package name and GitHub repository name. */
-export const PACKAGE_NAME = 'dsh-git-plugin-sync'
+export const PACKAGE_NAME = 'dsh-plugins-git-sync'
 
 /** Chinese display name used in the DSH settings page and plugin inventory. */
 export const TITLE_ZH = 'DSH 插件 Git 同步'
@@ -23,7 +23,10 @@ export const MANIFEST_SCHEMA_VERSION = 1
 export const STATE_SCHEMA_VERSION = 1
 
 /** Directory under the DSH home that holds this plugin's state, work tree and logs. */
-export const APP_DIR_NAME = 'dsh-git-plugin-sync'
+export const APP_DIR_NAME = 'dsh-plugins-git-sync'
+
+/** Previous data-directory name, read as a fallback so an upgrade keeps config. */
+export const LEGACY_APP_DIR_NAME = 'dsh-git-plugin-sync'
 
 /** File names inside {@link APP_DIR_NAME}. */
 export const CONFIG_FILE = 'config.json'

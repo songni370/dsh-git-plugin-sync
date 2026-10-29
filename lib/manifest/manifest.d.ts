@@ -19,7 +19,7 @@
 import type { DeviceInfo, DeviceSnapshot, JsonValue, Manifest, PluginRecord, RemoteConfigEntry, RemotePluginEntry, RemoteProfileState } from '../types.js';
 /** Generator recorded in the manifest; bumped with the plugin release. */
 export declare const MANIFEST_GENERATOR: {
-    readonly name: "dsh-git-plugin-sync";
+    readonly name: "dsh-plugins-git-sync";
     readonly version: "0.1.0";
 };
 /** Profile names and device ids become path segments; keep them simple. */

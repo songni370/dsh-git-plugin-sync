@@ -1,6 +1,6 @@
 # 安全模型 / Security
 
-本文说明 **DSH 插件 Git 同步（`dsh-git-plugin-sync`）** 的威胁模型、脱敏规则、Git 子进程加固、路径校验、日志脱敏，以及「永远不会上传什么」。用户视角的安全说明见 [README.md 第 11 节](../README.md#11-安全与隐私)。
+本文说明 **DSH 插件 Git 同步（`dsh-plugins-git-sync`）** 的威胁模型、脱敏规则、Git 子进程加固、路径校验、日志脱敏，以及「永远不会上传什么」。用户视角的安全说明见 [README.md 第 11 节](../README.md#11-安全与隐私)。
 
 This document describes the threat model, secret-filtering rules, Git subprocess hardening, path validation, log redaction, and what is never uploaded. See [README_EN.md section 11](../README_EN.md#11-security-and-privacy) for the user-facing summary.
 
@@ -13,7 +13,7 @@ This document describes the threat model, secret-filtering rules, Git subprocess
 | HTTPS 访问令牌 / SSH 私钥 | DSH 进程环境、系统凭据管理器、ssh-agent | 本插件**不保存、不读取内容**；HTTPS 令牌只按环境变量名在子进程环境里取值；SSH 由系统 Git 处理 |
 | 插件配置中的潜在秘密 | 宿主配置 / settings | 进入备份前按「键名 + 值形态」双向过滤；写回前再次过滤 |
 | 备份仓库（含插件清单） | 用户自己的 Git 仓库（建议私有） | 只写白名单字段；不写绝对路径；不写秘密；提交历史可审计 |
-| 本机数据目录 | `$DSH_HOME/dsh-git-plugin-sync/` | 目录 `0700`、文件 `0600`、原子写入（临时文件 + rename） |
+| 本机数据目录 | `$DSH_HOME/dsh-plugins-git-sync/` | 目录 `0700`、文件 `0600`、原子写入（临时文件 + rename） |
 | 本机快照 | 同上 `snapshots/` | 只含过滤后的配置与插件清单；用于失败回滚 |
 | 日志 | `sync.log` + 宿主日志 | 写入前统一脱敏 |
 
@@ -195,5 +195,5 @@ This document describes the threat model, secret-filtering rules, Git subprocess
 - 令牌放在子进程环境变量中，同用户进程可读（操作系统边界）；
 - 插件不校验 Git 版本、不校验 `installSpec` 指向的包内容（交给 DSH 插件管理器与 registry 的完整性校验）；
 - 插件不做传输层之外的额外加密：仓库安全由 GitHub/你的托管方负责；
-- v0.1.0 只同步当前激活 Profile（见 README 已知限制）；
+- 当前版本只同步当前激活 Profile（见 README 已知限制）；
 - Agent 工具以当前用户的 DSH 权限运行，破坏性操作虽有确认闸门，但确认后即执行。

@@ -1,5 +1,5 @@
 /**
- * Builds the browser half of dsh-git-plugin-sync.
+ * Builds the browser half of dsh-plugins-git-sync.
  *
  * The Harness Web module table hands a client plugin a `window.__ModuleLoader__`
  * factory whose only externals are the table's react entries. This script

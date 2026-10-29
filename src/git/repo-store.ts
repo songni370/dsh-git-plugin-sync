@@ -283,7 +283,7 @@ function commitEnvironment(trailers: CommitTrailers): Record<string, string> {
     .slice(0, 64)
   const authorName = name === '' ? 'DSH Plugin Git Sync' : name
   const rawId = typeof trailers.deviceId === 'string' ? trailers.deviceId : ''
-  const authorEmail = `${/^[A-Za-z0-9._-]{1,64}$/.test(rawId) ? rawId : 'device'}@dsh-git-plugin-sync.local`
+  const authorEmail = `${/^[A-Za-z0-9._-]{1,64}$/.test(rawId) ? rawId : 'device'}@dsh-plugins-git-sync.local`
   return {
     GIT_AUTHOR_NAME: authorName,
     GIT_AUTHOR_EMAIL: authorEmail,

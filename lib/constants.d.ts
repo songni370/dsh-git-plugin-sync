@@ -7,7 +7,7 @@
  * @module constants
  */
 /** npm package name and GitHub repository name. */
-export declare const PACKAGE_NAME = "dsh-git-plugin-sync";
+export declare const PACKAGE_NAME = "dsh-plugins-git-sync";
 /** Chinese display name used in the DSH settings page and plugin inventory. */
 export declare const TITLE_ZH = "DSH \u63D2\u4EF6 Git \u540C\u6B65";
 /** English display name used in the DSH settings page and plugin inventory. */
@@ -17,7 +17,9 @@ export declare const MANIFEST_SCHEMA_VERSION = 1;
 /** Version of the local state document. */
 export declare const STATE_SCHEMA_VERSION = 1;
 /** Directory under the DSH home that holds this plugin's state, work tree and logs. */
-export declare const APP_DIR_NAME = "dsh-git-plugin-sync";
+export declare const APP_DIR_NAME = "dsh-plugins-git-sync";
+/** Previous data-directory name, read as a fallback so an upgrade keeps config. */
+export declare const LEGACY_APP_DIR_NAME = "dsh-git-plugin-sync";
 /** File names inside {@link APP_DIR_NAME}. */
 export declare const CONFIG_FILE = "config.json";
 export declare const STATE_FILE = "state.json";

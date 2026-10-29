@@ -87,8 +87,8 @@ export function installSettingsNavIcon(ctx: NavIconContext, resolveLabel: () => 
   if (typeof document === 'undefined') return
   ctx.effect(() => {
     const style = document.createElement('style')
-    style.dataset.plugin = 'dsh-git-plugin-sync'
-    style.dataset.pluginCss = 'dsh-git-plugin-sync/settings-nav-icon'
+    style.dataset.plugin = 'dsh-plugins-git-sync'
+    style.dataset.pluginCss = 'dsh-plugins-git-sync/settings-nav-icon'
     style.textContent = navIconCss(navIconMaskUrl())
     document.head.appendChild(style)
 
@@ -123,5 +123,5 @@ export function installSettingsNavIcon(ctx: NavIconContext, resolveLabel: () => 
       for (const row of document.querySelectorAll(`[${NAV_ICON_MARKER}]`)) row.removeAttribute(NAV_ICON_MARKER)
       style.remove()
     }
-  }, 'dsh-git-plugin-sync: settings nav icon')
+  }, 'dsh-plugins-git-sync: settings nav icon')
 }

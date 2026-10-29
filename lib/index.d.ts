@@ -15,7 +15,7 @@ import { APP_DIR_NAME } from './constants.js';
 import { createEngine } from './services/engine.js';
 import type { DshContext } from './dsh.js';
 /** Cordis plugin name; equals the bundle row id and the npm package name. */
-export declare const name = "dsh-git-plugin-sync";
+export declare const name = "dsh-plugins-git-sync";
 /** No hard service dependency: every service is feature-detected. */
 export declare const inject: string[];
 /** Plugin entry point. */

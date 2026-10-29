@@ -1,7 +1,7 @@
 /**
  * Local persistence: configuration, runtime state, device identity and paths.
  *
- * The plugin keeps its own files under `<DSH home>/dsh-git-plugin-sync`, never
+ * The plugin keeps its own files under `<DSH home>/dsh-plugins-git-sync`, never
  * inside the DSH profile package files and never inside the backup repository.
  * Configuration contains no secrets: an HTTPS token is read from an environment
  * variable at Git-invocation time, and only the variable's *name* is stored.

@@ -46,6 +46,14 @@ describe('plugins-tab visibility', () => {
     expect(listener).toHaveBeenCalledTimes(1)
   })
 
+  it('reads the pre-rename storage key once', async () => {
+    localStorage.setItem('dsh-git-plugin-sync.plugins-tab', '0')
+    vi.resetModules()
+    const fresh = await import('../../client/src/plugins-tab-visibility')
+    expect(fresh.pluginsTabEnabled()).toBe(false)
+    fresh.resetPluginsTabVisibility()
+  })
+
   it('falls back to shown when storage throws', () => {
     const getItem = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
       throw new Error('storage disabled')

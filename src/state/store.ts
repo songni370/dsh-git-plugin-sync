@@ -1,7 +1,7 @@
 /**
  * Local persistence: configuration, runtime state, device identity and paths.
  *
- * The plugin keeps its own files under `<DSH home>/dsh-git-plugin-sync`, never
+ * The plugin keeps its own files under `<DSH home>/dsh-plugins-git-sync`, never
  * inside the DSH profile package files and never inside the backup repository.
  * Configuration contains no secrets: an HTTPS token is read from an environment
  * variable at Git-invocation time, and only the variable's *name* is stored.
@@ -13,7 +13,6 @@ import { mkdir, open, readFile, rename, rm, stat } from 'node:fs/promises'
 import { hostname } from 'node:os'
 import { dirname, join } from 'node:path'
 import {
-  APP_DIR_NAME,
   CONFIG_FILE,
   LOG_FILE,
   SNAPSHOT_DIR,
@@ -24,7 +23,7 @@ import {
 } from '../constants.js'
 import { isJsonValue, safeParseJson } from '../core/json.js'
 import { SyncError } from '../core/errors.js'
-import { hasControlCharacters, normalizeBackupDir } from '../core/paths.js'
+import { dataDirFor, hasControlCharacters, normalizeBackupDir } from '../core/paths.js'
 import type {
   AutoSyncConfig,
   DeviceInfo,
@@ -46,7 +45,7 @@ export interface StorePaths {
 
 /** Resolve every local path from the DSH home. */
 export function resolveStorePaths(dshHome: string): StorePaths {
-  const dataDir = join(dshHome, APP_DIR_NAME)
+  const dataDir = dataDirFor(dshHome)
   return {
     dataDir,
     configPath: join(dataDir, CONFIG_FILE),
