@@ -577,6 +577,18 @@ export const CSS = `
   font-size: 11px;
   line-height: 16px;
 }
+.dgs-pluginsFilterRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.dgs-pluginsFilterInput {
+  flex: 1 1 220px;
+  width: auto;
+  min-width: 0;
+  max-width: 420px;
+}
 .dgs-pluginsBody {
   display: flex;
   flex-direction: column;

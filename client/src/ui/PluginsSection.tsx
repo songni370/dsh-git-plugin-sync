@@ -91,11 +91,6 @@ export function PluginsSection(props: PluginsSectionProps): ReactElement {
       trailing={
         <div className="dgs-btnRow">
           <span className="dgs-hint">{t('pluginsCount', { count: rows.length })}</span>
-          {open ? (
-            <Button small onClick={props.onRefresh} disabled={props.loading || props.busy}>
-              {t('pluginsRefresh')}
-            </Button>
-          ) : null}
           <button
             type="button"
             className="dgs-disclosure"
@@ -135,18 +130,23 @@ export function PluginsSection(props: PluginsSectionProps): ReactElement {
       <label className="dgs-srOnly" htmlFor="dgs-plugins-filter">
         {t('pluginsFilterPlaceholder')}
       </label>
-      <input
-        id="dgs-plugins-filter"
-        className="dgs-input"
-        type="search"
-        value={props.filter}
-        placeholder={t('pluginsFilterPlaceholder')}
-        onChange={event => {
-          props.onFilterChange(event.target.value)
-          // Typing a filter is a request to see the list.
-          setOpen(true)
-        }}
-      />
+      <div className="dgs-pluginsFilterRow">
+        <input
+          id="dgs-plugins-filter"
+          className="dgs-input dgs-pluginsFilterInput"
+          type="search"
+          value={props.filter}
+          placeholder={t('pluginsFilterPlaceholder')}
+          onChange={event => {
+            props.onFilterChange(event.target.value)
+            // Typing a filter is a request to see the list.
+            setOpen(true)
+          }}
+        />
+        <Button small onClick={props.onRefresh} disabled={props.loading || props.busy}>
+          {t('pluginsRefresh')}
+        </Button>
+      </div>
 
       {props.loading && props.plugins === null ? <Loading text={t('loading')} /> : null}
 

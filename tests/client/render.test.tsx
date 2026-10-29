@@ -372,11 +372,12 @@ describe('settings page render', () => {
     // The stylesheet must actually hide it (author display:flex would
     // otherwise override the browser's default [hidden] rule).
     expect(body === null ? '' : window.getComputedStyle(body).display).toBe('none')
-    // Collapsed: no refresh button, filter is part of the hidden body.
-    const refreshInCard = Array.from(container.querySelectorAll('button')).filter(button =>
+    // The refresh button now sits next to the filter inside the hidden body.
+    const refresh = Array.from(container.querySelectorAll('button')).find(button =>
       (button.textContent ?? '').includes('刷新列表'),
     )
-    expect(refreshInCard).toHaveLength(0)
+    expect(refresh).toBeDefined()
+    expect(body?.contains(refresh ?? null)).toBe(true)
     const filter = container.querySelector('#dgs-plugins-filter')
     expect(filter).not.toBeNull()
     expect(body?.contains(filter)).toBe(true)
@@ -387,9 +388,9 @@ describe('settings page render', () => {
     })
     const opened = container.querySelector('#dgs-plugins-body')
     expect(opened?.hasAttribute('hidden')).toBe(false)
-    expect(Array.from(container.querySelectorAll('button')).some(button =>
-      (button.textContent ?? '').includes('刷新列表'),
-    )).toBe(true)
+    // The filter and refresh share the same row when expanded.
+    expect(opened?.querySelector('.dgs-pluginsFilterRow #dgs-plugins-filter')).not.toBeNull()
+    expect(opened?.querySelector('.dgs-pluginsFilterRow')?.textContent).toContain('刷新列表')
   })
 
   it('opens the confirmation dialog with the destructive plan from the Host', async () => {
