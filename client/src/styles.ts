@@ -632,7 +632,9 @@ export const CSS = `
 }
 .dgs-moreActions {
   position: relative;
-  margin-left: auto;
+  /* Sits right after 检查差异, with a deliberately larger gap than the two
+     primary buttons. */
+  margin-left: 16px;
 }
 .dgs-moreSummary {
   display: inline-flex;

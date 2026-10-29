@@ -10,6 +10,16 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.30] - 2026-10-29
+
+### Changed
+
+- **「更多操作」位置与交互调整**：按钮从右侧贴边改为紧跟在「检查差异」右侧，并保留更大的 16px 间距；点击展开菜单，**鼠标移出菜单区域后自动收起**（点击菜单项也会收起）。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（18 个测试文件 / 233 个测试）通过；新增鼠标移出自动关闭的回归测试。
+
 ## [0.1.29] - 2026-10-29
 
 ### Changed
@@ -443,7 +453,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.29...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.30...HEAD
+[0.1.30]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.29...v0.1.30
 [0.1.29]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.28...v0.1.29
 [0.1.28]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.27...v0.1.28
 [0.1.27]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.26...v0.1.27

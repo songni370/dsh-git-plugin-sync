@@ -249,12 +249,25 @@ describe('settings page render', () => {
     expect(container.querySelector('#dgs-diff-direction')).toBeNull()
     const menu = main?.querySelector('.dgs-moreActions')
     expect(menu).not.toBeNull()
+    // The trigger comes after both primary buttons (not pushed to the far edge).
+    expect(main?.lastElementChild).toBe(menu)
     expect(menu?.querySelector('summary')?.textContent).toContain('更多操作')
     const items = Array.from(menu?.querySelectorAll('.dgs-moreItem') ?? []).map(
       item => item.textContent ?? '',
     )
     expect(items.some(text => text.includes('备份到 Git'))).toBe(true)
     expect(items.some(text => text.includes('从 Git 恢复'))).toBe(true)
+
+    // Opening the menu is click-driven; leaving the mouse closes it again.
+    const details = menu as HTMLDetailsElement
+    await act(async () => {
+      details.open = true
+    })
+    expect(details.open).toBe(true)
+    await act(async () => {
+      details.dispatchEvent(new window.MouseEvent('mouseout', { bubbles: true, relatedTarget: document.body }))
+    })
+    expect(details.open).toBe(false)
   })
 
   it('merges auto-sync into the operations card as a collapsed panel', async () => {

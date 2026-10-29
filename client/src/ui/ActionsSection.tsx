@@ -57,7 +57,7 @@ export function ActionsSection(props: ActionsSectionProps): ReactElement {
         <Button onClick={props.onDiff} disabled={disabled} title={t('actionDiffHint')}>
           {t('actionDiff')}
         </Button>
-        <details className="dgs-moreActions" ref={moreRef}>
+        <details className="dgs-moreActions" ref={moreRef} onMouseLeave={closeMore}>
           <summary className="dgs-moreSummary">{t('moreActions')}</summary>
           <div className="dgs-moreMenu" role="menu">
             <button
