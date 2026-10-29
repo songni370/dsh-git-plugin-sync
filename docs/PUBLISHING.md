@@ -97,7 +97,7 @@ npm whoami
 2. `build:host`：`tsc -p tsconfig.build.json`，从 `src/` 产出 `lib/*.js` + `lib/**/*.d.ts`；
 3. `build:client`：`node scripts/build-client.mjs`，用 esbuild 把 `client/src/index.tsx` 打成 `lib/client.js`（CommonJS，React 外置，包在 `window.__ModuleLoader__.load({id, factory(require){...}})` 里）。
 
-打包文件由 `files` 字段决定：`lib`、`locale`、`cordis.patch.yml`、`icon.svg`、`README.md`、`README_EN.md`、`CHANGELOG.md`、`LICENSE`（npm 还会自动带上 `package.json`）。`src/`、`client/`、`tests/`、`docs/` **不会**进 tarball。
+打包文件由 `files` 字段决定：`lib`、`locale`、`cordis.patch.yml`、`assets/icon.png`、`README.md`、`README_EN.md`、`CHANGELOG.md`、`LICENSE`（npm 还会自动带上 `package.json`）。`src/`、`client/`、`tests/`、`docs/` **不会**进 tarball。
 
 ### 2.3 检查 tarball
 
@@ -111,7 +111,7 @@ tar -tzf dsh-plugins-git-sync-0.2.0.tgz | sort
 必须确认：
 
 - `lib/index.js`、`lib/client.js`、`lib/index.d.ts` 存在；
-- `cordis.patch.yml`、`icon.svg`、`locale/zh.json`、`locale/en.json` 存在；
+- `cordis.patch.yml`、`assets/icon.png`、`locale/zh.json`、`locale/en.json` 存在；
 - `README.md` / `README_EN.md` / `CHANGELOG.md` / `LICENSE` 存在；
 - 没有 `src/`、`tests/`、`node_modules/`、`.git/`、临时文件、`*.tgz` 自己；
 - `package.json` 的 `main`（`lib/index.js`）、`types`（`lib/index.d.ts`）、`exports` 指向的文件都确实在包里。
@@ -198,7 +198,7 @@ npm publish --access public
 | 元数据 | 本仓库位置 | 说明 |
 | --- | --- | --- |
 | 插件标题与描述 | `locale/zh.json`、`locale/en.json` 的 `meta.title` / `meta.description` | 插件清单与设置里显示；`package.json` 的 `dsh`/`exports` 需要导出 `./locale/*.json`（当前已导出） |
-| 图标 | `icon.svg`；`package.json` 的 `icon` 字段与 `exports["./icon"]` | 支持 SVG/PNG/JPEG/WebP，≤256 KiB；必须位于包内，绝对路径/URL/包外符号链接会被拒绝 |
+| 图标 | `assets/icon.png`（设置页导航图标为 `assets/icon-settings.png`，内嵌进客户端 bundle）；`package.json` 的 `icon` 字段与 `exports["./icon"]` | 支持 SVG/PNG/JPEG/WebP，≤256 KiB；必须位于包内，绝对路径/URL/包外符号链接会被拒绝 |
 | bundle 补丁 | `cordis.patch.yml` | `dsh.bundle.patch` 指向它；缺失则插件不会被装入 profile |
 | 浏览器半声明 | `package.json` 的 `dsh.client`（`platform: web` + `inject`） | 设置页注册所需 |
 | 宿主版本要求 | （可选）`package.json` 的 `engines.dsh` 或同版本线 `@deepseek-ai/dsh-*` peer 依赖 | 市场卡片会展示声明的宿主要求；当前包**只声明了 `engines.node`**，没有声明 `engines.dsh`——发布时可考虑补上，以便市场做兼容筛选 |

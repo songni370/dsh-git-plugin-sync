@@ -20,7 +20,7 @@ import type { DeviceInfo, DeviceSnapshot, JsonValue, Manifest, PluginRecord, Rem
 /** Generator recorded in the manifest; bumped with the plugin release. */
 export declare const MANIFEST_GENERATOR: {
     readonly name: "dsh-plugins-git-sync";
-    readonly version: "0.1.0";
+    readonly version: "0.2.1";
 };
 /** Profile names and device ids become path segments; keep them simple. */
 export declare const PROFILE_NAME_PATTERN: RegExp;

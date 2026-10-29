@@ -12,6 +12,8 @@
  * @module nav-icon
  */
 
+import { SETTINGS_ICON_MASK_URL } from './settings-icon-data'
+
 /** Attribute that marks the one nav row this plugin owns. */
 export const NAV_ICON_MARKER = 'data-dsh-git-sync-nav-icon'
 
@@ -22,25 +24,14 @@ export const NAV_ROW_SELECTOR = '[role="dialog"] nav button'
 export const NAV_ICON_SIZE = 16
 
 /**
- * Standalone monochrome SVG used as a CSS mask.
+ * Data URL of the mask glyph.
  *
- * Painted pure black on purpose: a mask reads alpha only, and the visible
- * colour comes from `background-color: currentColor` (theme-aware in both
- * light and dark modes). Shape: two circular arrows — backup/sync.
+ * The artwork is `assets/icon-settings.png`: a black sync/puzzle glyph on
+ * transparency. A mask reads only alpha, so the visible colour comes from
+ * `background-color: currentColor` and follows the light/dark theme.
  */
-export function navIconMaskSvg(): string {
-  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"'
-    + ' stroke="#000" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">'
-    + '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>'
-    + '<path d="M21 3v5h-5"/>'
-    + '<path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>'
-    + '<path d="M8 16H3v5"/>'
-    + '</svg>'
-}
-
-/** Data-URL form of the mask glyph. */
-export function navIconMaskUrl(svg: string = navIconMaskSvg()): string {
-  return `data:image/svg+xml,${encodeURIComponent(svg)}`
+export function navIconMaskUrl(): string {
+  return SETTINGS_ICON_MASK_URL
 }
 
 /** Whether a nav row's text is this plugin's own label. */
@@ -51,7 +42,7 @@ export function isOwnNavRow(rowText: string | null | undefined, wantedLabel: str
 }
 
 /** Stylesheet that hides the shell's gear and paints the mask. */
-export function navIconCss(maskUrl: string): string {
+export function navIconCss(maskUrl: string = navIconMaskUrl()): string {
   return [
     `[${NAV_ICON_MARKER}] > svg { display: none; }`,
     `[${NAV_ICON_MARKER}]::before {`,
@@ -89,7 +80,7 @@ export function installSettingsNavIcon(ctx: NavIconContext, resolveLabel: () => 
     const style = document.createElement('style')
     style.dataset.plugin = 'dsh-plugins-git-sync'
     style.dataset.pluginCss = 'dsh-plugins-git-sync/settings-nav-icon'
-    style.textContent = navIconCss(navIconMaskUrl())
+    style.textContent = navIconCss()
     document.head.appendChild(style)
 
     let disposed = false

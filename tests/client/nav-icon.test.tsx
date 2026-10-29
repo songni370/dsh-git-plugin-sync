@@ -11,9 +11,9 @@ import {
   installSettingsNavIcon,
   isOwnNavRow,
   navIconCss,
-  navIconMaskSvg,
   navIconMaskUrl,
 } from '../../client/src/nav-icon'
+import { SETTINGS_ICON_MASK_URL } from '../../client/src/settings-icon-data'
 
 /** Build the shell's nav markup for a given row label. */
 function renderNav(labels: readonly string[]): void {
@@ -38,15 +38,14 @@ describe('settings nav icon', () => {
     document.body.innerHTML = ''
   })
 
-  it('paints a monochrome mask at the shell icon size', () => {
-    const svg = navIconMaskSvg()
-    expect(svg).toContain('viewBox="0 0 24 24"')
-    expect(svg).toContain('stroke="#000"')
-    expect(navIconMaskUrl().startsWith('data:image/svg+xml,')).toBe(true)
-    const css = navIconCss(navIconMaskUrl())
+  it('paints the designed PNG mask at the shell icon size', () => {
+    expect(navIconMaskUrl()).toBe(SETTINGS_ICON_MASK_URL)
+    expect(navIconMaskUrl().startsWith('data:image/png;base64,')).toBe(true)
+    const css = navIconCss()
     expect(css).toContain(`[${NAV_ICON_MARKER}] > svg { display: none; }`)
     expect(css).toContain('16px 16px')
     expect(css).toContain('background-color: currentColor')
+    expect(css).toContain(SETTINGS_ICON_MASK_URL)
   })
 
   it('matches only its own row label', () => {

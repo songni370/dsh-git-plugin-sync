@@ -48,7 +48,7 @@ import type {
 } from '../types.js'
 
 /** Generator recorded in the manifest; bumped with the plugin release. */
-export const MANIFEST_GENERATOR = { name: PACKAGE_NAME, version: '0.1.0' } as const
+export const MANIFEST_GENERATOR = { name: PACKAGE_NAME, version: '0.2.1' } as const
 
 /** Profile names and device ids become path segments; keep them simple. */
 export const PROFILE_NAME_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/

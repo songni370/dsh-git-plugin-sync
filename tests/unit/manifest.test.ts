@@ -181,7 +181,7 @@ describe('buildManifest / serializeManifest', () => {
     expect(next.createdAt).toBe('2026-01-01T00:00:00.000Z')
     // The generator records the plugin version that wrote this manifest, so an
     // upgraded plugin reports its own version instead of freezing the first one.
-    expect(next.generator.version).toBe('0.1.0')
+    expect(next.generator.version).toBe(MANIFEST_GENERATOR.version)
     expect(next.updatedAt).toBe(LATER)
   })
 

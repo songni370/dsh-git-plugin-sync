@@ -8,6 +8,15 @@ This file follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [
 
 暂无 / Nothing yet.
 
+## [0.2.1] - 2026-10-29
+
+### Added
+
+- **设计版插件图标**：
+  - 插件页图标：`assets/icon.png`（鲸鱼 + 分支 + 拼图 + 双向同步，512×512、透明背景），通过 `package.json` 的 `icon` 字段与 `exports["./icon"]` 提供给 DSH，符合宿主「PNG/SVG/WebP、≤256 KiB」限制。
+  - 设置页导航图标：`assets/icon-settings.png`（拼图 + 循环箭头黑色字形），内嵌为 PNG 数据 URL 用作 CSS mask，跟随浅色/深色主题的 `currentColor` 着色。
+- 图标资产测试：校验插件页 PNG 签名与大小上限、设置页 mask 数据 URL 有效。
+
 ## [0.2.0] - 2026-10-29
 
 首个面向日常使用的完整版本：插件更名为 `dsh-plugins-git-sync`，设置页、同步流程与自动同步做了整体重构。
@@ -54,6 +63,7 @@ This file follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [
 - 设置页基础界面、HTTP 路由与 6 个 Agent 工具。
 - 单元测试、双设备集成测试与 CI（macOS / Windows / Linux）。
 
-[Unreleased]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/songni370/dsh-plugins-git-sync/releases/tag/v0.1.0
