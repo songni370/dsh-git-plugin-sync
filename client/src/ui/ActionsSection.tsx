@@ -99,11 +99,11 @@ export function ActionsSection(props: ActionsSectionProps): ReactElement {
       {props.diffLoading ? <Loading text={t('loading')} /> : null}
 
       {props.diff === null ? null : (
-        <section className="dgs-card" aria-label={t('diffTitle')}>
-          <div className="dgs-headRow">
-            <div className="dgs-cardHead">
-              <h4 className="dgs-cardTitle">{t('diffTitle')}</h4>
-              <p className="dgs-cardDesc">{t('diffDesc')}</p>
+        <section className="dgs-diffPanel" aria-label={t('diffTitle')}>
+          <div className="dgs-diffHead">
+            <div className="dgs-diffHeadText">
+              <h4 className="dgs-diffTitle">{t('diffTitle')}</h4>
+              <p className="dgs-diffDesc">{t('diffDesc')}</p>
             </div>
             <LinkButton onClick={props.onClearDiff}>{t('close')}</LinkButton>
           </div>

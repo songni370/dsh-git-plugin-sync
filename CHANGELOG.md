@@ -10,6 +10,22 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.29] - 2026-10-29
+
+### Changed
+
+- **重新设计「检查差异」结果区域**：
+  - 用独立的差异面板替代原先嵌在卡片里的小卡片；顶部是标题、只读说明和「关闭」；
+  - 新增**摘要计数条**：共几步、下载/上传/删除/冲突/警告各多少，一眼看清计划规模；
+  - 步骤按方向分组：**将被删除或覆盖**（红色警示）→ **将从仓库应用** → **将上传到仓库**，每行显示插件名、操作类型标签和详情；
+  - 破坏性步骤不再在“破坏性列表”和“全部步骤”里重复出现一次；
+  - 冲突和警告改为独立行卡片，长文本自动换行。
+  - 同一套渲染也用于破坏性操作的确认框，确认前的信息同样更清晰。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（18 个测试文件 / 233 个测试）通过；新增差异预览分组/计数/去重测试。
+
 ## [0.1.28] - 2026-10-29
 
 ### Changed
@@ -427,7 +443,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.28...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.29...HEAD
+[0.1.29]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.28...v0.1.29
 [0.1.28]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.27...v0.1.28
 [0.1.27]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.26...v0.1.27
 [0.1.26]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.25...v0.1.26

@@ -873,6 +873,71 @@ export const CSS = `
   display: inline;
   white-space: normal;
 }
+.dgs-diffPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 14px;
+  border: 1px solid var(--dsw-alias-border-l1, #e5e7eb);
+  border-radius: 10px;
+  background: var(--dsw-alias-bg-layer-2, #f7f8fa);
+}
+.dgs-diffHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.dgs-diffHeadText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.dgs-diffTitle {
+  margin: 0;
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 600;
+  color: var(--dsw-alias-label-primary, #1f2328);
+}
+.dgs-diffDesc {
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-secondary, #5c6570);
+}
+.dgs-planSummary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+.dgs-planSummaryItem {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border: 1px solid var(--dsw-alias-border-l1, #e5e7eb);
+  border-radius: 6px;
+  background: var(--dsw-alias-bg-layer-1, #ffffff);
+  color: var(--dsw-alias-label-secondary, #5c6570);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+.dgs-planSummaryItemWarn {
+  border-color: var(--dsw-alias-state-warn-primary, #b45309);
+  color: var(--dsw-alias-state-warn-primary, #b45309);
+}
+.dgs-planSummaryItemError {
+  border-color: var(--dsw-alias-state-error-primary, #dc2626);
+  color: var(--dsw-alias-state-error-primary, #dc2626);
+}
 .dgs-planSection {
   display: flex;
   flex-direction: column;
@@ -896,25 +961,47 @@ export const CSS = `
 }
 .dgs-planItem {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 2px 8px;
+  flex-direction: column;
+  gap: 3px;
   box-sizing: border-box;
+  min-width: 0;
   padding: 8px 10px;
   border: 1px solid var(--dsw-alias-border-l1, #e5e7eb);
   border-radius: 8px;
   background: var(--dsw-alias-bg-layer-1, #ffffff);
 }
 .dgs-planItemDestructive {
-  border-color: var(--dsw-alias-state-error-primary, #dc2626);
+  border-color: color-mix(in srgb, var(--dsw-alias-state-error-primary, #dc2626) 45%, var(--dsw-alias-border-l1, #e5e7eb));
+  background: color-mix(in srgb, var(--dsw-alias-state-error-primary, #dc2626) 5%, var(--dsw-alias-bg-layer-1, #ffffff));
+}
+.dgs-planItemHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
 }
 .dgs-planName {
   font-size: 13px;
+  line-height: 19px;
   font-weight: 500;
   color: var(--dsw-alias-label-primary, #1f2328);
   overflow-wrap: anywhere;
 }
+.dgs-planKind {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: var(--dsw-alias-bg-layer-2, #f7f8fa);
+  color: var(--dsw-alias-label-secondary, #5c6570);
+  font-size: 11px;
+  line-height: 1;
+  white-space: nowrap;
+}
 .dgs-planDetail {
+  min-width: 0;
   font-size: 12px;
   line-height: 18px;
   color: var(--dsw-alias-label-secondary, #5c6570);
