@@ -369,6 +369,9 @@ describe('settings page render', () => {
     const body = container.querySelector('#dgs-plugins-body')
     expect(body).not.toBeNull()
     expect(body?.hasAttribute('hidden')).toBe(true)
+    // The stylesheet must actually hide it (author display:flex would
+    // otherwise override the browser's default [hidden] rule).
+    expect(body === null ? '' : window.getComputedStyle(body).display).toBe('none')
     // Collapsed: no refresh button, filter is part of the hidden body.
     const refreshInCard = Array.from(container.querySelectorAll('button')).filter(button =>
       (button.textContent ?? '').includes('刷新列表'),

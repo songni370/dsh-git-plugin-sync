@@ -15,6 +15,9 @@
 
 /** The page stylesheet, as one constant string. */
 export const CSS = `
+.dgs-root [hidden] {
+  display: none !important;
+}
 .dgs-root {
   display: flex;
   flex-direction: column;

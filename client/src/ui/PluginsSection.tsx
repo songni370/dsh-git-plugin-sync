@@ -126,7 +126,12 @@ export function PluginsSection(props: PluginsSectionProps): ReactElement {
         </Banner>
       )}
 
-      <div id="dgs-plugins-body" className="dgs-pluginsBody" hidden={!open}>
+      <div
+        id="dgs-plugins-body"
+        className="dgs-pluginsBody"
+        hidden={!open}
+        style={open ? undefined : { display: 'none' }}
+      >
       <label className="dgs-srOnly" htmlFor="dgs-plugins-filter">
         {t('pluginsFilterPlaceholder')}
       </label>

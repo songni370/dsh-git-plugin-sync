@@ -10,6 +10,19 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.43] - 2026-10-29
+
+### Fixed
+
+- **插件列表展开/收起只切换了描述文字**：`.dgs-pluginsBody` 的 `display: flex` 覆盖了浏览器默认的 `[hidden] { display: none }`，所以 `hidden` 属性没起作用，列表一直可见，视觉上只有描述随状态变化。
+  - 增加全局 `.dgs-root [hidden] { display: none !important; }`，并给插件列表正文加内联兜底，折叠时真正隐藏筛选/表格/分页；
+  - 顺带修复「仓库配置 → 高级设置」同类隐患（其正文也是 flex + hidden）。
+  - 新增 `getComputedStyle` 断言：折叠时正文 `display` 必须为 `none`。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（19 个测试文件 / 240 个测试）通过。
+
 ## [0.1.42] - 2026-10-29
 
 ### Fixed
@@ -606,7 +619,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.42...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.43...HEAD
+[0.1.43]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.42...v0.1.43
 [0.1.42]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.41...v0.1.42
 [0.1.41]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.40...v0.1.41
 [0.1.40]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.39...v0.1.40
