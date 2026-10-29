@@ -9,9 +9,9 @@
 /** npm package name and GitHub repository name. */
 export declare const PACKAGE_NAME = "dsh-plugins-git-sync";
 /** Chinese display name used in the DSH settings page and plugin inventory. */
-export declare const TITLE_ZH = "DSH \u63D2\u4EF6 Git \u540C\u6B65";
+export declare const TITLE_ZH = "\u63D2\u4EF6\u5907\u4EFD";
 /** English display name used in the DSH settings page and plugin inventory. */
-export declare const TITLE_EN = "DSH Plugin Git Sync";
+export declare const TITLE_EN = "Plugin Backup";
 /** Version of the backup manifest written into the user's Git repository. */
 export declare const MANIFEST_SCHEMA_VERSION = 1;
 /** Version of the local state document. */

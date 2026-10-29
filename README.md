@@ -1,6 +1,6 @@
-# DSH 插件 Git 同步
+# 插件备份
 
-> 包名 / 仓库：`dsh-plugins-git-sync` · [English](README_EN.md)
+> 插件显示名：插件备份 / Plugin Backup · 包名 / 仓库：`dsh-plugins-git-sync` · [English](README_EN.md)
 
 用你自己的 **Git 仓库**备份、恢复，并在多台设备之间同步 **DeepSeek Harness（DSH）插件与配置**。
 

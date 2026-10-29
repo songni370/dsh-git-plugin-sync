@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "DSH Plugin Git Sync",
+    "title": "Plugin Backup",
     "description": "Back up, restore, and synchronize DSH plugins and configurations across devices using a Git repository."
   }
 }

@@ -1,6 +1,6 @@
-# DSH Plugin Git Sync
+# Plugin Backup
 
-> Package / repository: `dsh-plugins-git-sync` · [中文](README.md)
+> Display name: 插件备份 / Plugin Backup · Package / repository: `dsh-plugins-git-sync` · [中文](README.md)
 
 Back up, restore, and synchronize **DeepSeek Harness (DSH) plugins and configuration** across devices through your own **Git repository**.
 

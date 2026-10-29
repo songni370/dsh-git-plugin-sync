@@ -8,6 +8,12 @@ This file follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [
 
 暂无 / Nothing yet.
 
+## [0.2.2] - 2026-10-29
+
+### Changed
+
+- **插件展示名改为「插件备份 / Plugin Backup」**（插件清单与设置导航保持一致）；插件说明文字保持不变。
+
 ## [0.2.1] - 2026-10-29
 
 ### Added
@@ -63,7 +69,8 @@ This file follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [
 - 设置页基础界面、HTTP 路由与 6 个 Agent 工具。
 - 单元测试、双设备集成测试与 CI（macOS / Windows / Linux）。
 
-[Unreleased]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/songni370/dsh-plugins-git-sync/releases/tag/v0.1.0

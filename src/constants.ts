@@ -11,10 +11,10 @@
 export const PACKAGE_NAME = 'dsh-plugins-git-sync'
 
 /** Chinese display name used in the DSH settings page and plugin inventory. */
-export const TITLE_ZH = 'DSH 插件 Git 同步'
+export const TITLE_ZH = '插件备份'
 
 /** English display name used in the DSH settings page and plugin inventory. */
-export const TITLE_EN = 'DSH Plugin Git Sync'
+export const TITLE_EN = 'Plugin Backup'
 
 /** Version of the backup manifest written into the user's Git repository. */
 export const MANIFEST_SCHEMA_VERSION = 1
