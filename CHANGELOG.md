@@ -8,6 +8,13 @@ This file follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [
 
 暂无 / Nothing yet.
 
+## [0.2.5] - 2026-10-29
+
+### Changed
+
+- README 安装说明更新为 npm 安装（`dsh plugin --profile web add dsh-plugins-git-sync@latest`），GitHub 源码安装保留为备选。
+- 发布文档更新为已发布状态，并记录 Trusted Publisher 已验证。
+
 ## [0.2.4] - 2026-10-29
 
 ### Added
@@ -87,7 +94,8 @@ This file follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [
 - 设置页基础界面、HTTP 路由与 6 个 Agent 工具。
 - 单元测试、双设备集成测试与 CI（macOS / Windows / Linux）。
 
-[Unreleased]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.4...HEAD
+[Unreleased]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.5...HEAD
+[0.2.5]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.1...v0.2.2

@@ -32,9 +32,27 @@ Settings → "**Plugin Backup**". The Plugins page can also show a "Backup" tab 
 
 ## Install
 
-### From GitHub (recommended)
+### From npm (recommended)
 
-Not published to npm yet. Install through the DSH plugin manager (or `plugin_manager.install_bundle`) with:
+Published on npm:
+
+```sh
+dsh plugin --profile web add dsh-plugins-git-sync@latest
+```
+
+Or through the DSH plugin manager / `plugin_manager.install_bundle`:
+
+```
+dsh-plugins-git-sync
+```
+
+Update:
+
+```sh
+dsh plugin --profile web update dsh-plugins-git-sync@latest
+```
+
+### From the GitHub source (alternative)
 
 ```
 git+ssh://git@github.com:songni370/dsh-plugins-git-sync.git

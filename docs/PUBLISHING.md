@@ -8,7 +8,7 @@ This is the release manual: GitHub, npm, the DSH plugin market, and the versioni
 
 ## 0. 发布前检查清单
 
-- [ ] `package.json` 的 `version` 是本次要发布的版本（当前 `0.2.3`）；
+- [ ] `package.json` 的 `version` 是本次要发布的版本（当前 `0.2.5`）；
 - [ ] 若清单 schema 有变化，`src/constants.ts` 的 `MANIFEST_SCHEMA_VERSION` 已提升，并按 [架构文档的迁移策略](ARCHITECTURE.md#102-版本化与迁移) 处理旧数据；
 - [ ] 备份仓库里的 `generator.version` 是**运行中的插件版本**：`buildManifest({ generatorVersion })` / `buildSchemaDocument(pluginVersion)` 由引擎传入 `deps.pluginVersion`，无需手动改常量；确认 `package.json` 版本正确即可；
 - [ ] `CHANGELOG.md` 有本次版本的条目（日期、Added/Fixed/Security、`verified on DSH <version>`）；
@@ -23,7 +23,7 @@ This is the release manual: GitHub, npm, the DSH plugin market, and the versioni
 
 ### 1.1 创建仓库
 
-> **当前状态**：源码已推送到 `git@github.com:songni370/dsh-plugins-git-sync.git`（`main` 分支 + `v0.2.3` 标签），但**尚未执行 `npm publish`**。下文 GitHub 地址使用实际所有者 `songni370`，npm 安装说明以「发布之后」为前提。
+> **当前状态**：`dsh-plugins-git-sync` 已发布到 npm（最新 `0.2.4`），npm Trusted Publisher 已绑定并验证通过；GitHub Release 由标签自动创建。
 >
 > **注意构建产物**：本仓库**提交了 `lib/`**（Host 半、类型声明与 `lib/client.js`）。原因是 DSH 用 pnpm 安装插件，pnpm 默认阻止依赖执行构建脚本；不提交 `lib/` 时，从 Git URL 安装会缺少入口而无法加载。因此每次发版前必须 `npm run build` 并把 `lib/` 一并提交；`npm pack` 仍会通过 `prepack` 重新构建。
 
@@ -79,7 +79,7 @@ git push origin v0.2.3
 
 ## 2. 发布到 npm
 
-> 当前这个仓库**还没有执行过 `npm publish`**；下面是一次完整首次发布的步骤。
+> 首次发布已经完成；下面的手动流程保留作为 bootstrap 参考。日常发布只需推送 `v*` 标签，由 `.github/workflows/release.yml` 自动完成。
 
 ### 2.1 账户与权限
 
@@ -113,7 +113,7 @@ npm whoami
 npm pack --dry-run
 # 或先产出真实 tarball 检查内容
 npm pack
-tar -tzf dsh-plugins-git-sync-0.2.3.tgz | sort
+tar -tzf dsh-plugins-git-sync-0.2.4.tgz | sort
 ```
 
 必须确认：

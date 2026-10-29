@@ -33,9 +33,27 @@
 
 ## 安装
 
-### 从 GitHub 安装（推荐）
+### 从 npm 安装（推荐）
 
-目前尚未发布到 npm。在 DSH 插件管理器里安装（或让 Agent 调用 `plugin_manager` 的 `install_bundle`），spec 使用：
+已发布到 npm：
+
+```sh
+dsh plugin --profile web add dsh-plugins-git-sync@latest
+```
+
+或在 DSH 插件管理器 / Agent 的 `plugin_manager.install_bundle` 中使用：
+
+```
+dsh-plugins-git-sync
+```
+
+更新：
+
+```sh
+dsh plugin --profile web update dsh-plugins-git-sync@latest
+```
+
+### 从 GitHub 源码安装（备选）
 
 ```
 git+ssh://git@github.com:songni370/dsh-plugins-git-sync.git
