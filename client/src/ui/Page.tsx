@@ -707,6 +707,19 @@ export function Page({ t }: PageProps): ReactElement {
             feedback={feedback.actions ?? undefined}
             autoFeedback={feedback.auto ?? undefined}
             statusPanel={<StatusSection t={t} status={view} embedded />}
+            notices={
+              <>
+                {view.state === 'not-configured' ? (
+                  <Banner tone="idle">{t('statusNotConfiguredHint')}</Banner>
+                ) : null}
+                {view.busy ? <Banner tone="warn">{t('statusBusy')}</Banner> : null}
+                {view.lastError === null ? null : (
+                  <Banner tone="error">
+                    {t('statusLastError')}: {view.lastError}
+                  </Banner>
+                )}
+              </>
+            }
             autoPanel={
               autoForm === null ? undefined : (
                 <AutoSyncSection

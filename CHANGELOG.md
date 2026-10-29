@@ -10,6 +10,16 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.45] - 2026-10-29
+
+### Changed
+
+- **同步状态的提示框移到操作区域**：「未配置仓库」「同步中 / 忙碌」「最近错误」三类状态提示不再显示在同步状态块里，而是统一显示在操作卡片内、操作按钮下方；同步状态块只保留状态徽标、数量与元数据。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（20 个测试文件 / 241 个测试）通过；新增“状态提示位于状态块之前”的断言。
+
 ## [0.1.44] - 2026-10-29
 
 ### Changed
@@ -630,7 +640,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.44...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.45...HEAD
+[0.1.45]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.44...v0.1.45
 [0.1.44]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.43...v0.1.44
 [0.1.43]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.42...v0.1.43
 [0.1.42]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.41...v0.1.42

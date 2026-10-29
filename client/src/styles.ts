@@ -778,6 +778,11 @@ export const CSS = `
   font-weight: 600;
   color: var(--dsw-alias-label-primary, #1f2328);
 }
+.dgs-actionsNotices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 .dgs-actionsMain {
   display: flex;
   align-items: center;

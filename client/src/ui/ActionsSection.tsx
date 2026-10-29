@@ -43,6 +43,8 @@ export interface ActionsSectionProps {
   autoFeedback?: Feedback
   /** Sync status content, embedded at the bottom of this card. */
   statusPanel?: ReactNode
+  /** State notices (not configured / busy / last error) shown near the actions. */
+  notices?: ReactNode
 }
 
 /** Render the operations card. */
@@ -123,6 +125,8 @@ export function ActionsSection(props: ActionsSectionProps): ReactElement {
           </div>
         </details>
       </div>
+
+      {props.notices === undefined ? null : <div className="dgs-actionsNotices">{props.notices}</div>}
 
       {running === null ? null : (
         <p className="dgs-hint" role="status" aria-live="polite">

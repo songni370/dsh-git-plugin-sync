@@ -13,7 +13,7 @@ import type { ReactElement, ReactNode } from 'react'
 import type { SyncState, StatusView } from '../../../src/types'
 import type { Translate } from '../i18n'
 import { formatDateTime, operationLabel, resultLabel, shortCommit } from '../format'
-import { Badge, Banner, Card } from './controls'
+import { Badge, Card } from './controls'
 import type { Tone } from './controls'
 
 /** Copy + tone for every Host sync state. */
@@ -103,9 +103,6 @@ export function StatusSection(props: StatusSectionProps): ReactElement {
 
   const body = (
     <>
-      {status.state === 'not-configured' ? <Banner tone="idle">{t('statusNotConfiguredHint')}</Banner> : null}
-      {status.busy ? <Banner tone="warn">{t('statusBusy')}</Banner> : null}
-
       <div className="dgs-statusTiles">
         {tiles.map(tile => (
           <div
@@ -163,11 +160,6 @@ export function StatusSection(props: StatusSectionProps): ReactElement {
         />
       </div>
 
-      {status.lastError === null ? null : (
-        <Banner tone="error">
-          {t('statusLastError')}: {status.lastError}
-        </Banner>
-      )}
     </>
   )
 
