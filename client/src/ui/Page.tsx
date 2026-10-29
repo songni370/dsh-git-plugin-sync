@@ -43,7 +43,6 @@ import type {
 } from '../../../src/types'
 import * as api from '../api'
 import { errorText, planFromError } from '../api'
-import type { DiffDirection } from '../api'
 import { shortCommit } from '../format'
 import {
   pluginsTabEnabled,
@@ -118,7 +117,6 @@ export function Page({ t }: PageProps): ReactElement {
   const [autoDirty, setAutoDirty] = useState(false)
   const [filter, setFilter] = useState('')
   const [exclusions, setExclusions] = useState<ReadonlySet<string>>(() => new Set<string>())
-  const [diffDirection, setDiffDirection] = useState<DiffDirection>('two-way')
 
   useEffect(() => subscribePluginsTab(() => setPluginsTab(pluginsTabEnabled())), [])
 
@@ -418,7 +416,7 @@ export function Page({ t }: PageProps): ReactElement {
     setBusy('diff')
     setDiffLoading(true)
     try {
-      setDiff(await api.getDiff({ direction: diffDirection }))
+      setDiff(await api.getDiff({ direction: 'two-way' }))
     } catch (error) {
       setActionError(t('diffLoadFailed', { message: errorText(error) }))
     } finally {
@@ -650,8 +648,6 @@ export function Page({ t }: PageProps): ReactElement {
             enabled={configured}
             diff={diff}
             diffLoading={diffLoading}
-            diffDirection={diffDirection}
-            onDiffDirectionChange={setDiffDirection}
             onBackup={() => void runBackup()}
             onRestore={() => void previewRestore('restore')}
             onSync={() => void previewSync()}

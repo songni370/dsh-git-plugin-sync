@@ -235,6 +235,28 @@ describe('settings page render', () => {
     expect(container.querySelector('#dgs-config-repo')?.closest('[hidden]')).toBeNull()
   })
 
+  it('offers two primary actions and hides one-way actions in a menu', async () => {
+    await settle()
+    const main = container.querySelector('.dgs-actionsMain')
+    expect(main).not.toBeNull()
+    const primary = Array.from(main?.querySelectorAll(':scope > button') ?? []).map(
+      button => button.textContent ?? '',
+    )
+    expect(primary).toHaveLength(2)
+    expect(primary[0]).toContain('同步')
+    expect(primary[1]).toContain('检查差异')
+    // The direction selector is gone; diff always previews a two-way sync.
+    expect(container.querySelector('#dgs-diff-direction')).toBeNull()
+    const menu = main?.querySelector('.dgs-moreActions')
+    expect(menu).not.toBeNull()
+    expect(menu?.querySelector('summary')?.textContent).toContain('更多操作')
+    const items = Array.from(menu?.querySelectorAll('.dgs-moreItem') ?? []).map(
+      item => item.textContent ?? '',
+    )
+    expect(items.some(text => text.includes('备份到 Git'))).toBe(true)
+    expect(items.some(text => text.includes('从 Git 恢复'))).toBe(true)
+  })
+
   it('merges auto-sync into the operations card as a collapsed panel', async () => {
     await settle()
     const panel = container.querySelector('.dgs-autoSection')

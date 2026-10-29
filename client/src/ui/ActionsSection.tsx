@@ -8,11 +8,11 @@
  * @module ui/ActionsSection
  */
 
+import { useRef } from 'react'
 import type { ReactElement, ReactNode } from 'react'
 import type { DiffResponse } from '../../../src/http/api-types'
 import type { Translate } from '../i18n'
-import type { DiffDirection } from '../api'
-import { Button, Card, LinkButton, Loading, Select } from './controls'
+import { Button, Card, LinkButton, Loading } from './controls'
 import { PlanPreview } from './PlanPreview'
 
 /** Action names used for the busy indicator and disabled set. */
@@ -29,9 +29,6 @@ export interface ActionsSectionProps {
   enabled: boolean
   diff: DiffResponse | null
   diffLoading: boolean
-  /** Direction the "check differences" preview asks the Host for. */
-  diffDirection: DiffDirection
-  onDiffDirectionChange: (direction: DiffDirection) => void
   onBackup: () => void
   onRestore: () => void
   onSync: () => void
@@ -46,42 +43,51 @@ export function ActionsSection(props: ActionsSectionProps): ReactElement {
   const { t } = props
   const disabled = props.busy !== null || props.hostBusy || !props.enabled
   const running = props.busy === null ? null : actionLabel(t, props.busy)
+  const moreRef = useRef<HTMLDetailsElement>(null)
+  const closeMore = (): void => {
+    if (moreRef.current !== null) moreRef.current.open = false
+  }
 
   return (
     <Card title={t('actionsTitle')} description={t('actionsDesc')}>
-      <div className="dgs-btnRow">
-        <Button variant="primary" onClick={props.onBackup} disabled={disabled} title={t('actionBackupHint')}>
-          {t('actionBackup')}
-        </Button>
-        <Button variant="danger" onClick={props.onRestore} disabled={disabled} title={t('actionRestoreHint')}>
-          {t('actionRestore')}
-        </Button>
-        <Button onClick={props.onSync} disabled={disabled} title={t('actionSyncHint')}>
+      <div className="dgs-actionsMain">
+        <Button variant="primary" onClick={props.onSync} disabled={disabled} title={t('actionSyncHint')}>
           {t('actionSync')}
         </Button>
         <Button onClick={props.onDiff} disabled={disabled} title={t('actionDiffHint')}>
           {t('actionDiff')}
         </Button>
-      </div>
-
-      <div className="dgs-btnRow">
-        <label className="dgs-label" htmlFor="dgs-diff-direction">
-          {t('diffDirection')}
-        </label>
-        <Select
-          id="dgs-diff-direction"
-          className="dgs-selectInline"
-          value={props.diffDirection}
-          disabled={disabled}
-          options={[
-            { value: 'two-way', label: t('diffDirectionTwoWay') },
-            { value: 'push', label: t('diffDirectionPush') },
-            { value: 'pull', label: t('diffDirectionPull') },
-          ]}
-          onChange={value => {
-            props.onDiffDirectionChange(value)
-          }}
-        />
+        <details className="dgs-moreActions" ref={moreRef}>
+          <summary className="dgs-moreSummary">{t('moreActions')}</summary>
+          <div className="dgs-moreMenu" role="menu">
+            <button
+              type="button"
+              className="dgs-moreItem"
+              role="menuitem"
+              disabled={disabled}
+              title={t('actionBackupHint')}
+              onClick={() => {
+                closeMore()
+                props.onBackup()
+              }}
+            >
+              {t('actionBackup')}
+            </button>
+            <button
+              type="button"
+              className="dgs-moreItem dgs-moreItemDanger"
+              role="menuitem"
+              disabled={disabled}
+              title={t('actionRestoreHint')}
+              onClick={() => {
+                closeMore()
+                props.onRestore()
+              }}
+            >
+              {t('actionRestore')}
+            </button>
+          </div>
+        </details>
       </div>
 
       {running === null ? null : (

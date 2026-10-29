@@ -10,6 +10,18 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.28] - 2026-10-29
+
+### Changed
+
+- **简化「操作」区域**：主区域只保留两个按钮——**同步**（主按钮，先预览再执行）和**检查差异**；原来的「备份到 Git」「从 Git 恢复」收进右侧「更多操作 ▾」菜单，保留单向备份/恢复能力但不再干扰主流程。
+- **移除差异方向下拉**：「检查差异」固定展示一次双向同步的计划（上传/下载/删除/冲突），不再要求用户先理解并选择方向。
+- 「立即同步」文案简化为「同步」；相关 README 操作说明同步更新。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（17 个测试文件 / 231 个测试）通过；渲染测试新增“两个主按钮 + 更多操作菜单 + 无方向选择”的断言。
+
 ## [0.1.27] - 2026-10-29
 
 ### Added
@@ -415,7 +427,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.27...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.28...HEAD
+[0.1.28]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.27...v0.1.28
 [0.1.27]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.26...v0.1.27
 [0.1.26]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.25...v0.1.26
 [0.1.25]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.24...v0.1.25

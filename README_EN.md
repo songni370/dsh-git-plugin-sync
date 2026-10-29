@@ -69,7 +69,7 @@ The backup is readable, diffable, rollback-friendly JSON. Commits carry `Operati
 | **Version management** | This plugin only does **"sync the version"**: make the device match the version recorded in the repository (up or down; a downgrade is destructive and requires confirmation). It **does not** look up the latest version or perform a "version upgrade" for you — upgrade through the DSH plugin manager/market, and the next backup records the new version so other devices upgrade to it on their next sync. |
 | **History and rollback** | Pick any commit from the repository history and restore the device to the state recorded in that commit (a local snapshot is taken first). |
 | **Automatic sync** | Off by default. When enabled it syncs on **client startup** and on **plugin changes** (install/update/remove); there is **no interval timer**. Automatic runs **pause and wait** on conflicts or destructive plans: no prompts, no silent deletions. Includes debounce, mutual exclusion, cooldown, and failure backoff. |
-| **Settings page** | Settings → "Plugin Backup": status, repository configuration, manual operations (with automatic sync folded into the card), plugin list and exclusions, history. Status polls every 5 seconds; destructive operations always show a preview confirmation first. A "Page display" switch above the repository card controls the Plugins-page backup tab. **The repository card collapses**: a configured device shows only the card title and the "Configured" status until "Edit configuration" is clicked; a fresh install starts expanded.
+| **Settings page** | Settings → "Plugin Backup": status, repository configuration, operations (primary "Sync" and "Check differences"; backup/restore live under "More actions"; automatic sync is folded into the card), plugin list and exclusions, history. Status polls every 5 seconds; destructive operations always show a preview confirmation first. A "Page display" switch above the repository card controls the Plugins-page backup tab. **The repository card collapses**: a configured device shows only the card title and the "Configured" status until "Edit configuration" is clicked; a fresh install starts expanded.
 **Transport detection**: the URL is detected as HTTPS, SSH or a local path and only the matching auth fields are shown — **an empty or unrecognised address shows no auth fields at all**; HTTPS then offers the credential helper or a token as a segmented control (token env var and username appear only for token auth), SSH shows the system SSH-agent/key hint and needs no token, and local paths need no credentials. Changing the URL updates the auth mode automatically.
 **Concise form**: settings-style rows with the label on the left and the control on the right; only the repository address and authentication are visible by default, while branch, backup directory, device name and profile live under an "Advanced" disclosure (collapsed on a configured device, expanded on a fresh one), with one-line helper text. |
 | **Plugins-page tab** | The Plugins page (sidebar "插件") gains a "备份 / Backup" tab after 已安装 / 插件市场 / 发现, showing the same backup page; the settings-page "Page display" switch shows or hides it (shown by default, remembered per browser). |
@@ -182,7 +182,7 @@ Saving takes effect immediately (automatic-sync settings are re-applied too). Yo
 
 ### 6.1 Back up to Git
 
-1. Click "Back up to Git".
+1. Click "More actions" → "Back up to Git".
 2. The plugin scans the local plugins → reads the current repository state → builds a plan.
 3. If the plan contains **removals from the repository** (for example you uninstalled a plugin that still exists in the baseline), a confirmation dialog lists the destructive steps first; nothing runs until you confirm.
 4. Execution: write `manifest.json`, `profiles/<profile>/plugins.json`, config files, and the device snapshot → commit → push.
@@ -192,7 +192,7 @@ Backup **never deletes local plugins**. If a plugin was removed locally but stil
 
 ### 6.2 Restore from Git
 
-1. Click "Restore from Git".
+1. Click "More actions" → "Restore from Git".
 2. A preview appears first (nothing is executed): plugins to install/upgrade/downgrade, enabled-state changes, configuration to write back, destructive steps, warnings, unresolved conflicts.
 3. After confirmation: **a local snapshot is created first**, then installs, upgrades/downgrades, toggles, and configuration writes run one by one.
 4. A single failing plugin does not abort the rest; failures are listed per step, and the plugin tries to roll back configuration and enabled states from the snapshot.
@@ -210,13 +210,13 @@ Restore boundaries (important):
 2. Make sure device B's DSH process environment has the token variable (if device A used `https-token`), or has SSH keys / a credential helper configured.
 3. Open Settings → "Plugin Backup", enter the **same repository URL and branch**, choose the authentication method, click "Test connection".
 4. Save the configuration.
-5. Click "Restore from Git" → review the preview: it should list "install N plugins" and similar steps; skipped plugins explain why (for example "no install source recorded").
+5. Click "More actions" → "Restore from Git" → review the preview: it should list "install N plugins" and similar steps; skipped plugins explain why (for example "no install source recorded").
 6. Confirm and wait for the result; restart DSH if the host says so (`application: restart-required` means installed but not active until restart).
 7. Verify the plugins and versions on the plugins page; then you can enable automatic sync.
 
-### 6.4 Sync now (two-way)
+### 6.4 Sync (two-way)
 
-1. Click "Sync now".
+1. Click "Sync".
 2. A preview appears: upload (push) and download (pull) actions, conflicts, destructive steps.
 3. Unresolved conflicts must be decided one by one (see [Conflict handling](#7-conflict-handling)); otherwise execution is refused with `conflict-present`.
 4. After confirmation: snapshot first (when the device will change), then local actions, then repository writes/pushes.
@@ -230,7 +230,7 @@ Restore boundaries (important):
 
 "History" lists recent repository commits (commit, time, operation, device, result, plugin count); every row has a "Restore" button:
 
-1. Click "Restore" → preview that commit's restore plan (the same preview as "Restore from Git").
+1. Click "Restore" → preview that commit's restore plan (the same preview as "More actions" → "Restore from Git").
 2. Confirm → execute, restoring the device to **the repository state recorded in that commit**.
 3. A local snapshot is created before restoring.
 
@@ -474,7 +474,7 @@ Start with "Last error" and the history in Settings → "Plugin Backup", then in
 | `git-auth-failed` "git authentication failed" | SSH key/agent not configured, credential helper has no credentials for this repository, token env var missing/expired, password auth disabled by GitHub | Use "Test connection" to locate it; for HTTPS check the variable name and the DSH process environment; for SSH check `ssh -T git@github.com`; confirm the token is unexpired and has `repo` scope. |
 | "Token unavailable" | The variable name is saved but the DSH process does not have that variable | Set the variable in DSH's launch environment and restart DSH; desktop apps notably do not inherit the terminal environment. |
 | `git-network` "git network error" / timeout | DNS, proxy, TLS, GitHub unreachable; a single Git command times out after 120 seconds by default | Check network and proxy; configure a system Git proxy; retry later (this error is marked retryable). |
-| `git-push-rejected` "the repository is being updated by another device" | Multiple devices writing almost simultaneously; the push was rejected and recompute+retry still failed | Retry after a moment; stagger automatic sync times between devices; or run "Sync now" manually first. |
+| `git-push-rejected` "the repository is being updated by another device" | Multiple devices writing almost simultaneously; the push was rejected and recompute+retry still failed | Retry after a moment; or run "Sync" manually first. |
 | `conflict-present` | Unresolved conflicts | Choose keep local / use repository / skip in the preview, or pass `resolutions` through agent tools. |
 | `confirmation-required` | The plan contains deletions/destructive steps | Review the preview and confirm again (the settings page "Run" button; `confirm: true` for tools). |
 | `invalid-manifest` | Malformed JSON in the repository, or a newer schema than the plugin supports | Upgrade the plugin as instructed, or check whether someone edited repository files by hand (hand edits are rejected). Do not delete `manifest.json` to "fix" it. |
@@ -482,11 +482,11 @@ Start with "Last error" and the history in Settings → "Plugin Backup", then in
 | `not-configured` | Operating before a repository URL is saved | Save the repository configuration first. |
 | `unsupported` "plugin manager unavailable / cannot write configuration" | The host lacks the service, or the bundle is not removable | A host capability limit; install/remove manually in the plugin manager. |
 | `install-failed` | The plugin manager failed to install (missing package, unreachable registry, invalid spec) | Check `application` and the message in the result; a failing step does not abort the rest. When build scripts are needed, approve them in the plugin manager. |
-| `repo-empty` / nothing to restore on first restore | The repository holds no backup data yet (new repository/branch) | Run "Back up to Git" on the source device first. |
+| `repo-empty` / nothing to restore on first restore | The repository holds no backup data yet (new repository/branch) | On the source device, click "More actions" → "Back up to Git" first. |
 | DSH version shows `unknown` in status/history | The runtime exposes neither the application bundle (`resources/app.asar/package.json`) nor `@deepseek-ai/dsh` in the profile | Does not affect synchronization; device ID and plugin version still work. Confirm how DSH was installed and restart. |
 | No "Plugin Backup" in Settings | The profile has no Web/Desktop UI, the plugin is disabled, the host is too old, or the `connection` service is missing | Check the host log for "settings page unavailable"; upgrade/switch profile; agent tools can cover most operations. |
 | Plugins restored but not active | `application: restart-required` (the host needs a restart) | Restart DSH as the host instructs. |
-| Remote changes exist but "check on startup" did not sync | The startup check is read-only (logs only) | Enable timer/change-triggered automatic sync, or click "Sync now". |
+| Remote changes exist but auto-sync did not run | Auto-sync is off, triggers are unchecked, it is cooling down/paused, or an operation is running | Enable "Sync when the client opens" or "Sync after plugin changes", or click "Sync" manually. |
 
 ## 15. Development
 
