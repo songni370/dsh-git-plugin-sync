@@ -94,27 +94,6 @@ export function PluginsSection(props: PluginsSectionProps): ReactElement {
           <Button small onClick={props.onRefresh} disabled={props.loading || props.busy}>
             {t('pluginsRefresh')}
           </Button>
-          <button
-            type="button"
-            className="dgs-disclosure"
-            aria-expanded={open}
-            aria-controls="dgs-plugins-body"
-            onClick={() => {
-              setOpen(current => !current)
-            }}
-          >
-            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
-              <path
-                d="M4 6.5 8 10.5 12 6.5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <span>{open ? t('pluginsCollapse') : t('pluginsExpand')}</span>
-          </button>
         </div>
       }
     >
@@ -124,7 +103,6 @@ export function PluginsSection(props: PluginsSectionProps): ReactElement {
         </Banner>
       )}
 
-      <div id="dgs-plugins-body" className="dgs-pluginsBody" hidden={!open}>
       <label className="dgs-srOnly" htmlFor="dgs-plugins-filter">
         {t('pluginsFilterPlaceholder')}
       </label>
@@ -136,9 +114,36 @@ export function PluginsSection(props: PluginsSectionProps): ReactElement {
         placeholder={t('pluginsFilterPlaceholder')}
         onChange={event => {
           props.onFilterChange(event.target.value)
+          // Typing a filter is a request to see the list.
+          setOpen(true)
         }}
       />
 
+      <div className="dgs-pluginsListBar">
+        <button
+          type="button"
+          className="dgs-disclosure"
+          aria-expanded={open}
+          aria-controls="dgs-plugins-body"
+          onClick={() => {
+            setOpen(current => !current)
+          }}
+        >
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
+            <path
+              d="M4 6.5 8 10.5 12 6.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <span>{open ? t('pluginsCollapse') : t('pluginsExpand')}</span>
+        </button>
+      </div>
+
+      <div id="dgs-plugins-body" className="dgs-pluginsBody" hidden={!open}>
       {props.loading && props.plugins === null ? <Loading text={t('loading')} /> : null}
 
       {rows.length === 0 && !props.loading && props.error === null ? (

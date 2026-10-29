@@ -10,6 +10,20 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.41] - 2026-10-29
+
+### Fixed
+
+- **插件列表折叠对象修正**：折叠针对的应是**列表本身**，而不是筛选区。现在：
+  - 卡片头部（标题、插件总数、刷新）与筛选框始终可见；
+  - 「展开列表 / 收起列表」按钮位于筛选框下方，只控制插件表格和分页；
+  - 默认仍为折叠；在筛选框输入内容会自动展开列表；
+  - 排除结果提示不受折叠影响。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（19 个测试文件 / 240 个测试）通过；测试断言筛选框在折叠时仍可见。
+
 ## [0.1.40] - 2026-10-29
 
 ### Changed
@@ -579,7 +593,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.40...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.41...HEAD
+[0.1.41]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.40...v0.1.41
 [0.1.40]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.39...v0.1.40
 [0.1.39]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.38...v0.1.39
 [0.1.38]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.37...v0.1.38

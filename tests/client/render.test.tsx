@@ -369,6 +369,10 @@ describe('settings page render', () => {
     const body = container.querySelector('#dgs-plugins-body')
     expect(body).not.toBeNull()
     expect(body?.hasAttribute('hidden')).toBe(true)
+    // Only the list collapses; the filter stays visible.
+    const filter = container.querySelector('#dgs-plugins-filter')
+    expect(filter).not.toBeNull()
+    expect(body?.contains(filter)).toBe(false)
     const toggle = container.querySelector('button[aria-controls="dgs-plugins-body"]') as HTMLButtonElement
     expect(toggle.textContent).toContain('展开列表')
     await act(async () => {
