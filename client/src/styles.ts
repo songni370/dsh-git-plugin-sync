@@ -481,6 +481,99 @@ export const CSS = `
   color: var(--dsw-alias-label-primary, #1f2328);
   overflow-wrap: anywhere;
 }
+.dgs-historySummary {
+  display: flex;
+  align-items: center;
+  gap: 4px 14px;
+  flex-wrap: wrap;
+}
+.dgs-historySummaryItem {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-secondary, #5c6570);
+}
+.dgs-historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dgs-historyItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--dsw-alias-border-l1, #e5e7eb);
+  border-radius: 8px;
+  background: var(--dsw-alias-bg-layer-1, #ffffff);
+}
+.dgs-historyItem > .dgs-btn {
+  flex: none;
+}
+.dgs-historyDot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--dsw-alias-label-secondary, #5c6570);
+}
+.dgs-historyDotOk {
+  background: var(--dsw-alias-state-success-primary, #22c55e);
+}
+.dgs-historyDotFail {
+  background: var(--dsw-alias-state-error-primary, #dc2626);
+}
+.dgs-historyDotIdle {
+  background: var(--dsw-alias-border-l2, #cfd3d6);
+}
+.dgs-historyMain {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.dgs-historyTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.dgs-historyOp {
+  font-size: 13px;
+  line-height: 19px;
+  font-weight: 600;
+  color: var(--dsw-alias-label-primary, #1f2328);
+}
+.dgs-historyMeta {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-secondary, #5c6570);
+}
+.dgs-historySubject {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--dsw-alias-label-secondary, #5c6570);
+  font-size: 12px;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dgs-historyMetaRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--dsw-alias-label-secondary, #5c6570);
+  font-size: 11px;
+  line-height: 16px;
+}
 .dgs-pagination {
   display: flex;
   align-items: center;

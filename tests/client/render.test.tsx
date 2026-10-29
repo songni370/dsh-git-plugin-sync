@@ -321,6 +321,16 @@ describe('settings page render', () => {
     expect(panel?.querySelector('#dgs-auto-body')?.hasAttribute('hidden')).toBe(false)
   })
 
+  it('renders history as a compact activity list', async () => {
+    await settle()
+    const items = container.querySelectorAll('.dgs-historyItem')
+    expect(items).toHaveLength(1)
+    expect(items[0]?.textContent).toContain('abcdef1')
+    expect(items[0]?.textContent).toContain('备份')
+    expect(items[0]?.querySelector('.dgs-historyDotOk')).not.toBeNull()
+    expect(container.querySelector('.dgs-historyList')).not.toBeNull()
+  })
+
   it('renders the status tile row and metadata grid', async () => {
     await settle()
     const text = container.textContent ?? ''

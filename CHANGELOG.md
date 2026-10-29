@@ -10,6 +10,21 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.37] - 2026-10-29
+
+### Changed
+
+- **重新设计「历史记录」区域**：原来的 7 列表格改为紧凑的活动列表：
+  - 每条记录一行卡片：左侧状态圆点（成功绿 / 失败红 / 未知灰）、操作名称、结果徽标、插件数与设备；
+  - 提交说明过长时单行省略（悬停看全文），提交短哈希与时间放在次级信息行；
+  - 右侧保留「恢复」按钮，仍然先预览再确认；
+  - 卡片头部只保留刷新按钮，最近操作与提交数量移到列表上方的摘要行；
+  - 长设备名、长提交说明不再挤乱表格列宽。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（19 个测试文件 / 238 个测试）通过；渲染测试新增历史活动列表断言。
+
 ## [0.1.36] - 2026-10-29
 
 ### Added
@@ -530,7 +545,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.36...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.37...HEAD
+[0.1.37]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.36...v0.1.37
 [0.1.36]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.35...v0.1.36
 [0.1.35]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.34...v0.1.35
 [0.1.34]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.33...v0.1.34
