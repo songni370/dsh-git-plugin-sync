@@ -4,6 +4,14 @@
 
 用你自己的 **Git 仓库**备份、恢复，并在多台设备之间同步 **DeepSeek Harness（DSH）插件与配置**。
 
+[![npm](https://img.shields.io/npm/v/dsh-plugins-git-sync.svg)](https://www.npmjs.com/package/dsh-plugins-git-sync)
+[![CI](https://github.com/songni370/dsh-plugins-git-sync/actions/workflows/ci.yml/badge.svg)](https://github.com/songni370/dsh-plugins-git-sync/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
+![插件备份设置页](https://raw.githubusercontent.com/songni370/dsh-plugins-git-sync/main/docs/images/settings-overview.png)
+
+*同步状态、手动操作与自动同步集中在同一页；仓库配置已配置时默认折叠。*
+
 换电脑、重装 DSH 时，不用再一个个回忆装了什么插件、什么版本、配置怎么设：把插件清单推到一个私有 Git 仓库，另一台设备同步下来即可。备份内容是普通 JSON，能用 Git 工具直接查看、对比和回滚。
 
 ## 能做什么
@@ -21,6 +29,10 @@
 ## 界面
 
 设置 →「**插件备份**」（英文界面为 Plugin Backup）。插件页（侧边栏「插件」）也可以显示一个「备份」标签，内容相同。
+
+![仓库配置](https://raw.githubusercontent.com/songni370/dsh-plugins-git-sync/main/docs/images/settings-config.png)
+
+*仓库地址会自动识别 HTTPS / SSH / 本地路径，只显示对应的认证字段。*
 
 - **仓库配置**：填 Git 地址，自动识别 HTTPS / SSH / 本地路径并显示对应认证方式；已配置的设备默认折叠。
 - **操作**：`同步`、`检查差异`；`备份到 Git`、`从 Git 恢复`收在「更多操作」里。
