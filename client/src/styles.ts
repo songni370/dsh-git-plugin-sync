@@ -481,6 +481,15 @@ export const CSS = `
   color: var(--dsw-alias-label-primary, #1f2328);
   overflow-wrap: anywhere;
 }
+.dgs-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 10px;
+  border-top: 1px solid var(--dsw-alias-border-l1, #e5e7eb);
+}
 .dgs-tableWrap {
   width: 100%;
   min-width: 0;

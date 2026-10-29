@@ -10,6 +10,17 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.36] - 2026-10-29
+
+### Added
+
+- **插件列表分页**：每页展示 20 个插件，底部显示「显示 1–20，共 N 个」、「第 X / Y 页」以及上一页/下一页按钮，避免插件多时一屏看不过来；
+- 修改筛选条件自动回到第 1 页；插件数量减少时当前页会自动收敛到有效范围；列表不超过 20 条时不显示分页条。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（19 个测试文件 / 237 个测试）通过；新增分页渲染测试。
+
 ## [0.1.35] - 2026-10-29
 
 ### Added
@@ -519,7 +530,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.35...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.36...HEAD
+[0.1.36]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.35...v0.1.36
 [0.1.35]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.34...v0.1.35
 [0.1.34]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.33...v0.1.34
 [0.1.33]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.32...v0.1.33

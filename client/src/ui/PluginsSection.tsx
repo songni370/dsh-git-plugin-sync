@@ -9,11 +9,15 @@
  * @module ui/PluginsSection
  */
 
+import { useEffect, useState } from 'react'
 import type { ReactElement } from 'react'
 import type { PluginListResponse, PluginListRow } from '../../../src/http/api-types'
 import type { Translate } from '../i18n'
 import type { Feedback, Tone } from './controls'
 import { Badge, Banner, Button, Card, Checkbox, LinkButton, Loading } from './controls'
+
+/** Rows per page in the plugin table. */
+const PAGE_SIZE = 20
 
 /** Copy + tone for every sync status the Host reports for one row. */
 const SYNC_META: Record<PluginListRow['syncStatus'], { key: string; tone: Tone }> = {
@@ -54,6 +58,17 @@ export function PluginsSection(props: PluginsSectionProps): ReactElement {
     needle === ''
       ? rows
       : rows.filter(row => `${row.displayName ?? ''}\n${row.name}\n${row.id}`.toLowerCase().includes(needle))
+
+  const [page, setPage] = useState(1)
+  // A new filter always starts from the first page.
+  useEffect(() => {
+    setPage(1)
+  }, [props.filter])
+
+  const totalPages = Math.max(1, Math.ceil(visible.length / PAGE_SIZE))
+  const currentPage = Math.min(page, totalPages)
+  const start = (currentPage - 1) * PAGE_SIZE
+  const pageRows = visible.slice(start, start + PAGE_SIZE)
 
   return (
     <Card
@@ -109,7 +124,7 @@ export function PluginsSection(props: PluginsSectionProps): ReactElement {
               </tr>
             </thead>
             <tbody>
-              {visible.map(row => {
+              {pageRows.map(row => {
                 const excluded = props.exclusions.has(row.id) || row.syncStatus === 'excluded'
                 const checked = row.syncable && !excluded
                 const meta = SYNC_META[row.syncStatus] ?? SYNC_META.excluded
@@ -151,6 +166,27 @@ export function PluginsSection(props: PluginsSectionProps): ReactElement {
           </table>
         </div>
       )}
+      {visible.length <= PAGE_SIZE ? null : (
+        <div className="dgs-pagination">
+          <span className="dgs-hint">
+            {t('pluginsPageRange', {
+              from: start + 1,
+              to: Math.min(start + PAGE_SIZE, visible.length),
+              total: visible.length,
+            })}
+          </span>
+          <div className="dgs-btnRow">
+            <Button small onClick={() => setPage(currentPage - 1)} disabled={currentPage <= 1}>
+              {t('pluginsPagePrev')}
+            </Button>
+            <span className="dgs-hint">{t('pluginsPageInfo', { page: currentPage, pages: totalPages })}</span>
+            <Button small onClick={() => setPage(currentPage + 1)} disabled={currentPage >= totalPages}>
+              {t('pluginsPageNext')}
+            </Button>
+          </div>
+        </div>
+      )}
+
       {props.feedback === undefined ? null : <Banner tone={props.feedback.tone}>{props.feedback.text}</Banner>}
     </Card>
   )
