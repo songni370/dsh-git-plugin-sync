@@ -76,7 +76,7 @@ jobs:
             gh release upload "$RELEASE_TAG" dsh-plugins-git-sync.tgz --clobber
           else
             gh release create "$RELEASE_TAG" \
-              --title "插件备份 $RELEASE_TAG" \
+              --title "$RELEASE_TAG" \
               --notes-file RELEASE_NOTES.md \
               dsh-plugins-git-sync.tgz
           fi

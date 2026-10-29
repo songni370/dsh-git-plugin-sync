@@ -20,8 +20,16 @@ if (start < 0) {
   console.error(`CHANGELOG.md has no section for ${version}`)
   process.exit(1)
 }
-const next = changelog.indexOf('\n## [', start + marker.length)
-const section = changelog.slice(start, next < 0 ? undefined : next).trim()
+const headingEnd = changelog.indexOf('\n', start)
+const next = changelog.indexOf('\n## [', headingEnd)
+const body = changelog.slice(headingEnd + 1, next < 0 ? undefined : next).trim()
+const section = body
+  .replace(/^### Added$/m, '### 新增')
+  .replace(/^### Changed$/m, '### 变更')
+  .replace(/^### Fixed$/m, '### 修复')
+  .replace(/^### Security$/m, '### 安全')
+  .replace(/^### Deprecated$/m, '### 弃用')
+  .replace(/^### Removed$/m, '### 移除')
 
 const install = `## 安装 / Install
 
@@ -35,4 +43,4 @@ dsh plugin --profile web add ${pkg.name}@latest
 dsh plugin --profile web update ${pkg.name}@latest
 \`\`\``
 
-console.log(`${install}\n\n${section}\n\n---\n[${pkg.name}@${version} on npm](https://www.npmjs.com/package/${pkg.name}/v/${version})`)
+console.log(`${install}\n\n## ${tag}\n${section}\n\n---\n[${pkg.name}@${version} on npm](https://www.npmjs.com/package/${pkg.name}/v/${version})`)

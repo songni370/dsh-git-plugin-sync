@@ -12,19 +12,19 @@ Update it:
 dsh plugin --profile web update dsh-plugins-git-sync@latest
 ```
 
-## What's New
+## 本次更新
 
 (The important user-facing changes, copied from CHANGELOG.md)
 
-### Features
+### 新增
 
 - ...
 
-### Fixes
+### 修复
 
 - ...
 
-### Changes
+### 变更
 
 - ...
 
