@@ -82,6 +82,16 @@ jobs:
           fi
 
       # Trusted publishing: npm >= 11.5.1 exchanges the Actions OIDC token for
-      # a short-lived credential; no NPM_TOKEN secret is involved.
+      # a short-lived credential; no NPM_TOKEN secret is involved. If this
+      # version is already on npm (e.g. the bootstrap manual publish), skip it
+      # so the release job stays idempotent.
       - name: Publish to npm
-        run: npm publish --access public
+        run: |
+          NAME="$(node -p "require('./package.json').name")"
+          VERSION="$(node -p "require('./package.json').version")"
+          PUBLISHED="$(npm view "$NAME@$VERSION" version 2>/dev/null || true)"
+          if [ "$PUBLISHED" = "$VERSION" ]; then
+            echo "::notice::$NAME@$VERSION is already published; skipping npm publish"
+            exit 0
+          fi
+          npm publish --access public
