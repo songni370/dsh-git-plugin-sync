@@ -574,11 +574,6 @@ export const CSS = `
   font-size: 11px;
   line-height: 16px;
 }
-.dgs-pluginsListBar {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-}
 .dgs-pluginsBody {
   display: flex;
   flex-direction: column;

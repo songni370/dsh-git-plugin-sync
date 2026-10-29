@@ -369,16 +369,24 @@ describe('settings page render', () => {
     const body = container.querySelector('#dgs-plugins-body')
     expect(body).not.toBeNull()
     expect(body?.hasAttribute('hidden')).toBe(true)
-    // Only the list collapses; the filter stays visible.
+    // Collapsed: no refresh button, filter is part of the hidden body.
+    const refreshInCard = Array.from(container.querySelectorAll('button')).filter(button =>
+      (button.textContent ?? '').includes('刷新列表'),
+    )
+    expect(refreshInCard).toHaveLength(0)
     const filter = container.querySelector('#dgs-plugins-filter')
     expect(filter).not.toBeNull()
-    expect(body?.contains(filter)).toBe(false)
+    expect(body?.contains(filter)).toBe(true)
     const toggle = container.querySelector('button[aria-controls="dgs-plugins-body"]') as HTMLButtonElement
     expect(toggle.textContent).toContain('展开列表')
     await act(async () => {
       toggle.click()
     })
-    expect(container.querySelector('#dgs-plugins-body')?.hasAttribute('hidden')).toBe(false)
+    const opened = container.querySelector('#dgs-plugins-body')
+    expect(opened?.hasAttribute('hidden')).toBe(false)
+    expect(Array.from(container.querySelectorAll('button')).some(button =>
+      (button.textContent ?? '').includes('刷新列表'),
+    )).toBe(true)
   })
 
   it('opens the confirmation dialog with the destructive plan from the Host', async () => {
