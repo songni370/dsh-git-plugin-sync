@@ -8,6 +8,14 @@ This file follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [
 
 暂无 / Nothing yet.
 
+## [0.2.6] - 2026-10-29
+
+### Changed
+
+- README 增加初始状态截图：仓库配置（空地址、示例设备名）与未配置时的同步状态。
+- 移除包含本机设备名、备份仓库地址和提交记录的旧截图。
+- npm 页面随本版本更新 README。
+
 ## [0.2.5] - 2026-10-29
 
 ### Changed
@@ -94,7 +102,8 @@ This file follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [
 - 设置页基础界面、HTTP 路由与 6 个 Agent 工具。
 - 单元测试、双设备集成测试与 CI（macOS / Windows / Linux）。
 
-[Unreleased]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.5...HEAD
+[Unreleased]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.6...HEAD
+[0.2.6]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.5...v0.2.6
 [0.2.5]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.2...v0.2.3
