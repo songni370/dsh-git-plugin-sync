@@ -12,7 +12,7 @@
 import type { ReactElement } from 'react'
 import type { PluginListResponse, PluginListRow } from '../../../src/http/api-types'
 import type { Translate } from '../i18n'
-import type { Tone } from './controls'
+import type { Feedback, Tone } from './controls'
 import { Badge, Banner, Button, Card, Checkbox, LinkButton, Loading } from './controls'
 
 /** Copy + tone for every sync status the Host reports for one row. */
@@ -41,6 +41,8 @@ export interface PluginsSectionProps {
   onFilterChange: (value: string) => void
   onToggle: (row: PluginListRow, next: boolean) => void
   onRefresh: () => void
+  /** Result of saving an exclusion, shown inside this card. */
+  feedback?: Feedback
 }
 
 /** Render the plugin list card. */
@@ -149,6 +151,7 @@ export function PluginsSection(props: PluginsSectionProps): ReactElement {
           </table>
         </div>
       )}
+      {props.feedback === undefined ? null : <Banner tone={props.feedback.tone}>{props.feedback.text}</Banner>}
     </Card>
   )
 }

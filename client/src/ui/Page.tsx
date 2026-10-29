@@ -57,6 +57,7 @@ import type { ActionName } from './ActionsSection'
 import { AutoSyncSection, autoFormFromView } from './AutoSyncSection'
 import type { AutoForm } from './AutoSyncSection'
 import { Banner, Button, Card, LinkButton, Loading, Switch } from './controls'
+import type { Feedback } from './controls'
 import { ConfigSection, configFormFromView } from './ConfigSection'
 import type { ConfigForm } from './ConfigSection'
 import { HistorySection } from './HistorySection'
@@ -78,6 +79,9 @@ export interface PageProps {
 
 /** Operation a confirmation dialog will execute. */
 type ConfirmKind = 'backup' | 'restore' | 'rollback' | 'sync'
+
+/** Which settings section a transient result belongs under. */
+type FeedbackArea = 'config' | 'auto' | 'actions' | 'plugins' | 'history'
 
 /** What the open confirmation dialog will run. */
 interface ConfirmState {
@@ -134,8 +138,13 @@ export function Page({ t }: PageProps): ReactElement {
   const [savingConfig, setSavingConfig] = useState(false)
   const [savingAuto, setSavingAuto] = useState(false)
   const [exclusionBusy, setExclusionBusy] = useState(false)
-  const [notice, setNotice] = useState<string | null>(null)
-  const [actionError, setActionError] = useState<string | null>(null)
+  const [feedback, setFeedback] = useState<Record<FeedbackArea, Feedback | null>>({
+    config: null,
+    auto: null,
+    actions: null,
+    plugins: null,
+    history: null,
+  })
   const [diff, setDiff] = useState<DiffResponse | null>(null)
   const [diffLoading, setDiffLoading] = useState(false)
   const [connection, setConnection] = useState<ConnectionTestResult | null>(null)
@@ -229,14 +238,17 @@ export function Page({ t }: PageProps): ReactElement {
     }
   }, [refreshStatus])
 
-  function clearMessages(): void {
-    setNotice(null)
-    setActionError(null)
+  function showFeedback(area: FeedbackArea, tone: Feedback['tone'], text: string): void {
+    setFeedback(current => ({ ...current, [area]: { tone, text } }))
   }
 
-  function reportOperation(result: OperationResult, doneKey: string): void {
+  function clearMessages(): void {
+    setFeedback({ config: null, auto: null, actions: null, plugins: null, history: null })
+  }
+
+  function reportOperation(result: OperationResult, doneKey: string, area: FeedbackArea): void {
     if (!result.ok) {
-      setActionError(result.error !== undefined && result.error !== '' ? result.error : t('stateError'))
+      showFeedback(area, 'error', result.error !== undefined && result.error !== '' ? result.error : t('stateError'))
       return
     }
     const parts: string[] = [t(doneKey)]
@@ -250,11 +262,11 @@ export function Page({ t }: PageProps): ReactElement {
       parts.push(t('actionOutcome', { ok: outcomes.filter(outcome => outcome.ok).length, total: outcomes.length }))
     }
     if (result.warnings.length > 0) parts.push(t('actionWarnings', { count: result.warnings.length }))
-    setNotice(parts.join(' · '))
+    showFeedback(area, 'success', parts.join(' · '))
   }
 
-  function operationFailed(label: string, error: unknown): void {
-    setActionError(t('actionFailed', { message: `${label}: ${errorText(error)}` }))
+  function operationFailed(label: string, error: unknown, area: FeedbackArea = 'actions'): void {
+    showFeedback(area, 'error', t('actionFailed', { message: `${label}: ${errorText(error)}` }))
   }
 
   // --- Confirmation dialog ----------------------------------------------
@@ -334,10 +346,9 @@ export function Page({ t }: PageProps): ReactElement {
     try {
       const result = await api.testConnection(form === null ? {} : { config: form })
       setConnection(result)
-      if (result.ok) setNotice(t('configConnectionOk', { message: result.message }))
-      else setActionError(t('configConnectionFail', { message: result.message }))
+      // Success and failure both render inside the config card via `connection`.
     } catch (error) {
-      operationFailed(t('configTest'), error)
+      operationFailed(t('configTest'), error, 'config')
     } finally {
       setTesting(false)
     }
@@ -354,10 +365,10 @@ export function Page({ t }: PageProps): ReactElement {
       applyConfigView(response.config)
       // Saved successfully: a configured machine shows the collapsed summary.
       setConfigOpen(response.config.repoUrl.trim() === '')
-      setNotice(t('configSaved'))
+      showFeedback('config', 'success', t('configSaved'))
       await refreshStatus()
     } catch (error) {
-      operationFailed(t('save'), error)
+      operationFailed(t('save'), error, 'config')
     } finally {
       setSavingConfig(false)
       setBusy(null)
@@ -382,10 +393,10 @@ export function Page({ t }: PageProps): ReactElement {
       markAutoDirty(false)
       applyConfigView(response.status.config)
       setStatus(current => (current === null ? current : { ...current, status: response.status }))
-      setNotice(t('autoSaved'))
+      showFeedback('auto', 'success', t('autoSaved'))
       await refreshStatus()
     } catch (error) {
-      operationFailed(t('autoSave'), error)
+      operationFailed(t('autoSave'), error, 'auto')
     } finally {
       setSavingAuto(false)
       setBusy(null)
@@ -398,13 +409,13 @@ export function Page({ t }: PageProps): ReactElement {
     setBusy('backup')
     try {
       const result = await api.backup({})
-      reportOperation(result, 'actionBackupDone')
+      reportOperation(result, 'actionBackupDone', 'actions')
       await refreshAll()
     } catch (error) {
       // A backup that would remove repository content comes back as
       // `confirmation-required` with the plan; show it, then re-run on confirm.
       const plan = planFromError(error)
-      if (plan === null) operationFailed(t('actionBackup'), error)
+      if (plan === null) operationFailed(t('actionBackup'), error, 'actions')
       else openConfirm('backup', plan, { hint: errorText(error) })
     } finally {
       setBusy(null)
@@ -418,7 +429,7 @@ export function Page({ t }: PageProps): ReactElement {
     try {
       setDiff(await api.getDiff({ direction: 'two-way' }))
     } catch (error) {
-      setActionError(t('diffLoadFailed', { message: errorText(error) }))
+      showFeedback('actions', 'error', t('diffLoadFailed', { message: errorText(error) }))
     } finally {
       setDiffLoading(false)
       setBusy(null)
@@ -445,7 +456,7 @@ export function Page({ t }: PageProps): ReactElement {
         })
       } else {
         const key = kind === 'rollback' ? 'rollbackPreviewFailed' : 'restorePreviewFailed'
-        setActionError(t(key, { message: errorText(error) }))
+        showFeedback(kind === 'rollback' ? 'history' : 'actions', 'error', t(key, { message: errorText(error) }))
       }
     } finally {
       setBusy(null)
@@ -464,7 +475,7 @@ export function Page({ t }: PageProps): ReactElement {
     } catch (error) {
       const plan = planFromError(error)
       if (plan !== null) openConfirm('sync', plan, { hint: errorText(error) })
-      else setActionError(t('syncPreviewFailed', { message: errorText(error) }))
+      else showFeedback('actions', 'error', t('syncPreviewFailed', { message: errorText(error) }))
     } finally {
       setBusy(null)
     }
@@ -477,6 +488,7 @@ export function Page({ t }: PageProps): ReactElement {
     setModalBusy(true)
     clearMessages()
     setBusy(current.kind)
+    const reportArea: FeedbackArea = current.kind === 'rollback' ? 'history' : 'actions'
     try {
       const resolutions = buildResolutions(current)
       const resolutionBody = resolutions === undefined ? {} : { resolutions }
@@ -510,6 +522,7 @@ export function Page({ t }: PageProps): ReactElement {
             : current.kind === 'rollback'
               ? 'actionRollbackDone'
               : 'actionRestoreDone',
+        reportArea,
       )
       await refreshAll()
     } catch (error) {
@@ -528,6 +541,7 @@ export function Page({ t }: PageProps): ReactElement {
                 ? t('op_rollback')
                 : t('actionRestore'),
           error,
+          reportArea,
         )
       } else {
         setModal(previous =>
@@ -568,12 +582,12 @@ export function Page({ t }: PageProps): ReactElement {
     try {
       const response = await api.saveConfig({ config: { excludedPlugins: [...updated] } })
       setExclusions(new Set(response.config.excludedPlugins))
-      setNotice(t('pluginsExclusionSaved'))
+      showFeedback('plugins', 'success', t('pluginsExclusionSaved'))
       await refreshPlugins()
       await refreshStatus()
     } catch (error) {
       setExclusions(previous)
-      setActionError(t('pluginsExclusionFailed', { message: errorText(error) }))
+      showFeedback('plugins', 'error', t('pluginsExclusionFailed', { message: errorText(error) }))
     } finally {
       exclusionBusyRef.current = false
       setExclusionBusy(false)
@@ -591,8 +605,6 @@ export function Page({ t }: PageProps): ReactElement {
       <style>{CSS}</style>
       <p className="dgs-intro">{t('intro')}</p>
 
-      {notice === null ? null : <Banner tone="success">{notice}</Banner>}
-      {actionError === null ? null : <Banner tone="error">{actionError}</Banner>}
       {statusError === null || view === null ? null : (
         <Banner tone="error">
           {t('statusLoadFailed', { message: statusError })}{' '}
@@ -639,6 +651,10 @@ export function Page({ t }: PageProps): ReactElement {
             />
           )}
 
+          {feedback.config === null ? null : (
+            <Banner tone={feedback.config.tone}>{feedback.config.text}</Banner>
+          )}
+
           <StatusSection t={t} status={view} />
 
           <ActionsSection
@@ -655,6 +671,8 @@ export function Page({ t }: PageProps): ReactElement {
             onClearDiff={() => {
               setDiff(null)
             }}
+            feedback={feedback.actions ?? undefined}
+            autoFeedback={feedback.auto ?? undefined}
             autoPanel={
               autoForm === null ? undefined : (
                 <AutoSyncSection
@@ -683,6 +701,7 @@ export function Page({ t }: PageProps): ReactElement {
             onFilterChange={setFilter}
             onToggle={(row, next) => void toggleExclusion(row, next)}
             onRefresh={() => void refreshPlugins()}
+            feedback={feedback.plugins ?? undefined}
           />
 
           <HistorySection
@@ -693,6 +712,7 @@ export function Page({ t }: PageProps): ReactElement {
             busy={anyBusy}
             onRestoreCommit={commit => void previewRestore('rollback', commit)}
             onRefresh={() => void refreshHistory()}
+            feedback={feedback.history ?? undefined}
           />
         </>
       )}

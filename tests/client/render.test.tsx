@@ -275,6 +275,26 @@ describe('settings page render', () => {
     expect(details.open).toBe(false)
   })
 
+  it('renders diff results inside the operations card, not in a global area', async () => {
+    await settle()
+    const diffButton = Array.from(container.querySelectorAll('button')).find(button =>
+      (button.textContent ?? '').includes('检查差异'),
+    )
+    expect(diffButton).toBeDefined()
+    await act(async () => {
+      diffButton?.dispatchEvent(new window.MouseEvent('click', { bubbles: true }))
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    const panel = container.querySelector('.dgs-diffPanel')
+    expect(panel).not.toBeNull()
+    const card = panel?.closest('.dgs-card')
+    expect(card).not.toBeNull()
+    expect(card?.querySelector('.dgs-actionsMain')).not.toBeNull()
+  })
+
   it('merges auto-sync into the operations card as a collapsed panel', async () => {
     await settle()
     const panel = container.querySelector('.dgs-autoSection')

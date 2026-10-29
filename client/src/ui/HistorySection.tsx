@@ -13,6 +13,7 @@ import type { HistoryResponse } from '../../../src/http/api-types'
 import type { Translate } from '../i18n'
 import { formatDateTime, isGoodResult, operationLabel, resultLabel, shortCommit } from '../format'
 import { Badge, Banner, Button, Card, LinkButton, Loading } from './controls'
+import type { Feedback } from './controls'
 
 /** Props for {@link HistorySection}. */
 export interface HistorySectionProps {
@@ -24,6 +25,8 @@ export interface HistorySectionProps {
   busy: boolean
   onRestoreCommit: (commit: string) => void
   onRefresh: () => void
+  /** Result of a rollback, shown inside this card. */
+  feedback?: Feedback
 }
 
 /** Render the history card. */
@@ -120,6 +123,7 @@ export function HistorySection(props: HistorySectionProps): ReactElement {
           </div>
         </>
       )}
+      {props.feedback === undefined ? null : <Banner tone={props.feedback.tone}>{props.feedback.text}</Banner>}
     </Card>
   )
 }

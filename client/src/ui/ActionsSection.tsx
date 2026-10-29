@@ -12,7 +12,8 @@ import { useEffect, useRef } from 'react'
 import type { ReactElement, ReactNode } from 'react'
 import type { DiffResponse } from '../../../src/http/api-types'
 import type { Translate } from '../i18n'
-import { Button, Card, LinkButton, Loading } from './controls'
+import { Banner, Button, Card, LinkButton, Loading } from './controls'
+import type { Feedback } from './controls'
 import { PlanPreview } from './PlanPreview'
 
 /** Action names used for the busy indicator and disabled set. */
@@ -36,6 +37,10 @@ export interface ActionsSectionProps {
   onClearDiff: () => void
   /** Automatic-sync panel, merged into this card below the manual actions. */
   autoPanel?: ReactNode
+  /** Result of a manual operation, shown inside this card. */
+  feedback?: Feedback
+  /** Result of saving auto-sync, shown below the auto-sync panel. */
+  autoFeedback?: Feedback
 }
 
 /** Render the operations card. */
@@ -138,8 +143,16 @@ export function ActionsSection(props: ActionsSectionProps): ReactElement {
         </section>
       )}
 
+      {props.feedback === undefined ? null : (
+        <Banner tone={props.feedback.tone}>{props.feedback.text}</Banner>
+      )}
+
       {props.autoPanel === undefined ? null : (
         <div className="dgs-autoSection">{props.autoPanel}</div>
+      )}
+
+      {props.autoFeedback === undefined ? null : (
+        <Banner tone={props.autoFeedback.tone}>{props.autoFeedback.text}</Banner>
       )}
     </Card>
   )

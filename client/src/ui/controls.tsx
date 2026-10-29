@@ -194,6 +194,12 @@ export function NumberInput(props: {
   )
 }
 
+/** A success/error message scoped to one settings section. */
+export interface Feedback {
+  tone: 'success' | 'error'
+  text: string
+}
+
 /** Native select. */
 export function Select<T extends string>(props: {
   id: string
