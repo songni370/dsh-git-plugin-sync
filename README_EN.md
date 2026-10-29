@@ -217,14 +217,14 @@ Restore boundaries (important):
 ### 6.4 Sync (two-way)
 
 1. Click "Sync".
-2. A preview appears: upload (push) and download (pull) actions, conflicts, destructive steps.
+2. **A clean sync runs directly**, with no second confirmation; only a plan with conflicts or delete/overwrite steps opens the preview (upload/download actions, conflicts, destructive steps).
 3. Unresolved conflicts must be decided one by one (see [Conflict handling](#7-conflict-handling)); otherwise execution is refused with `conflict-present`.
 4. After confirmation: snapshot first (when the device will change), then local actions, then repository writes/pushes.
 5. On success the baseline becomes the new common state, and the history gains a `sync` commit (when something was written remotely).
 
 ### 6.5 Check differences
 
-"Check differences" is **read-only**: choose a direction (two-way / backup (upload) / restore (download)) and it only shows the plan. Useful to see "what did the other device change, what will I change" before acting.
+"Check differences" is **read-only**: it always previews the two-way sync plan (upload/download/delete/conflicts) and writes nothing. Useful to see "what did the other device change, what will I change" before acting; one-way operations live under "More actions".
 
 ### 6.6 History and rollback
 

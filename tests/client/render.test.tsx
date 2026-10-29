@@ -134,6 +134,34 @@ function installFetchMock(): void {
           remotePluginCount: 5,
         },
       })
+    } else if (target.endsWith('/sync/preview')) {
+      payload = envelope({
+        direction: 'two-way',
+        plan: {
+          direction: 'two-way',
+          profile: 'desktop',
+          generatedAt: '2026-10-28T07:13:55.045Z',
+          actions: [],
+          conflicts: [],
+          diffs: [],
+          requiresConfirmation: false,
+          warnings: [],
+          localPluginCount: 5,
+          remotePluginCount: 5,
+        },
+      })
+    } else if (target.endsWith('/sync')) {
+      payload = envelope({
+        ok: true,
+        operation: 'sync',
+        startedAt: '2026-10-28T07:13:55.045Z',
+        finishedAt: '2026-10-28T07:13:55.045Z',
+        noChanges: true,
+        commit: null,
+        pushed: false,
+        actionOutcomes: [],
+        warnings: [],
+      })
     } else if (target.endsWith('/diff')) {
       payload = envelope({ direction: 'two-way', plan: { direction: 'two-way', profile: 'desktop', generatedAt: '', actions: [], conflicts: [], diffs: [], requiresConfirmation: false, warnings: [], localPluginCount: 5, remotePluginCount: 5 } })
     } else if (target.endsWith('/config/save')) payload = envelope({ config: statusPayload().status.config })
@@ -391,6 +419,22 @@ describe('settings page render', () => {
     // The filter and refresh share the same row when expanded.
     expect(opened?.querySelector('.dgs-pluginsFilterRow #dgs-plugins-filter')).not.toBeNull()
     expect(opened?.querySelector('.dgs-pluginsFilterRow')?.textContent).toContain('刷新列表')
+  })
+
+  it('syncs directly when the plan needs no decision', async () => {
+    await settle()
+    const main = container.querySelector('.dgs-actionsMain')
+    const sync = main?.querySelector('button')
+    expect(sync?.textContent).toContain('同步')
+    await act(async () => {
+      sync?.dispatchEvent(new window.MouseEvent('click', { bubbles: true }))
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0))
+    })
+    expect(container.querySelector('[role="dialog"]')).toBeNull()
+    expect(container.textContent).toContain('同步完成')
   })
 
   it('opens the confirmation dialog with the destructive plan from the Host', async () => {

@@ -39,7 +39,6 @@ export interface HistorySectionProps {
 export function HistorySection(props: HistorySectionProps): ReactElement {
   const { t } = props
   const entries = props.history === null ? [] : props.history.entries
-  const lastOperation = props.history === null ? null : props.history.lastOperation
 
   return (
     <Card
@@ -64,13 +63,6 @@ export function HistorySection(props: HistorySectionProps): ReactElement {
       {props.history !== null ? (
         <div className="dgs-historySummary">
           <span className="dgs-historySummaryItem">{t('historyCount', { count: entries.length })}</span>
-          {lastOperation === null ? null : (
-            <span className="dgs-historySummaryItem">
-              {t('historyLastOperation')}: {operationLabel(t, lastOperation.operation)} ·{' '}
-              {resultLabel(t, lastOperation.ok ? 'ok' : 'failed')} ·{' '}
-              {formatDateTime(lastOperation.at, t('unknown'))}
-            </span>
-          )}
         </div>
       ) : null}
 

@@ -51,7 +51,6 @@ export interface ActionsSectionProps {
 export function ActionsSection(props: ActionsSectionProps): ReactElement {
   const { t } = props
   const disabled = props.busy !== null || props.hostBusy || !props.enabled
-  const running = props.busy === null ? null : actionLabel(t, props.busy)
   const moreRef = useRef<HTMLDetailsElement>(null)
   const closeTimer = useRef<number | null>(null)
 
@@ -128,12 +127,6 @@ export function ActionsSection(props: ActionsSectionProps): ReactElement {
 
       {props.notices === undefined ? null : <div className="dgs-actionsNotices">{props.notices}</div>}
 
-      {running === null ? null : (
-        <p className="dgs-hint" role="status" aria-live="polite">
-          {t('actionRunning', { action: running })}
-        </p>
-      )}
-
       {props.diffLoading ? <Loading text={t('loading')} /> : null}
 
       {props.diff === null ? null : (
@@ -166,24 +159,3 @@ export function ActionsSection(props: ActionsSectionProps): ReactElement {
   )
 }
 
-/** Localized action name for the busy line. */
-function actionLabel(t: Translate, action: ActionName): string {
-  switch (action) {
-    case 'backup':
-      return t('actionBackup')
-    case 'restore':
-      return t('actionRestore')
-    case 'rollback':
-      return t('op_rollback')
-    case 'sync':
-      return t('actionSync')
-    case 'diff':
-      return t('actionDiff')
-    case 'config':
-      return t('configTitle')
-    case 'auto':
-      return t('autoTitle')
-    case 'exclusion':
-      return t('pluginsTitle')
-  }
-}

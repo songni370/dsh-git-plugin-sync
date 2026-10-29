@@ -10,6 +10,21 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.46] - 2026-10-29
+
+### Changed
+
+- **「同步」不再无条件弹窗确认**：点击后先取预览计划，只有在**存在冲突或破坏性步骤**（requiresConfirmation / destructive action）时才弹出确认框；普通同步直接执行，完成后只显示结果提示。
+- **精简重复提示**：
+  - 移除操作区的「正在执行：同步」文字行，只保留操作完成后对应区域的提示框（忙碌状态由状态提示条与按钮禁用体现）；
+  - 历史记录顶部不再重复显示「最近操作」，避免与回滚结果提示、列表首行重复；
+  - 保存仓库配置时清除上一次「测试连接」结果横幅，避免保存提示与连接结果同时出现。
+- README 同步流程说明同步更新：干净同步无需二次确认，检查差异固定预览双向计划。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（20 个测试文件 / 242 个测试）通过；新增“干净计划直接同步、不弹窗”的渲染测试。
+
 ## [0.1.45] - 2026-10-29
 
 ### Changed
@@ -640,7 +655,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.45...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.46...HEAD
+[0.1.46]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.45...v0.1.46
 [0.1.45]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.44...v0.1.45
 [0.1.44]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.43...v0.1.44
 [0.1.43]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.42...v0.1.43

@@ -395,6 +395,7 @@ export function Page({ t }: PageProps): ReactElement {
   async function saveRepository(): Promise<void> {
     if (form === null) return
     clearMessages()
+    setConnection(null)
     setSavingConfig(true)
     setBusy('config')
     try {
@@ -507,9 +508,20 @@ export function Page({ t }: PageProps): ReactElement {
     setBusy('sync')
     try {
       const preview = await api.previewSync()
-      // Even a clean plan goes through the dialog: the user asked to sync, so
-      // show what will happen before anything runs.
-      openConfirm('sync', preview.plan)
+      const plan = preview.plan
+      // A clean sync needs no second confirmation: only conflicts or steps that
+      // delete/overwrite content are worth interrupting the user for.
+      const needsDecision =
+        plan.conflicts.length > 0 ||
+        plan.requiresConfirmation ||
+        plan.actions.some(action => action.destructive)
+      if (!needsDecision) {
+        const result = await api.sync({ confirmDestructive: false })
+        reportOperation(result, 'actionSyncDone', 'actions')
+        await refreshAll()
+        return
+      }
+      openConfirm('sync', plan)
     } catch (error) {
       const plan = planFromError(error)
       if (plan !== null) openConfirm('sync', plan, { hint: errorText(error) })
