@@ -574,17 +574,6 @@ export const CSS = `
   font-size: 11px;
   line-height: 16px;
 }
-.dgs-pluginsToolbar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.dgs-pluginsToolbar > .dgs-input {
-  flex: 1 1 220px;
-  width: auto;
-  min-width: 0;
-}
 .dgs-pluginsPageSize {
   display: flex;
   align-items: center;

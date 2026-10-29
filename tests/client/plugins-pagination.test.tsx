@@ -54,15 +54,15 @@ describe('plugin list pagination', () => {
 
   it('shows 20 rows on the first page with a pager', () => {
     const html = render(25)
-    expect(html).toContain('第 1 / 2 页')
-    expect(html).toContain('显示 1–20，共 25 个')
-    expect(html.split('class="dgs-pluginName"')).toHaveLength(21)
+    expect(html).toContain('第 1 / 5 页')
+    expect(html).toContain('显示 1–5，共 25 个')
+    expect(html.split('class="dgs-pluginName"')).toHaveLength(6)
     expect(html).toContain('上一页')
     expect(html).toContain('下一页')
-    // The page size is user-selectable and defaults to 20 per page.
+    // The page size is user-selectable, defaults to 5 and lives in the pager.
     expect(html).toContain('id="dgs-plugins-page-size"')
     expect(html).toContain('每页')
-    expect(html).toContain('<option value="10">10</option>')
+    expect(html).toContain('<option value="5" selected="">5</option>')
     expect(html).toContain('<option value="100">100</option>')
   })
 
@@ -74,10 +74,13 @@ describe('plugin list pagination', () => {
     expect(html.split('class="dgs-pluginName"')).toHaveLength(11)
   })
 
-  it('renders no pager for a short list', () => {
-    const html = render(10)
-    expect(html).not.toContain('dgs-pagination')
+  it('renders a footer with the page-size selector but no page buttons for one page', () => {
+    const html = render(3)
+    expect(html).toContain('dgs-pagination')
+    expect(html).toContain('显示 1–3，共 3 个')
+    expect(html).toContain('id="dgs-plugins-page-size"')
     expect(html).not.toContain('上一页')
-    expect(html.split('class="dgs-pluginName"')).toHaveLength(11)
+    expect(html).not.toContain('下一页')
+    expect(html.split('class="dgs-pluginName"')).toHaveLength(4)
   })
 })

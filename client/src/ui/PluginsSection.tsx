@@ -17,8 +17,8 @@ import type { Feedback, Tone } from './controls'
 import { Badge, Banner, Button, Card, Checkbox, LinkButton, Loading, Select } from './controls'
 
 /** Rows-per-page choices for the plugin table. */
-const PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const
-const DEFAULT_PAGE_SIZE = 20
+const PAGE_SIZE_OPTIONS = [5, 10, 20, 50, 100] as const
+const DEFAULT_PAGE_SIZE = 5
 const PAGE_SIZE_STORAGE_KEY = 'dsh-git-plugin-sync.plugins-page-size'
 
 /** Remember the user's page size across visits. */
@@ -102,42 +102,19 @@ export function PluginsSection(props: PluginsSectionProps): ReactElement {
         </Banner>
       )}
 
-      <div className="dgs-pluginsToolbar">
-        <label className="dgs-srOnly" htmlFor="dgs-plugins-filter">
-          {t('pluginsFilterPlaceholder')}
-        </label>
-        <input
-          id="dgs-plugins-filter"
-          className="dgs-input"
-          type="search"
-          value={props.filter}
-          placeholder={t('pluginsFilterPlaceholder')}
-          onChange={event => {
-            props.onFilterChange(event.target.value)
-          }}
-        />
-        <div className="dgs-pluginsPageSize">
-          <label className="dgs-hint" htmlFor="dgs-plugins-page-size">
-            {t('pluginsPageSize')}
-          </label>
-          <Select
-            id="dgs-plugins-page-size"
-            className="dgs-pageSizeSelect"
-            value={String(pageSize)}
-            options={PAGE_SIZE_OPTIONS.map(size => ({ value: String(size), label: String(size) }))}
-            onChange={value => {
-              const next = Number.parseInt(value, 10)
-              setPageSize(next)
-              try {
-                window.localStorage.setItem(PAGE_SIZE_STORAGE_KEY, String(next))
-              } catch {
-                // Storage can be unavailable in private mode; the choice still
-                // applies for this visit.
-              }
-            }}
-          />
-        </div>
-      </div>
+      <label className="dgs-srOnly" htmlFor="dgs-plugins-filter">
+        {t('pluginsFilterPlaceholder')}
+      </label>
+      <input
+        id="dgs-plugins-filter"
+        className="dgs-input"
+        type="search"
+        value={props.filter}
+        placeholder={t('pluginsFilterPlaceholder')}
+        onChange={event => {
+          props.onFilterChange(event.target.value)
+        }}
+      />
 
       {props.loading && props.plugins === null ? <Loading text={t('loading')} /> : null}
 
@@ -202,7 +179,7 @@ export function PluginsSection(props: PluginsSectionProps): ReactElement {
           </table>
         </div>
       )}
-      {visible.length <= pageSize ? null : (
+      {visible.length === 0 ? null : (
         <div className="dgs-pagination">
           <span className="dgs-hint">
             {t('pluginsPageRange', {
@@ -212,13 +189,38 @@ export function PluginsSection(props: PluginsSectionProps): ReactElement {
             })}
           </span>
           <div className="dgs-btnRow">
-            <Button small onClick={() => setPage(currentPage - 1)} disabled={currentPage <= 1}>
-              {t('pluginsPagePrev')}
-            </Button>
-            <span className="dgs-hint">{t('pluginsPageInfo', { page: currentPage, pages: totalPages })}</span>
-            <Button small onClick={() => setPage(currentPage + 1)} disabled={currentPage >= totalPages}>
-              {t('pluginsPageNext')}
-            </Button>
+            <div className="dgs-pluginsPageSize">
+              <label className="dgs-hint" htmlFor="dgs-plugins-page-size">
+                {t('pluginsPageSize')}
+              </label>
+              <Select
+                id="dgs-plugins-page-size"
+                className="dgs-pageSizeSelect"
+                value={String(pageSize)}
+                options={PAGE_SIZE_OPTIONS.map(size => ({ value: String(size), label: String(size) }))}
+                onChange={value => {
+                  const next = Number.parseInt(value, 10)
+                  setPageSize(next)
+                  try {
+                    window.localStorage.setItem(PAGE_SIZE_STORAGE_KEY, String(next))
+                  } catch {
+                    // Storage can be unavailable in private mode; the choice
+                    // still applies for this visit.
+                  }
+                }}
+              />
+            </div>
+            {totalPages <= 1 ? null : (
+              <>
+                <Button small onClick={() => setPage(currentPage - 1)} disabled={currentPage <= 1}>
+                  {t('pluginsPagePrev')}
+                </Button>
+                <span className="dgs-hint">{t('pluginsPageInfo', { page: currentPage, pages: totalPages })}</span>
+                <Button small onClick={() => setPage(currentPage + 1)} disabled={currentPage >= totalPages}>
+                  {t('pluginsPageNext')}
+                </Button>
+              </>
+            )}
           </div>
         </div>
       )}
