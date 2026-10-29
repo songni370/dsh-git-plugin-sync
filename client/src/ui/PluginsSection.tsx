@@ -18,7 +18,7 @@ import { Badge, Banner, Button, Card, Checkbox, LinkButton, Loading, Select } fr
 
 /** Rows-per-page choices for the plugin table. */
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50, 100] as const
-const DEFAULT_PAGE_SIZE = 5
+const DEFAULT_PAGE_SIZE = 10
 const PAGE_SIZE_STORAGE_KEY = 'dsh-git-plugin-sync.plugins-page-size'
 
 /** Remember the user's page size across visits. */
@@ -71,6 +71,7 @@ export function PluginsSection(props: PluginsSectionProps): ReactElement {
       ? rows
       : rows.filter(row => `${row.displayName ?? ''}\n${row.name}\n${row.id}`.toLowerCase().includes(needle))
 
+  const [open, setOpen] = useState(false)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(storedPageSize)
   // A new filter or page size always starts from the first page.
@@ -86,13 +87,34 @@ export function PluginsSection(props: PluginsSectionProps): ReactElement {
   return (
     <Card
       title={t('pluginsTitle')}
-      description={t('pluginsDesc')}
+      description={open ? t('pluginsDesc') : undefined}
       trailing={
         <div className="dgs-btnRow">
           <span className="dgs-hint">{t('pluginsCount', { count: rows.length })}</span>
           <Button small onClick={props.onRefresh} disabled={props.loading || props.busy}>
             {t('pluginsRefresh')}
           </Button>
+          <button
+            type="button"
+            className="dgs-disclosure"
+            aria-expanded={open}
+            aria-controls="dgs-plugins-body"
+            onClick={() => {
+              setOpen(current => !current)
+            }}
+          >
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false">
+              <path
+                d="M4 6.5 8 10.5 12 6.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <span>{open ? t('pluginsCollapse') : t('pluginsExpand')}</span>
+          </button>
         </div>
       }
     >
@@ -102,6 +124,7 @@ export function PluginsSection(props: PluginsSectionProps): ReactElement {
         </Banner>
       )}
 
+      <div id="dgs-plugins-body" className="dgs-pluginsBody" hidden={!open}>
       <label className="dgs-srOnly" htmlFor="dgs-plugins-filter">
         {t('pluginsFilterPlaceholder')}
       </label>
@@ -224,6 +247,8 @@ export function PluginsSection(props: PluginsSectionProps): ReactElement {
           </div>
         </div>
       )}
+
+      </div>
 
       {props.feedback === undefined ? null : <Banner tone={props.feedback.tone}>{props.feedback.text}</Banner>}
     </Card>

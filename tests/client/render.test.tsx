@@ -364,6 +364,19 @@ describe('settings page render', () => {
     expect(localStorage.getItem('dsh-git-plugin-sync.plugins-tab')).toBe('0')
   })
 
+  it('starts the plugin list collapsed and expands on demand', async () => {
+    await settle()
+    const body = container.querySelector('#dgs-plugins-body')
+    expect(body).not.toBeNull()
+    expect(body?.hasAttribute('hidden')).toBe(true)
+    const toggle = container.querySelector('button[aria-controls="dgs-plugins-body"]') as HTMLButtonElement
+    expect(toggle.textContent).toContain('展开列表')
+    await act(async () => {
+      toggle.click()
+    })
+    expect(container.querySelector('#dgs-plugins-body')?.hasAttribute('hidden')).toBe(false)
+  })
+
   it('opens the confirmation dialog with the destructive plan from the Host', async () => {
     await settle()
     const buttons = Array.from(container.querySelectorAll('button'))
