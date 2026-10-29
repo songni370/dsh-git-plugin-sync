@@ -68,7 +68,7 @@ The backup is readable, diffable, rollback-friendly JSON. Commits carry `Operati
 | **Conflict handling** | When both sides changed, or one side deleted what the other modified, the plugin **never decides automatically**: it reports a conflict, and you choose keep local / use repository / skip in the settings page, or pass explicit `resolutions` through the agent tools. |
 | **Version management** | This plugin only does **"sync the version"**: make the device match the version recorded in the repository (up or down; a downgrade is destructive and requires confirmation). It **does not** look up the latest version or perform a "version upgrade" for you — upgrade through the DSH plugin manager/market, and the next backup records the new version so other devices upgrade to it on their next sync. |
 | **History and rollback** | Pick any commit from the repository history and restore the device to the state recorded in that commit (a local snapshot is taken first). |
-| **Automatic sync** | Off by default. Supports an interval timer, a check after startup, and change-triggered syncs. Automatic runs **pause and wait** on conflicts or destructive plans: no prompts, no silent deletions. Includes debounce, mutual exclusion, cooldown, and failure backoff. |
+| **Automatic sync** | Off by default. When enabled it syncs on **client startup** and on **plugin changes** (install/update/remove); there is **no interval timer**. Automatic runs **pause and wait** on conflicts or destructive plans: no prompts, no silent deletions. Includes debounce, mutual exclusion, cooldown, and failure backoff. |
 | **Settings page** | Settings → "Plugin Backup": status, repository configuration, manual operations (with automatic sync folded into the card), plugin list and exclusions, history. Status polls every 5 seconds; destructive operations always show a preview confirmation first. A "Page display" switch above the repository card controls the Plugins-page backup tab. **The repository card collapses**: a configured device shows only the card title and the "Configured" status until "Edit configuration" is clicked; a fresh install starts expanded.
 **Transport detection**: the URL is detected as HTTPS, SSH or a local path and only the matching auth fields are shown — **an empty or unrecognised address shows no auth fields at all**; HTTPS then offers the credential helper or a token as a segmented control (token env var and username appear only for token auth), SSH shows the system SSH-agent/key hint and needs no token, and local paths need no credentials. Changing the URL updates the auth mode automatically.
 **Concise form**: settings-style rows with the label on the left and the control on the right; only the repository address and authentication are visible by default, while branch, backup directory, device name and profile live under an "Advanced" disclosure (collapsed on a configured device, expanded on a fresh one), with one-line helper text. |
@@ -269,16 +269,16 @@ The sync engine attributes changes with a three-way comparison (baseline base / 
 
 ## 8. Automatic sync
 
-Automatic sync is **off by default**; enable it in the "Automatic sync" card and save.
+Automatic sync is **off by default**; enable it in the "Automatic sync" section at the bottom of the operations card and save. It is **event-driven**: it runs when the client starts and when plugins change (install/update/remove), with no interval timer.
 
 | Setting | Default | Meaning |
 | --- | --- | --- |
 | Enable automatic sync | `false` | Master switch. Nothing runs automatically while off. |
 | Behaviour (mode) | `two-way` | `two-way` sync / `backup` only / `restore` only. |
-| Interval (minutes) | `30` | `0` disables the timer; a non-zero value must be at least 1 minute (the scheduler also enforces a 60-second floor), capped at 7 days in configuration (the settings input caps at 1440 minutes). |
-| Check on startup | `false` | 15 seconds after DSH starts, perform one **read-only** status check: remote changes are only logged, never executed automatically. |
+| Sync on startup | `false` | Run one automatic sync about 15 seconds after the client opens (not a read-only check). |
 | Sync after plugin changes | `false` | Listens to the host's `plugin-manager/changed` event and triggers a debounced automatic run. |
 | Change trigger delay (`debounceMs`) | `10000` | Debounce window, clamped to 1 second – 1 hour; the effective floor is 1 second. |
+| Interval (`intervalMinutes`) | `0` (retired) | Kept only for old configs: the scheduler **no longer runs on a timer**, and the settings page saves 0. |
 
 Runtime rules (`src/services/scheduler.ts`):
 
@@ -286,7 +286,7 @@ Runtime rules (`src/services/scheduler.ts`):
 - **Cooldown**: at least 60 seconds between automatic runs, preventing an "install plugin → change event → install again" loop;
 - **Failure backoff**: retries after 60 s / 5 min / 15 min, at most 3 attempts; then automatic sync pauses and logs it;
 - **Exit conditions**: no repository configured, unresolved conflicts (`conflict-present`), and destructive plans (`confirmation-required`) all pause automatic runs (`pausedReason`) without prompting;
-- All timers are owned by the plugin lifecycle and cleaned up when automatic sync is disabled or the plugin is removed.
+- All timers (startup delay, change debounce, failure backoff) are owned by the plugin lifecycle and cleaned up when automatic sync is disabled or the plugin is removed.
 
 ## 9. Agent tools
 

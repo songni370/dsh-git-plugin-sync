@@ -42,7 +42,7 @@ export interface AutoSyncScheduler {
   /** Notify a possible plugin change; only acts when change-triggered sync is on. */
   notifyPluginChange(): void
   /** Current scheduler state for diagnostics. */
-  state(): { enabled: boolean; pausedReason: string | null; failures: number; lastRunAt: string | null; nextRunInMs: number | null }
+  state(): { enabled: boolean; pausedReason: string | null; failures: number; lastRunAt: string | null }
   dispose(): void
 }
 
@@ -50,7 +50,6 @@ export interface AutoSyncScheduler {
 export function createScheduler(options: SchedulerOptions): AutoSyncScheduler {
   const { engine, logger } = options
   let config: SyncConfig | null = null
-  let intervalDisposer: DshDisposer | null = null
   let startupDisposer: DshDisposer | null = null
   let debounceDisposer: DshDisposer | null = null
   let retryDisposer: DshDisposer | null = null
@@ -58,7 +57,6 @@ export function createScheduler(options: SchedulerOptions): AutoSyncScheduler {
   let pausedReason: string | null = null
   let failures = 0
   let lastRunAt: number | null = null
-  let nextRunAt: number | null = null
   let disposed = false
 
   const clear = (disposer: DshDisposer | null): null => {
@@ -73,11 +71,9 @@ export function createScheduler(options: SchedulerOptions): AutoSyncScheduler {
   }
 
   const clearTimers = (): void => {
-    intervalDisposer = clear(intervalDisposer)
     startupDisposer = clear(startupDisposer)
     debounceDisposer = clear(debounceDisposer)
     retryDisposer = clear(retryDisposer)
-    nextRunAt = null
   }
 
   const scheduleLater = (callback: () => void, delayMs: number): DshDisposer => {
@@ -156,23 +152,6 @@ export function createScheduler(options: SchedulerOptions): AutoSyncScheduler {
     }
   }
 
-  const startupCheck = async (): Promise<void> => {
-    const current = config
-    if (disposed || current === null) return
-    try {
-      const { status } = await engine.status({ refresh: true })
-      if (status.pendingDownloads > 0) {
-        logger.info('启动检查：远端有可获取的插件变更 / startup check: remote changes available', {
-          pendingDownloads: status.pendingDownloads,
-        })
-      } else {
-        logger.debug('启动检查：远端没有新的插件变更 / startup check: no remote changes')
-      }
-    } catch (error) {
-      logger.warn(`启动检查失败 / startup check failed: ${errorMessage(error)}`)
-    }
-  }
-
   const applyConfig = (next: SyncConfig): void => {
     config = next
     clearTimers()
@@ -189,26 +168,14 @@ export function createScheduler(options: SchedulerOptions): AutoSyncScheduler {
       return
     }
     if (auto.onStartup) {
+      // Opening the client is a trigger, not just a read-only check.
       startupDisposer = scheduleLater(() => {
         startupDisposer = null
-        void startupCheck()
+        void run('startup')
       }, STARTUP_CHECK_DELAY_MS)
-    }
-    if (auto.intervalMinutes > 0) {
-      const intervalMs = Math.max(60_000, auto.intervalMinutes * 60_000)
-      nextRunAt = Date.now() + intervalMs
-      intervalDisposer = scheduleLater(function tick(): void {
-        intervalDisposer = null
-        void run('interval').finally(() => {
-          if (disposed || config === null || !config.autoSync.enabled) return
-          nextRunAt = Date.now() + intervalMs
-          intervalDisposer = scheduleLater(tick, intervalMs)
-        })
-      }, intervalMs)
     }
     logger.info('自动同步已启用 / automatic sync enabled', {
       mode: auto.mode,
-      intervalMinutes: auto.intervalMinutes,
       onStartup: auto.onStartup,
       onPluginChange: auto.onPluginChange,
     })
@@ -232,7 +199,6 @@ export function createScheduler(options: SchedulerOptions): AutoSyncScheduler {
       pausedReason,
       failures,
       lastRunAt: lastRunAt === null ? null : new Date(lastRunAt).toISOString(),
-      nextRunInMs: nextRunAt === null ? null : Math.max(0, nextRunAt - Date.now()),
     }),
     dispose: () => {
       disposed = true

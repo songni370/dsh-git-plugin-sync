@@ -683,20 +683,6 @@ export const CSS = `
 .dgs-checkRow input {
   margin: 0;
 }
-.dgs-autoNumber {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.dgs-autoNumber .dgs-input {
-  flex: 0 0 auto;
-  width: 96px;
-}
-.dgs-autoUnit {
-  font-size: 12px;
-  line-height: 18px;
-  color: var(--dsw-alias-label-secondary, #5c6570);
-}
 .dgs-statusTiles {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));

@@ -248,6 +248,8 @@ describe('settings page render', () => {
     expect(panel?.querySelectorAll('.dgs-segmented button')).toHaveLength(3)
     expect(panel?.querySelectorAll('[role="switch"]')).toHaveLength(1)
     expect(panel?.querySelectorAll('input[type="checkbox"]')).toHaveLength(2)
+    // Auto-sync is event-driven: the interval input is gone for good.
+    expect(panel?.querySelector('#dgs-auto-interval')).toBeNull()
 
     const toggle = panel?.querySelector('button[aria-controls="dgs-auto-body"]') as HTMLButtonElement
     await act(async () => {

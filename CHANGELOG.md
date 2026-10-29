@@ -10,6 +10,21 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.26] - 2026-10-29
+
+### Changed
+
+- **自动同步改为纯事件驱动，移除定时器**：
+  - 触发时机只有两个：**打开客户端**（约 15 秒后执行一次自动同步）和**插件变更**（安装/更新/卸载，防抖后执行）；
+  - 设置页去掉「定时同步间隔」与相关说明，开启总开关时若未选任何触发条件会自动勾选这两个触发项；
+  - 调度器不再创建 interval 定时器；`intervalMinutes` 字段仅为兼容旧配置保留，设置页保存时写 0；
+  - 折叠摘要改为「双向同步 · 打开客户端时同步 · 插件变更后同步」，不再显示“每 N 分钟”；
+  - 启动触发从原来的“只读检查远端变更”改为真正执行一次同步。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（17 个测试文件 / 227 个测试）通过；调度器测试改为验证事件触发、无定时器、启动同步与防抖/退避。
+
 ## [0.1.25] - 2026-10-29
 
 ### Changed
@@ -385,7 +400,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.25...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.26...HEAD
+[0.1.26]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.25...v0.1.26
 [0.1.25]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.24...v0.1.25
 [0.1.24]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.23...v0.1.24
 [0.1.23]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.22...v0.1.23

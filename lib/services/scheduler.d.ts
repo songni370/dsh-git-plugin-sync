@@ -34,7 +34,6 @@ export interface AutoSyncScheduler {
         pausedReason: string | null;
         failures: number;
         lastRunAt: string | null;
-        nextRunInMs: number | null;
     };
     dispose(): void;
 }
