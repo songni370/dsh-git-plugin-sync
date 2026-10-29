@@ -283,6 +283,18 @@ describe('two-device synchronization', () => {
     expect(withDevice?.deviceName).toBe('mac')
   }, 120_000)
 
+  it('counts only listable plugins in the status card', async () => {
+    const before = await ctx.mac.engine.status()
+    ctx.mac.addPlugin({ name: 'cordis:include', version: '0.0.0', enabled: true, configs: {} })
+    ctx.mac.engine.invalidateScan()
+    const after = await ctx.mac.engine.status()
+    const list = await ctx.mac.engine.listPlugins()
+    // A loader-internal row must not bump the local count or appear in the list.
+    expect(after.status.localPluginCount).toBe(before.status.localPluginCount)
+    expect(list.rows.some(row => row.name === 'cordis:include')).toBe(false)
+    expect(after.status.localPluginCount).toBe(list.rows.filter(row => row.local !== undefined).length)
+  }, 120_000)
+
   it('reports status counts without contacting the network when cached', async () => {
     const { status } = await ctx.mac.engine.status()
     expect(status.config.repoUrl).toBe(ctx.bareRepo)

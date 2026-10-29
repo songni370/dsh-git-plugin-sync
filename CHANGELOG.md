@@ -10,6 +10,19 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.22] - 2026-10-29
+
+### Fixed
+
+- **「同步状态」的本地/仓库数量比插件列表多**：状态卡片此前统计所有非内置插件，把 DSH 加载器内部条目（`cordis:*`）和本插件自身也算进了「本地插件」；而插件列表已排除这些条目，于是出现「本地 8 / 仓库 6 / 列表 6」。
+  - 状态卡片与插件列表现在共用同一个「可同步插件」判定：排除内置/官方插件、`cordis:*` 内部条目与本插件自身；
+  - 本地数量、仓库数量与列表行数保持一致（你这台机器会显示 6 / 6）；
+  - 新增集成测试防止再次不一致。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（17 个测试文件 / 225 个测试）通过。
+
 ## [0.1.21] - 2026-10-28
 
 ### Fixed
@@ -337,7 +350,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.21...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.22...HEAD
+[0.1.22]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.21...v0.1.22
 [0.1.21]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.20...v0.1.21
 [0.1.20]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.19...v0.1.20
 [0.1.19]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.18...v0.1.19

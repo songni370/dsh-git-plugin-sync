@@ -138,6 +138,21 @@ type JsonValue = import('../types.js').JsonValue
 
 const EMPTY_REMOTE: RemoteRead = { manifest: null, state: null, configs: {}, devices: {}, head: null }
 
+/**
+ * Whether a plugin belongs in the user-facing inventory.
+ *
+ * DSH built-in/official plugins, the DSH loader's internal `cordis:*` rows and
+ * this plugin itself are deliberately excluded from backup and from the
+ * selectable list — counts must use the same predicate or the status card and
+ * the plugin list disagree (e.g. "local 8" vs a six-row list).
+ */
+function isListedPlugin(name: string, builtIn: boolean): boolean {
+  if (builtIn) return false
+  if (name === PACKAGE_NAME) return false
+  if (name.startsWith('cordis:')) return false
+  return true
+}
+
 /** Convert a repository state map into comparable plugin states. */
 function remoteStates(read: RemoteRead): Record<string, PluginState> {
   const out: Record<string, PluginState> = {}
@@ -349,8 +364,13 @@ export class SyncEngine {
       lastSyncAt: state.lastSyncAt,
       lastCommit: state.lastCommit,
       lastOperation: state.lastOperation,
-      localPluginCount: local?.plugins.filter(plugin => !plugin.builtIn).length ?? 0,
-      remotePluginCount: read.state === null ? null : Object.values(read.state.plugins).filter(entry => entry.deleted !== true).length,
+      localPluginCount: local?.plugins.filter(plugin => isListedPlugin(plugin.name, plugin.builtIn)).length ?? 0,
+      remotePluginCount:
+        read.state === null
+          ? null
+          : Object.values(read.state.plugins)
+              .filter(entry => entry.deleted !== true && isListedPlugin(entry.name, entry.builtIn))
+              .length,
       pendingUploads: uploads,
       pendingDownloads: downloads,
       conflictCount,
@@ -428,11 +448,7 @@ export class SyncEngine {
       .filter(id => {
         const local = localMap[id]
         const remote = remoteMap[id]
-        if ((local?.builtIn ?? false) || (remote?.builtIn ?? false)) return false
-        const name = local?.name ?? remote?.name ?? id
-        if (name === PACKAGE_NAME) return false
-        if (name.startsWith('cordis:')) return false
-        return true
+        return isListedPlugin(local?.name ?? remote?.name ?? id, local?.builtIn === true || remote?.builtIn === true)
       })
       .sort()
     const rows: PluginListRow[] = ids.map(id => {
