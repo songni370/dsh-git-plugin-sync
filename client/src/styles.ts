@@ -624,29 +624,64 @@ export const CSS = `
   opacity: 0.5;
   cursor: not-allowed;
 }
-.dgs-autoMaster {
-  padding: 10px 12px;
-  border: 1px solid var(--dsw-alias-border-l1, #e5e7eb);
-  border-radius: 8px;
-  background: var(--dsw-alias-bg-layer-2, #f7f8fa);
+.dgs-autoSection {
+  margin-top: 2px;
+  padding-top: 14px;
+  border-top: 1px solid var(--dsw-alias-border-l1, #e5e7eb);
 }
-.dgs-autoOptions {
+.dgs-autoHeader {
   display: flex;
-  flex-direction: column;
-  gap: 14px;
-  min-width: 0;
-}
-.dgs-autoOptionsOff {
-  opacity: 0.55;
-}
-.dgs-formRowControlInline {
-  flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
-.dgs-formRowControlInline .dgs-formRowHint {
-  flex: 1 1 auto;
+.dgs-autoHeaderMain {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.dgs-autoTitle {
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 600;
+  color: var(--dsw-alias-label-primary, #1f2328);
+}
+.dgs-autoSummary {
+  min-width: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-secondary, #5c6570);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dgs-autoHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dgs-autoBody {
+  padding-top: 12px;
+}
+.dgs-checkRowGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+}
+.dgs-checkRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-primary, #1f2328);
+  cursor: pointer;
+}
+.dgs-checkRow input {
+  margin: 0;
 }
 .dgs-autoNumber {
   display: flex;

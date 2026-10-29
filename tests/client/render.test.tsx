@@ -235,15 +235,25 @@ describe('settings page render', () => {
     expect(container.querySelector('#dgs-config-repo')?.closest('[hidden]')).toBeNull()
   })
 
-  it('renders the redesigned automatic-sync card', async () => {
+  it('merges auto-sync into the operations card as a collapsed panel', async () => {
     await settle()
-    expect(container.querySelector('.dgs-autoMaster')).not.toBeNull()
-    const options = container.querySelector('.dgs-autoOptions')
-    expect(options).not.toBeNull()
-    expect(options?.querySelectorAll('.dgs-segmented button')).toHaveLength(3)
-    expect(options?.querySelectorAll('[role="switch"]')).toHaveLength(2)
-    expect(container.textContent).toContain('自动同步行为')
-    expect(container.textContent).toContain('保存自动同步')
+    const panel = container.querySelector('.dgs-autoSection')
+    expect(panel).not.toBeNull()
+    expect(panel?.querySelector('.dgs-autoHeader')).not.toBeNull()
+    expect(panel?.textContent).toContain('自动同步')
+    expect(panel?.textContent).toContain('未开启')
+    // The schedule form starts collapsed; only the status line is visible.
+    const body = panel?.querySelector('#dgs-auto-body')
+    expect(body?.hasAttribute('hidden')).toBe(true)
+    expect(panel?.querySelectorAll('.dgs-segmented button')).toHaveLength(3)
+    expect(panel?.querySelectorAll('[role="switch"]')).toHaveLength(1)
+    expect(panel?.querySelectorAll('input[type="checkbox"]')).toHaveLength(2)
+
+    const toggle = panel?.querySelector('button[aria-controls="dgs-auto-body"]') as HTMLButtonElement
+    await act(async () => {
+      toggle.click()
+    })
+    expect(panel?.querySelector('#dgs-auto-body')?.hasAttribute('hidden')).toBe(false)
   })
 
   it('renders the status tile row and metadata grid', async () => {

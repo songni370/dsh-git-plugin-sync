@@ -658,6 +658,21 @@ export function Page({ t }: PageProps): ReactElement {
             onClearDiff={() => {
               setDiff(null)
             }}
+            autoPanel={
+              autoForm === null ? undefined : (
+                <AutoSyncSection
+                  t={t}
+                  form={autoForm}
+                  dirty={autoDirty}
+                  saving={savingAuto}
+                  onChange={patch => {
+                    setAutoForm(current => (current === null ? current : { ...current, ...patch }))
+                    markAutoDirty(true)
+                  }}
+                  onSave={() => void saveAutoSync()}
+                />
+              )
+            }
           />
 
           <PluginsSection
@@ -672,20 +687,6 @@ export function Page({ t }: PageProps): ReactElement {
             onToggle={(row, next) => void toggleExclusion(row, next)}
             onRefresh={() => void refreshPlugins()}
           />
-
-          {autoForm === null ? null : (
-            <AutoSyncSection
-              t={t}
-              form={autoForm}
-              dirty={autoDirty}
-              saving={savingAuto}
-              onChange={patch => {
-                setAutoForm(current => (current === null ? current : { ...current, ...patch }))
-                markAutoDirty(true)
-              }}
-              onSave={() => void saveAutoSync()}
-            />
-          )}
 
           <HistorySection
             t={t}

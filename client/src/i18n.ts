@@ -219,6 +219,13 @@ export const zh: Record<string, string> = {
 
   // Auto sync.
   autoTitle: '自动同步',
+  autoStatusOn: '已开启',
+  autoStatusOff: '未开启',
+  autoConfigure: '配置',
+  autoEveryMinutes: '每 {n} 分钟',
+  autoNoTimer: '不定时',
+  autoDisabledSummary: '不会在后台运行',
+  autoTrigger: '触发方式',
   autoDesc: '按设定的条件在后台检查并同步仓库。',
   autoEnabled: '启用自动同步',
   autoEnabledHint: '总开关；关闭后不会自动执行任何操作。',
@@ -454,6 +461,13 @@ export const en: Record<string, string> = {
   statusExcluded: 'Excluded',
 
   autoTitle: 'Automatic sync',
+  autoStatusOn: 'On',
+  autoStatusOff: 'Off',
+  autoConfigure: 'Configure',
+  autoEveryMinutes: 'every {n} min',
+  autoNoTimer: 'no timer',
+  autoDisabledSummary: 'nothing runs in the background',
+  autoTrigger: 'Triggers',
   autoDesc: 'Check and sync the repository in the background under the conditions below.',
   autoEnabled: 'Enable automatic sync',
   autoEnabledHint: 'Master switch; nothing runs automatically while it is off.',

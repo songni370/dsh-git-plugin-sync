@@ -10,6 +10,21 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.23] - 2026-10-29
+
+### Changed
+
+- **「自动同步」合并进「操作」卡片**：不再单独占用一张卡片，作为操作卡片底部的一个分区，与手动备份/恢复/同步/检查差异放在一起。
+- **定时配置默认折叠、保持简洁**：
+  - 折叠时只显示「已开启 / 未开启」徽标 + 一行定时摘要（如「双向同步 · 每 30 分钟 · 启动时检查」）；
+  - 点「配置」展开后仅保留四项：启用开关、行为（双向/仅备份/仅恢复分段选择）、间隔（数字 + 分钟）、触发方式（启动时检查 / 插件变更后同步两个勾选项）；
+  - 去掉重复说明段落与行为说明，插件变更延迟只在勾选时显示；
+  - 保存成功后自动收起回摘要状态；有未保存修改时头部显示「未保存」。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（17 个测试文件 / 225 个测试）通过；渲染测试改为验证「合并进操作卡片 + 默认折叠 + 可展开」。
+
 ## [0.1.22] - 2026-10-29
 
 ### Fixed
@@ -350,7 +365,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.22...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.23...HEAD
+[0.1.23]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.22...v0.1.23
 [0.1.22]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.21...v0.1.22
 [0.1.21]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.20...v0.1.21
 [0.1.20]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.19...v0.1.20

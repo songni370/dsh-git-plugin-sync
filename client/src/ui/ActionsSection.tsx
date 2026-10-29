@@ -8,7 +8,7 @@
  * @module ui/ActionsSection
  */
 
-import type { ReactElement } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 import type { DiffResponse } from '../../../src/http/api-types'
 import type { Translate } from '../i18n'
 import type { DiffDirection } from '../api'
@@ -37,6 +37,8 @@ export interface ActionsSectionProps {
   onSync: () => void
   onDiff: () => void
   onClearDiff: () => void
+  /** Automatic-sync panel, merged into this card below the manual actions. */
+  autoPanel?: ReactNode
 }
 
 /** Render the operations card. */
@@ -101,6 +103,10 @@ export function ActionsSection(props: ActionsSectionProps): ReactElement {
           </div>
           <PlanPreview t={t} plan={props.diff.plan} />
         </section>
+      )}
+
+      {props.autoPanel === undefined ? null : (
+        <div className="dgs-autoSection">{props.autoPanel}</div>
       )}
     </Card>
   )
