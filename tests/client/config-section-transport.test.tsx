@@ -88,6 +88,14 @@ describe('repository card transport fields', () => {
     expect(html).not.toContain('id="dgs-config-username"')
   })
 
+  it('shows the current client instead of profile internals', () => {
+    const html = render('https://github.com/songni370/dsh-git-plugin-sync.git', 'credential-helper')
+    expect(html).toContain('当前客户端')
+    expect(html).toContain('桌面端')
+    expect(html).not.toContain('暂不支持')
+    expect(html).not.toContain('DSH Profile')
+  })
+
   it('secondary options are collapsed on a configured card', () => {
     const html = render('https://github.com/songni370/dsh-git-plugin-sync.git', 'credential-helper')
     expect(html).toContain('高级设置')

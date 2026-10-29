@@ -10,6 +10,16 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.25] - 2026-10-29
+
+### Changed
+
+- **高级设置不再展示 Profile 概念**：原来的「DSH Profile / desktop·当前 / web·暂不支持」改为一行「当前客户端」——直接显示 **桌面端** 或 **Web 端**（根据当前 Profile 映射），并说明桌面端与 Web 端各自独立同步。不再显示其他 Profile 列表或“暂不支持”徽标。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（17 个测试文件 / 226 个测试）通过；新增“当前客户端”文案断言。
+
 ## [0.1.24] - 2026-10-29
 
 ### Changed
@@ -375,7 +385,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.24...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.25...HEAD
+[0.1.25]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.24...v0.1.25
 [0.1.24]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.23...v0.1.24
 [0.1.23]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.22...v0.1.23
 [0.1.22]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.21...v0.1.22

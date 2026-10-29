@@ -300,17 +300,11 @@ export function ConfigSection(props: ConfigSectionProps): ReactElement {
                 />
                 <span className="dgs-formRowHint">{t('configDeviceNameHint')}</span>
               </FormRow>
-              <FormRow label={t('configProfiles')}>
+              <FormRow label={t('configClient')}>
                 <div className="dgs-btnRow">
-                  {profilesOf(view).map(profile => (
-                    <Badge key={profile} tone={profile === view.activeProfile ? 'success' : 'idle'}>
-                      {profile === view.activeProfile
-                        ? `${profile} · ${t('profileActive')}`
-                        : `${profile} · ${t('profileUnsupported')}`}
-                    </Badge>
-                  ))}
+                  <Badge tone="success">{clientLabel(t, view.activeProfile)}</Badge>
                 </div>
-                <span className="dgs-formRowHint">{t('configProfilesHint')}</span>
+                <span className="dgs-formRowHint">{t('configClientHint')}</span>
               </FormRow>
             </div>
           </div>
@@ -351,19 +345,9 @@ export function ConfigSection(props: ConfigSectionProps): ReactElement {
   )
 }
 
-/**
- * Every profile the Host names, active first. The page never edits this list
- * (v1 synchronizes the active profile only) — it just shows what the Host
- * reports, so a future multi-profile release needs no client change beyond
- * the "not supported yet" copy.
- */
-function profilesOf(view: SyncConfigView): string[] {
-  const seen = new Set<string>()
-  const profiles: string[] = []
-  for (const profile of [view.activeProfile, ...view.profiles, ...view.availableProfiles]) {
-    if (profile === '' || seen.has(profile)) continue
-    seen.add(profile)
-    profiles.push(profile)
-  }
-  return profiles
+/** Plain-language name of the client the active profile belongs to. */
+function clientLabel(t: Translate, profile: string): string {
+  if (profile === 'desktop') return t('clientDesktop')
+  if (profile === 'web') return t('clientWeb')
+  return profile === '' ? t('notAvailable') : profile
 }
