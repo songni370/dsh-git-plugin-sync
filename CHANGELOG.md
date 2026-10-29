@@ -10,6 +10,20 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.35] - 2026-10-29
+
+### Added
+
+- **操作提示 5 秒后自动消失**：
+  - 各区域的成功/失败提示（配置保存、同步/备份/恢复/差异、自动同步、插件排除、历史回滚）在显示 5 秒后自动收起；
+  - 同一区域出现新提示时会重新计时；
+  - 仓库配置卡片里的「测试连接」结果横幅同样在 5 秒后自动隐藏；
+  - 页面卸载时清理所有计时器，避免残留定时写入。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（18 个测试文件 / 235 个测试）通过。
+
 ## [0.1.34] - 2026-10-29
 
 ### Changed
@@ -505,7 +519,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.34...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.35...HEAD
+[0.1.35]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.34...v0.1.35
 [0.1.34]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.33...v0.1.34
 [0.1.33]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.32...v0.1.33
 [0.1.32]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.31...v0.1.32

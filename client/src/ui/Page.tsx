@@ -83,6 +83,9 @@ type ConfirmKind = 'backup' | 'restore' | 'rollback' | 'sync'
 /** Which settings section a transient result belongs under. */
 type FeedbackArea = 'config' | 'auto' | 'actions' | 'plugins' | 'history'
 
+/** How long a success/error message stays on screen. */
+const FEEDBACK_TTL_MS = 5_000
+
 /** What the open confirmation dialog will run. */
 interface ConfirmState {
   kind: ConfirmKind
@@ -139,6 +142,13 @@ export function Page({ t }: PageProps): ReactElement {
   const [savingAuto, setSavingAuto] = useState(false)
   const [exclusionBusy, setExclusionBusy] = useState(false)
   const [feedback, setFeedback] = useState<Record<FeedbackArea, Feedback | null>>({
+    config: null,
+    auto: null,
+    actions: null,
+    plugins: null,
+    history: null,
+  })
+  const feedbackTimers = useRef<Record<FeedbackArea, number | null>>({
     config: null,
     auto: null,
     actions: null,
@@ -238,13 +248,41 @@ export function Page({ t }: PageProps): ReactElement {
     }
   }, [refreshStatus])
 
+  function clearFeedbackTimer(area: FeedbackArea): void {
+    const timer = feedbackTimers.current[area]
+    if (timer !== null) {
+      window.clearTimeout(timer)
+      feedbackTimers.current[area] = null
+    }
+  }
+
   function showFeedback(area: FeedbackArea, tone: Feedback['tone'], text: string): void {
+    clearFeedbackTimer(area)
     setFeedback(current => ({ ...current, [area]: { tone, text } }))
+    feedbackTimers.current[area] = window.setTimeout(() => {
+      feedbackTimers.current[area] = null
+      setFeedback(current => ({ ...current, [area]: null }))
+    }, FEEDBACK_TTL_MS)
   }
 
   function clearMessages(): void {
+    for (const area of Object.keys(feedbackTimers.current) as FeedbackArea[]) clearFeedbackTimer(area)
     setFeedback({ config: null, auto: null, actions: null, plugins: null, history: null })
   }
+
+  // The connection-test result is also a transient prompt: hide it after 5s.
+  useEffect(() => {
+    if (connection === null) return
+    const timer = window.setTimeout(() => setConnection(null), FEEDBACK_TTL_MS)
+    return () => window.clearTimeout(timer)
+  }, [connection])
+
+  // Never leave a timeout writing state after the page unmounts.
+  useEffect(() => {
+    return () => {
+      for (const area of Object.keys(feedbackTimers.current) as FeedbackArea[]) clearFeedbackTimer(area)
+    }
+  }, [])
 
   function reportOperation(result: OperationResult, doneKey: string, area: FeedbackArea): void {
     if (!result.ok) {
