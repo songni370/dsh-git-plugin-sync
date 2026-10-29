@@ -624,6 +624,28 @@ export const CSS = `
   opacity: 0.5;
   cursor: not-allowed;
 }
+.dgs-syncStatusBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  margin-top: 2px;
+  padding-top: 14px;
+  border-top: 1px solid var(--dsw-alias-border-l1, #e5e7eb);
+}
+.dgs-syncStatusHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.dgs-syncStatusTitle {
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 600;
+  color: var(--dsw-alias-label-primary, #1f2328);
+}
 .dgs-actionsMain {
   display: flex;
   align-items: center;

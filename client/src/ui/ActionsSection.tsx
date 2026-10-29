@@ -41,6 +41,8 @@ export interface ActionsSectionProps {
   feedback?: Feedback
   /** Result of saving auto-sync, shown below the auto-sync panel. */
   autoFeedback?: Feedback
+  /** Sync status content, embedded at the bottom of this card. */
+  statusPanel?: ReactNode
 }
 
 /** Render the operations card. */
@@ -154,6 +156,8 @@ export function ActionsSection(props: ActionsSectionProps): ReactElement {
       {props.autoFeedback === undefined ? null : (
         <Banner tone={props.autoFeedback.tone}>{props.autoFeedback.text}</Banner>
       )}
+
+      {props.statusPanel === undefined ? null : props.statusPanel}
     </Card>
   )
 }

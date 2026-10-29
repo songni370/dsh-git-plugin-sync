@@ -330,6 +330,9 @@ describe('settings page render', () => {
     expect(container.querySelector('.dgs-statusTiles')).not.toBeNull()
     expect(container.querySelectorAll('.dgs-statusTile')).toHaveLength(5)
     expect(container.querySelectorAll('.dgs-statusMetaItem')).toHaveLength(6)
+    // The status block now lives inside the operations card, below the actions.
+    const actionsCard = container.querySelector('.dgs-actionsMain')?.closest('.dgs-card')
+    expect(actionsCard?.querySelector('.dgs-syncStatusBlock')).not.toBeNull()
   })
 
   it('renders live status counts and the plugin list', async () => {

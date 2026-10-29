@@ -648,14 +648,9 @@ export function Page({ t }: PageProps): ReactElement {
               onChange={changeConfig}
               onTest={() => void testRepository()}
               onSave={() => void saveRepository()}
+              feedback={feedback.config ?? undefined}
             />
           )}
-
-          {feedback.config === null ? null : (
-            <Banner tone={feedback.config.tone}>{feedback.config.text}</Banner>
-          )}
-
-          <StatusSection t={t} status={view} />
 
           <ActionsSection
             t={t}
@@ -673,6 +668,7 @@ export function Page({ t }: PageProps): ReactElement {
             }}
             feedback={feedback.actions ?? undefined}
             autoFeedback={feedback.auto ?? undefined}
+            statusPanel={<StatusSection t={t} status={view} embedded />}
             autoPanel={
               autoForm === null ? undefined : (
                 <AutoSyncSection

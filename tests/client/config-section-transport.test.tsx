@@ -40,7 +40,12 @@ function viewFor(repoUrl: string, authMode: GitAuthMode): SyncConfigView {
 }
 
 /** Render the card for one form. */
-function render(repoUrl: string, authMode: GitAuthMode, overrides: Partial<ConfigForm> = {}): string {
+function render(
+  repoUrl: string,
+  authMode: GitAuthMode,
+  overrides: Partial<ConfigForm> = {},
+  feedback?: { tone: 'success' | 'error'; text: string },
+): string {
   const view = viewFor(repoUrl, authMode)
   const form: ConfigForm = { ...configFormFromView(view), ...overrides }
   return renderToStaticMarkup(
@@ -57,6 +62,7 @@ function render(repoUrl: string, authMode: GitAuthMode, overrides: Partial<Confi
       onChange={() => undefined}
       onTest={() => undefined}
       onSave={() => undefined}
+      feedback={feedback}
     />,
   )
 }
@@ -94,6 +100,18 @@ describe('auto-sync startup delay', () => {
     )
     expect(html).toContain('value="3"')
     expect(html).toContain('低于 5 秒')
+  })
+})
+
+describe('repository card feedback', () => {
+  it('renders the save result inside the card body', () => {
+    const html = render('https://github.com/songni370/dsh-git-plugin-sync.git', 'credential-helper', {}, {
+      tone: 'success',
+      text: '仓库配置已保存。',
+    })
+    expect(html).toContain('仓库配置已保存。')
+    // Still inside the same <section> card, before its closing tag.
+    expect(html.indexOf('仓库配置已保存。')).toBeLessThan(html.lastIndexOf('</section>'))
   })
 })
 

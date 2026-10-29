@@ -41,6 +41,8 @@ interface CountTile {
 export interface StatusSectionProps {
   t: Translate
   status: StatusView
+  /** Render inside another card (operations) instead of as its own card. */
+  embedded?: boolean
 }
 
 /** One metadata cell (label above a single-line value). */
@@ -99,12 +101,8 @@ export function StatusSection(props: StatusSectionProps): ReactElement {
     },
   ]
 
-  return (
-    <Card
-      title={t('statusTitle')}
-      description={t('statusDesc')}
-      trailing={<Badge tone={meta.tone}>{t(meta.key)}</Badge>}
-    >
+  const body = (
+    <>
       {status.state === 'not-configured' ? <Banner tone="idle">{t('statusNotConfiguredHint')}</Banner> : null}
       {status.busy ? <Banner tone="warn">{t('statusBusy')}</Banner> : null}
 
@@ -170,6 +168,28 @@ export function StatusSection(props: StatusSectionProps): ReactElement {
           {t('statusLastError')}: {status.lastError}
         </Banner>
       )}
+    </>
+  )
+
+  if (props.embedded === true) {
+    return (
+      <div className="dgs-syncStatusBlock">
+        <div className="dgs-syncStatusHead">
+          <span className="dgs-syncStatusTitle">{t('statusTitle')}</span>
+          <Badge tone={meta.tone}>{t(meta.key)}</Badge>
+        </div>
+        {body}
+      </div>
+    )
+  }
+
+  return (
+    <Card
+      title={t('statusTitle')}
+      description={t('statusDesc')}
+      trailing={<Badge tone={meta.tone}>{t(meta.key)}</Badge>}
+    >
+      {body}
     </Card>
   )
 }

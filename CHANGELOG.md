@@ -10,6 +10,18 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.34] - 2026-10-29
+
+### Changed
+
+- **操作结果提示全部收进对应卡片内部**：仓库配置的测试/保存提示现在和连接结果一样显示在仓库配置卡片内，不再出现在卡片下方。
+- **「同步状态」并入「操作」卡片**：两个区域合并为一个方框，顺序为「操作按钮 → 差异预览 → 自动同步 → 同步状态」；状态区以细分隔线 + 「同步状态」小标题呈现，包含状态徽标、数量磁贴、设备/分支/提交等元数据。
+- 页面上不再有独立的「同步状态」卡片；整体纵向更紧凑，操作与状态上下文在同一视线内。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（18 个测试文件 / 235 个测试）通过；新增“配置反馈在卡片内”和“状态块位于操作卡片内”的断言。
+
 ## [0.1.33] - 2026-10-29
 
 ### Changed
@@ -493,7 +505,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.33...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.34...HEAD
+[0.1.34]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.33...v0.1.34
 [0.1.33]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.32...v0.1.33
 [0.1.32]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.31...v0.1.32
 [0.1.31]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.30...v0.1.31

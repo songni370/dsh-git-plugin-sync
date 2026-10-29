@@ -23,6 +23,7 @@ import {
   type RepoTransport,
 } from '../repo-transport'
 import { Badge, Banner, Button, Card, TextInput } from './controls'
+import type { Feedback } from './controls'
 
 /** The editable subset of the Host configuration. */
 export interface ConfigForm {
@@ -69,6 +70,8 @@ export interface ConfigSectionProps {
   open: boolean
   /** Expand/collapse the card body. */
   onToggle: () => void
+  /** Result of testing/saving, shown inside this card. */
+  feedback?: Feedback
 }
 
 /** Label + hint for one detected transport. */
@@ -319,7 +322,11 @@ export function ConfigSection(props: ConfigSectionProps): ReactElement {
           </Button>
         </div>
 
-        {props.connection === null ? null : (
+        {props.feedback === undefined ? null : (
+        <Banner tone={props.feedback.tone}>{props.feedback.text}</Banner>
+      )}
+
+      {props.connection === null ? null : (
           <>
             <Banner tone={props.connection.ok ? 'success' : 'error'}>
               {props.connection.ok
