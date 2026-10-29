@@ -8,6 +8,17 @@ This file follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [
 
 暂无 / Nothing yet.
 
+## [0.2.4] - 2026-10-29
+
+### Added
+
+- **自动化 Release**：推送 `v*` 标签（或在 Actions 手动指定已有标签）会自动执行构建、测试、校验版本、生成 CHANGELOG Release notes、创建 GitHub Release 并附 tarball，最后通过 npm Trusted Publishing（OIDC）发布。
+- `.github/release_template.md` 与 `scripts/release-notes.mjs`。
+
+### Changed
+
+- 首次 npm 发布已完成，npm Trusted Publisher 已绑定到 `songni370/dsh-plugins-git-sync` + `release.yml`；本版本用于验证该发布链路并生成正式 GitHub Release。
+
 ## [0.2.3] - 2026-10-29
 
 ### Changed
@@ -76,7 +87,8 @@ This file follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [
 - 设置页基础界面、HTTP 路由与 6 个 Agent 工具。
 - 单元测试、双设备集成测试与 CI（macOS / Windows / Linux）。
 
-[Unreleased]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.3...HEAD
+[Unreleased]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.4...HEAD
+[0.2.4]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.0...v0.2.1
