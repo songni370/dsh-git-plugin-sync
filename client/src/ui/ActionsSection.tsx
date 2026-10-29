@@ -8,7 +8,7 @@
  * @module ui/ActionsSection
  */
 
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import type { ReactElement, ReactNode } from 'react'
 import type { DiffResponse } from '../../../src/http/api-types'
 import type { Translate } from '../i18n'
@@ -44,9 +44,31 @@ export function ActionsSection(props: ActionsSectionProps): ReactElement {
   const disabled = props.busy !== null || props.hostBusy || !props.enabled
   const running = props.busy === null ? null : actionLabel(t, props.busy)
   const moreRef = useRef<HTMLDetailsElement>(null)
+  const closeTimer = useRef<number | null>(null)
+
+  const cancelScheduledClose = (): void => {
+    if (closeTimer.current !== null) {
+      window.clearTimeout(closeTimer.current)
+      closeTimer.current = null
+    }
+  }
+
   const closeMore = (): void => {
+    cancelScheduledClose()
     if (moreRef.current !== null) moreRef.current.open = false
   }
+
+  // A short grace period lets the pointer cross the 6px gap between the trigger
+  // and the popup without closing it; hovering the popup cancels the close.
+  const scheduleClose = (): void => {
+    cancelScheduledClose()
+    closeTimer.current = window.setTimeout(() => {
+      closeTimer.current = null
+      if (moreRef.current !== null) moreRef.current.open = false
+    }, 160)
+  }
+
+  useEffect(() => cancelScheduledClose, [])
 
   return (
     <Card title={t('actionsTitle')} description={t('actionsDesc')}>
@@ -57,7 +79,12 @@ export function ActionsSection(props: ActionsSectionProps): ReactElement {
         <Button onClick={props.onDiff} disabled={disabled} title={t('actionDiffHint')}>
           {t('actionDiff')}
         </Button>
-        <details className="dgs-moreActions" ref={moreRef} onMouseLeave={closeMore}>
+        <details
+          className="dgs-moreActions"
+          ref={moreRef}
+          onMouseEnter={cancelScheduledClose}
+          onMouseLeave={scheduleClose}
+        >
           <summary className="dgs-moreSummary">{t('moreActions')}</summary>
           <div className="dgs-moreMenu" role="menu">
             <button

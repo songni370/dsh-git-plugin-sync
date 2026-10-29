@@ -267,6 +267,11 @@ describe('settings page render', () => {
     await act(async () => {
       details.dispatchEvent(new window.MouseEvent('mouseout', { bubbles: true, relatedTarget: document.body }))
     })
+    // A short grace period protects the gap between trigger and popup.
+    expect(details.open).toBe(true)
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 200))
+    })
     expect(details.open).toBe(false)
   })
 

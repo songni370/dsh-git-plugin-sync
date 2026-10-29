@@ -669,6 +669,8 @@ export const CSS = `
   position: absolute;
   right: 0;
   top: calc(100% + 6px);
+  /* Invisible bridge over the 6px gap so moving into the popup stays "inside"
+     the menu and does not trigger the auto-close. */
   z-index: 20;
   display: flex;
   flex-direction: column;
@@ -679,6 +681,14 @@ export const CSS = `
   border-radius: 8px;
   background: var(--dsw-alias-bg-layer-1, #ffffff);
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+}
+.dgs-moreMenu::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -6px;
+  height: 6px;
 }
 .dgs-moreItem {
   height: 30px;

@@ -10,6 +10,19 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.31] - 2026-10-29
+
+### Fixed
+
+- **「更多操作」鼠标移入下拉区域时不再被误收起**：触发按钮与弹出层之间有 6px 间隙，指针穿过时会被判为离开整个菜单。现在：
+  - 弹出层通过不可见的桥接区域覆盖该间隙；
+  - 离开菜单后增加 160ms 宽限期，指针进入弹出层会取消关闭；
+  - 只有真正移出「按钮 + 下拉区域」后才会自动收起（点击菜单项仍立即收起）。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（18 个测试文件 / 233 个测试）通过；自动关闭测试改为验证宽限期与最终关闭。
+
 ## [0.1.30] - 2026-10-29
 
 ### Changed
@@ -453,7 +466,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.30...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.31...HEAD
+[0.1.31]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.30...v0.1.31
 [0.1.30]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.29...v0.1.30
 [0.1.29]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.28...v0.1.29
 [0.1.28]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.27...v0.1.28
