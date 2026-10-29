@@ -119,8 +119,8 @@ export const zh: Record<string, string> = {
   configConnectionFail: '连接失败：{message}',
   configConnectionMeta: '分支 {branch}；最新提交 {head}；认证方式 {auth}',
   configUnsaved: '有未保存的修改',
-  configProfiles: 'DSH Profile',
-  configProfilesHint: 'v1 仅同步当前活动的 Profile。',
+  configProfiles: '当前运行配置',
+  configProfilesHint: 'DSH Profile（运行配置）只同步当前启用的这一套；其他 Profile 需在该 Profile 里安装本插件后单独同步。',
   profileActive: '当前',
   profileUnsupported: '暂不支持',
 
@@ -365,8 +365,8 @@ export const en: Record<string, string> = {
   configConnectionFail: 'Connection failed: {message}',
   configConnectionMeta: 'Branch {branch}; latest commit {head}; auth {auth}',
   configUnsaved: 'Unsaved changes',
-  configProfiles: 'DSH profiles',
-  configProfilesHint: 'v1 syncs the active profile only; other profiles are not supported yet.',
+  configProfiles: 'Runtime profile',
+  configProfilesHint: 'A DSH profile is a separate set of plugins and configuration. v1 syncs the active profile only; to back up another profile, install this plugin there and sync from that profile.',
   profileActive: 'Active',
   profileUnsupported: 'Not supported yet',
 
