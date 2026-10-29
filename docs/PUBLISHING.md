@@ -8,7 +8,7 @@ This is the release manual: GitHub, npm, the DSH plugin market, and the versioni
 
 ## 0. 发布前检查清单
 
-- [ ] `package.json` 的 `version` 是本次要发布的版本（当前 `0.2.0`）；
+- [ ] `package.json` 的 `version` 是本次要发布的版本（当前 `0.2.3`）；
 - [ ] 若清单 schema 有变化，`src/constants.ts` 的 `MANIFEST_SCHEMA_VERSION` 已提升，并按 [架构文档的迁移策略](ARCHITECTURE.md#102-版本化与迁移) 处理旧数据；
 - [ ] 备份仓库里的 `generator.version` 是**运行中的插件版本**：`buildManifest({ generatorVersion })` / `buildSchemaDocument(pluginVersion)` 由引擎传入 `deps.pluginVersion`，无需手动改常量；确认 `package.json` 版本正确即可；
 - [ ] `CHANGELOG.md` 有本次版本的条目（日期、Added/Fixed/Security、`verified on DSH <version>`）；
@@ -23,7 +23,7 @@ This is the release manual: GitHub, npm, the DSH plugin market, and the versioni
 
 ### 1.1 创建仓库
 
-> **当前状态**：源码已推送到 `git@github.com:songni370/dsh-plugins-git-sync.git`（`main` 分支 + `v0.2.0` 标签），但**尚未执行 `npm publish`**。下文 GitHub 地址使用实际所有者 `songni370`，npm 安装说明以「发布之后」为前提。
+> **当前状态**：源码已推送到 `git@github.com:songni370/dsh-plugins-git-sync.git`（`main` 分支 + `v0.2.3` 标签），但**尚未执行 `npm publish`**。下文 GitHub 地址使用实际所有者 `songni370`，npm 安装说明以「发布之后」为前提。
 >
 > **注意构建产物**：本仓库**提交了 `lib/`**（Host 半、类型声明与 `lib/client.js`）。原因是 DSH 用 pnpm 安装插件，pnpm 默认阻止依赖执行构建脚本；不提交 `lib/` 时，从 Git URL 安装会缺少入口而无法加载。因此每次发版前必须 `npm run build` 并把 `lib/` 一并提交；`npm pack` 仍会通过 `prepack` 重新构建。
 
@@ -43,25 +43,33 @@ This is the release manual: GitHub, npm, the DSH plugin market, and the versioni
 
    > 说明：`npm test` 覆盖 `tests/unit`、`tests/integration` 与 `tests/client`（jsdom 渲染冒烟测试）；`npm run test:client` 可单独运行渲染测试。发布前请至少本地跑一次 `npm test`。
 
-### 1.2 打标签并创建 Release
+### 1.2 打标签并自动发布
+
+推送 `v*` 标签会触发 [`.github/workflows/release.yml`](../.github/workflows/release.yml)，自动完成：
+
+1. `npm ci`、typecheck、build、全套测试；
+2. 校验标签与 `package.json` 版本一致；
+3. 从 `CHANGELOG.md` 生成 Release notes，创建 GitHub Release，并附上稳定文件名 `dsh-plugins-git-sync.tgz`；
+4. 通过 npm Trusted Publishing（OIDC）执行 `npm publish --access public`，自动生成 provenance。
 
 ```bash
 # 确认版本号
-node -p "require('./package.json').version"       # 0.2.0
+node -p "require('./package.json').version"       # 0.2.3
 
-git tag -a v0.2.0 -m "dsh-plugins-git-sync 0.2.0"
-git push origin v0.2.0
+git tag -a v0.2.3 -m "插件备份 0.2.3"
+git push origin v0.2.3
 ```
 
-在 GitHub 的 Releases 页面基于 `v0.2.0` 创建 Release，把 `CHANGELOG.md` 对应段落粘贴为说明（或使用 GitHub CLI）：
+也可以在 GitHub Actions 页面手动运行 **Release** workflow，输入已有标签（例如 `v0.2.3`）。
 
-```bash
-gh release create v0.2.0 \
-  --title "v0.2.0 — DSH Plugin Git Sync" \
-  --notes-file <(sed -n '/## \[0.2.0\]/,/## \[/p' CHANGELOG.md)
-```
+**首次发布（bootstrap）**：npm 上还没有这个包时，先按第 2 节手动执行一次 `npm publish --access public`；然后在 npmjs.com 的包设置 → **Trusted Publisher** 中配置：
 
-Release 里可以附上 `npm pack` 产物 `dsh-plugins-git-sync-0.2.0.tgz`（可选；npm 上已经有 tarball 时通常不必）。
+- Provider: GitHub Actions
+- Owner: `songni370`
+- Repository: `dsh-plugins-git-sync`
+- Workflow filename: `release.yml`
+
+配置完成后，后续打标签即可全自动发布。若暂时不配置 Trusted Publisher，可以先在仓库 Secrets 里放 `NPM_TOKEN`，或继续使用第 2 节的手动发布。
 
 ### 1.3 发布后
 
@@ -105,7 +113,7 @@ npm whoami
 npm pack --dry-run
 # 或先产出真实 tarball 检查内容
 npm pack
-tar -tzf dsh-plugins-git-sync-0.2.0.tgz | sort
+tar -tzf dsh-plugins-git-sync-0.2.3.tgz | sort
 ```
 
 必须确认：

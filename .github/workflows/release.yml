@@ -1,0 +1,87 @@
+name: Release
+
+# A pushed v* tag creates the GitHub Release and publishes the npm package.
+# Publishing uses npm Trusted Publishing (OIDC); configure the trusted
+# publisher on npmjs.com for this repository + workflow filename `release.yml`
+# before the first tag run (see docs/PUBLISHING.md).
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to release (e.g. v0.2.3)
+        required: true
+        type: string
+
+permissions:
+  contents: write # create the GitHub Release
+  id-token: write # npm Trusted Publishing (OIDC)
+
+concurrency:
+  group: release-${{ inputs.tag || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Release ${{ inputs.tag || github.ref_name }}
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+      - name: Verify version matches the tag
+        run: |
+          EXPECTED="v$(node -p "require('./package.json').version")"
+          if [ "$RELEASE_TAG" != "$EXPECTED" ]; then
+            echo "::error::tag $RELEASE_TAG does not match package version $EXPECTED"
+            exit 1
+          fi
+
+      - name: Build release notes
+        run: node scripts/release-notes.mjs "$RELEASE_TAG" > RELEASE_NOTES.md
+
+      - name: Pack the release tarball
+        run: |
+          npm pack --ignore-scripts
+          cp dsh-plugins-git-sync-*.tgz dsh-plugins-git-sync.tgz
+
+      - name: Create the GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release edit "$RELEASE_TAG" --notes-file RELEASE_NOTES.md
+            gh release upload "$RELEASE_TAG" dsh-plugins-git-sync.tgz --clobber
+          else
+            gh release create "$RELEASE_TAG" \
+              --title "插件备份 $RELEASE_TAG" \
+              --notes-file RELEASE_NOTES.md \
+              dsh-plugins-git-sync.tgz
+          fi
+
+      # Trusted publishing: npm >= 11.5.1 exchanges the Actions OIDC token for
+      # a short-lived credential; no NPM_TOKEN secret is involved.
+      - name: Publish to npm
+        run: npm publish --access public
