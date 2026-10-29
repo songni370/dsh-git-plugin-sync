@@ -8,6 +8,13 @@ This file follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [
 
 暂无 / Nothing yet.
 
+## [0.2.3] - 2026-10-29
+
+### Changed
+
+- **插件页卡片图标放大到 64px**：宿主固定以 48px 渲染插件图标，插件浏览器半现在只识别「插件备份 / Plugin Backup / dsh-plugins-git-sync」对应的卡片，把该卡片的图标容器放大到 64×64（图片 60×60）；其他插件与 40px 的插件行图标保持不变。
+- 该调整完全在插件侧完成，不改宿主代码；卡片高度会随之增加约 16px。
+
 ## [0.2.2] - 2026-10-29
 
 ### Changed
@@ -69,7 +76,8 @@ This file follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [
 - 设置页基础界面、HTTP 路由与 6 个 Agent 工具。
 - 单元测试、双设备集成测试与 CI（macOS / Windows / Linux）。
 
-[Unreleased]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.3...HEAD
+[0.2.3]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.1.0...v0.2.0

@@ -23,6 +23,7 @@ import { Component } from 'react'
 import type { ErrorInfo, ReactElement, ReactNode } from 'react'
 import { createTranslate, en, fallbackTranslate, NS, zh } from './i18n'
 import { installSettingsNavIcon } from './nav-icon'
+import { installPluginPageIcon } from './plugin-page-icon'
 import { pluginsTabEnabled, subscribePluginsTab } from './plugins-tab-visibility'
 import type { Translate, Vars } from './i18n'
 import { Page } from './ui/Page'
@@ -166,6 +167,7 @@ export function apply(ctx: ClientContext): void {
     // The shell draws only its own gear for a third-party section; claim our
     // nav row and paint the sync glyph (same label thunk as the registration).
     installSettingsNavIcon(ctx, () => t('nav'))
+    installPluginPageIcon(ctx)
 
     // The settings page appears once the shell declares the slot. The label
     // is a thunk so a locale switch re-claims the nav row.
