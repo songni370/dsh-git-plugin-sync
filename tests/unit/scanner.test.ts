@@ -58,6 +58,7 @@ function makeConfig(overrides: Partial<SyncConfig> = {}): SyncConfig {
       enabled: false,
       mode: 'two-way',
       intervalMinutes: 30,
+      startupDelayMs: 15_000,
       onStartup: false,
       onPluginChange: false,
       debounceMs: 10_000,

@@ -376,6 +376,7 @@ export function Page({ t }: PageProps): ReactElement {
         enabled: autoForm.enabled,
         mode: autoForm.mode,
         intervalMinutes: autoForm.intervalMinutes,
+        startupDelayMs: autoForm.startupDelayMs,
         onStartup: autoForm.onStartup,
         onPluginChange: autoForm.onPluginChange,
         debounceMs: autoForm.debounceMs,

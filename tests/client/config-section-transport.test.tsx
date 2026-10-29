@@ -7,6 +7,7 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { ConfigSection, configFormFromView } from '../../client/src/ui/ConfigSection'
+import { AutoSyncSection } from '../../client/src/ui/AutoSyncSection'
 import type { ConfigForm } from '../../client/src/ui/ConfigSection'
 import { createTranslate, zh } from '../../client/src/i18n'
 import type { GitAuthMode, SyncConfigView } from '../../src/types'
@@ -27,7 +28,7 @@ function viewFor(repoUrl: string, authMode: GitAuthMode): SyncConfigView {
     includeLocalPlugins: false,
     excludedPlugins: [],
     excludedConfigPlugins: [],
-    autoSync: { enabled: false, mode: 'two-way', intervalMinutes: 30, onStartup: false, onPluginChange: false, debounceMs: 10_000 },
+    autoSync: { enabled: false, mode: 'two-way', intervalMinutes: 30, startupDelayMs: 15_000, onStartup: false, onPluginChange: false, debounceMs: 10_000 },
     deviceName: 'mac',
     allowPluginRemoval: false,
     tokenAvailable: true,
@@ -59,6 +60,42 @@ function render(repoUrl: string, authMode: GitAuthMode, overrides: Partial<Confi
     />,
   )
 }
+
+describe('auto-sync startup delay', () => {
+  const baseAuto = {
+    enabled: true,
+    mode: 'two-way' as const,
+    intervalMinutes: 0,
+    startupDelayMs: 15_000,
+    onStartup: true,
+    onPluginChange: false,
+    debounceMs: 10_000,
+  }
+
+  it('renders the delay in seconds with no warning at the default', () => {
+    const html = renderToStaticMarkup(
+      <AutoSyncSection t={t} form={baseAuto} dirty={false} saving={false} onChange={() => undefined} onSave={() => undefined} />,
+    )
+    expect(html).toContain('id="dgs-auto-startup-delay"')
+    expect(html).toContain('value="15"')
+    expect(html).not.toContain('低于 5 秒')
+  })
+
+  it('warns when the startup delay is below 5 seconds', () => {
+    const html = renderToStaticMarkup(
+      <AutoSyncSection
+        t={t}
+        form={{ ...baseAuto, startupDelayMs: 3_000 }}
+        dirty={false}
+        saving={false}
+        onChange={() => undefined}
+        onSave={() => undefined}
+      />,
+    )
+    expect(html).toContain('value="3"')
+    expect(html).toContain('低于 5 秒')
+  })
+})
 
 describe('repository card transport fields', () => {
   it('HTTPS + credential helper: helper/token choice, no token value fields', () => {

@@ -16,13 +16,14 @@ import { useEffect, useRef, useState } from 'react'
 import type { ReactElement } from 'react'
 import type { AutoSyncMode, SyncConfigView } from '../../../src/types'
 import type { Translate } from '../i18n'
-import { Badge, Button, Checkbox, Switch } from './controls'
+import { Badge, Button, Checkbox, NumberInput, Switch } from './controls'
 
 /** The editable subset of `SyncConfig.autoSync`. */
 export interface AutoForm {
   enabled: boolean
   mode: AutoSyncMode
   intervalMinutes: number
+  startupDelayMs: number
   onStartup: boolean
   onPluginChange: boolean
   debounceMs: number
@@ -36,6 +37,7 @@ export function autoFormFromView(view: SyncConfigView): AutoForm {
     // Auto-sync is event-driven; the legacy interval field is retired and is
     // always saved as 0 from this page.
     intervalMinutes: 0,
+    startupDelayMs: view.autoSync.startupDelayMs,
     onStartup: view.autoSync.onStartup,
     onPluginChange: view.autoSync.onPluginChange,
     debounceMs: view.autoSync.debounceMs,
@@ -67,7 +69,10 @@ function modeLabel(t: Translate, mode: AutoSyncMode): string {
 /** One-line schedule summary shown in the collapsed header. */
 function scheduleSummary(t: Translate, form: AutoForm): string {
   if (!form.enabled) return t('autoDisabledSummary')
-  const triggers = [form.onStartup ? t('autoStartup') : null, form.onPluginChange ? t('autoPluginChange') : null]
+  const triggers = [
+    form.onStartup ? t('autoStartupDelaySummary', { s: Math.max(0, Math.round(form.startupDelayMs / 1000)) }) : null,
+    form.onPluginChange ? t('autoPluginChange') : null,
+  ]
     .filter((part): part is string => part !== null)
   return [modeLabel(t, form.mode), ...(triggers.length === 0 ? [t('autoNoTrigger')] : triggers)].join(' · ')
 }
@@ -86,6 +91,8 @@ export function AutoSyncSection(props: AutoSyncSectionProps): ReactElement {
 
   const optionsDisabled = props.saving || !form.enabled
   const debounceSeconds = Math.max(1, Math.round(form.debounceMs / 1000))
+  const startupSeconds = Math.max(0, Math.round(form.startupDelayMs / 1000))
+  const startupTooShort = startupSeconds < 5
 
   return (
     <>
@@ -201,6 +208,29 @@ export function AutoSyncSection(props: AutoSyncSectionProps): ReactElement {
               </div>
               {form.onPluginChange ? (
                 <span className="dgs-formRowHint">{t('autoDebounce', { s: debounceSeconds })}</span>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="dgs-formRow">
+            <span className="dgs-formRowLabel">{t('autoStartupDelay')}</span>
+            <div className="dgs-formRowControl">
+              <div className="dgs-autoNumber">
+                <NumberInput
+                  id="dgs-auto-startup-delay"
+                  value={startupSeconds}
+                  min={0}
+                  max={600}
+                  disabled={optionsDisabled || !form.onStartup}
+                  onChange={value => {
+                    props.onChange({ startupDelayMs: value * 1000 })
+                  }}
+                />
+                <span className="dgs-autoUnit">{t('autoStartupDelayUnit')}</span>
+              </div>
+              <span className="dgs-formRowHint">{t('autoStartupDelayHint')}</span>
+              {startupTooShort && form.onStartup ? (
+                <span className="dgs-formRowHint dgs-hintWarn">{t('autoStartupDelayWarn')}</span>
               ) : null}
             </div>
           </div>

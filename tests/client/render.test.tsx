@@ -38,7 +38,7 @@ function statusPayload(): StatusPayload {
         includeLocalPlugins: false,
         excludedPlugins: [],
         excludedConfigPlugins: [],
-        autoSync: { enabled: false, mode: 'two-way', intervalMinutes: 30, onStartup: false, onPluginChange: false, debounceMs: 10_000 },
+        autoSync: { enabled: false, mode: 'two-way', intervalMinutes: 30, startupDelayMs: 15_000, onStartup: false, onPluginChange: false, debounceMs: 10_000 },
         deviceName: 'mac',
         allowPluginRemoval: false,
         tokenAvailable: false,
@@ -250,6 +250,9 @@ describe('settings page render', () => {
     expect(panel?.querySelectorAll('input[type="checkbox"]')).toHaveLength(2)
     // Auto-sync is event-driven: the interval input is gone for good.
     expect(panel?.querySelector('#dgs-auto-interval')).toBeNull()
+    // The startup trigger has a configurable delay (seconds), 15s by default.
+    const delay = panel?.querySelector('#dgs-auto-startup-delay') as HTMLInputElement | null
+    expect(delay?.value).toBe('15')
 
     const toggle = panel?.querySelector('button[aria-controls="dgs-auto-body"]') as HTMLButtonElement
     await act(async () => {

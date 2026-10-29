@@ -33,7 +33,9 @@ export interface AutoSyncConfig {
   mode: AutoSyncMode
   /** Periodic sync interval in minutes; 0 disables the timer. */
   intervalMinutes: number
-  /** Check for remote changes once after DSH startup. */
+  /** Delay before the startup-triggered sync, in milliseconds. */
+  startupDelayMs: number
+  /** Run one sync after DSH startup. */
   onStartup: boolean
   /** Queue a sync after DSH reports a plugin change (debounced). */
   onPluginChange: boolean

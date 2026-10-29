@@ -10,6 +10,21 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.27] - 2026-10-29
+
+### Added
+
+- **启动延迟可自定义**：「自动同步 → 启动延迟」以秒为单位设置打开客户端后多久执行自动同步，默认 **15 秒**（范围 0 ~ 600 秒）；配置字段为 `startupDelayMs`（存储毫秒，默认 15000，加载时上限 10 分钟）。
+- **过低延迟提示**：低于 5 秒时输入框下方显示警示，提示可能与 DSH 启动时的插件安装/刷新冲突，建议保持 15 秒以上。
+
+### Changed
+
+- 折叠摘要显示为「打开客户端 15 秒后同步 · 插件变更后同步」，直接反映当前延迟。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（17 个测试文件 / 230 个测试）通过；新增自定义延迟、默认值/上限归一化、低延迟警示的测试。
+
 ## [0.1.26] - 2026-10-29
 
 ### Changed
@@ -400,7 +415,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.26...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.27...HEAD
+[0.1.27]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.26...v0.1.27
 [0.1.26]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.25...v0.1.26
 [0.1.25]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.24...v0.1.25
 [0.1.24]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.23...v0.1.24

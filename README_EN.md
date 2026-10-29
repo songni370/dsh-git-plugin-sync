@@ -275,7 +275,8 @@ Automatic sync is **off by default**; enable it in the "Automatic sync" section 
 | --- | --- | --- |
 | Enable automatic sync | `false` | Master switch. Nothing runs automatically while off. |
 | Behaviour (mode) | `two-way` | `two-way` sync / `backup` only / `restore` only. |
-| Sync on startup | `false` | Run one automatic sync about 15 seconds after the client opens (not a read-only check). |
+| Sync on startup | `false` | Run one automatic sync after the client opens (not a read-only check). |
+| Startup delay (`startupDelayMs`) | `15000` | How long to wait after the client opens, 15 seconds by default (0 – 10 minutes); the settings page warns below 5 seconds because it may race DSH installing/refreshing plugins during boot. |
 | Sync after plugin changes | `false` | Listens to the host's `plugin-manager/changed` event and triggers a debounced automatic run. |
 | Change trigger delay (`debounceMs`) | `10000` | Debounce window, clamped to 1 second – 1 hour; the effective floor is 1 second. |
 | Interval (`intervalMinutes`) | `0` (retired) | Kept only for old configs: the scheduler **no longer runs on a timer**, and the settings page saves 0. |

@@ -666,6 +666,23 @@ export const CSS = `
 .dgs-autoBody {
   padding-top: 12px;
 }
+.dgs-hintWarn {
+  color: var(--dsw-alias-state-warn-primary, #b45309);
+}
+.dgs-autoNumber {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dgs-autoNumber .dgs-input {
+  flex: 0 0 auto;
+  width: 96px;
+}
+.dgs-autoUnit {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--dsw-alias-label-secondary, #5c6570);
+}
 .dgs-checkRowGroup {
   display: flex;
   flex-wrap: wrap;

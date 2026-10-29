@@ -155,6 +155,7 @@ export interface AutoSyncRequest {
     enabled: boolean;
     mode?: 'two-way' | 'backup' | 'restore';
     intervalMinutes?: number;
+    startupDelayMs?: number;
     onStartup?: boolean;
     onPluginChange?: boolean;
     debounceMs?: number;

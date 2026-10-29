@@ -17,8 +17,8 @@ import type { DshContext, DshDisposer } from '../dsh.js'
 import type { SyncConfig, SyncLogger } from '../types.js'
 import type { SyncEngine } from './engine.js'
 
-/** Delay before the startup check, giving the profile time to finish booting. */
-const STARTUP_CHECK_DELAY_MS = 15_000
+/** Fallback delay before the startup sync when the config has no value. */
+const DEFAULT_STARTUP_DELAY_MS = 15_000
 
 /** Minimum time between two automatic runs (anti-loop). */
 const COOLDOWN_MS = 60_000
@@ -168,15 +168,19 @@ export function createScheduler(options: SchedulerOptions): AutoSyncScheduler {
       return
     }
     if (auto.onStartup) {
-      // Opening the client is a trigger, not just a read-only check.
+      // Opening the client is a trigger, not just a read-only check. The user
+      // controls the delay so a very short one can race DSH's own plugin
+      // installation during boot.
+      const startupDelayMs = Math.max(0, auto.startupDelayMs ?? DEFAULT_STARTUP_DELAY_MS)
       startupDisposer = scheduleLater(() => {
         startupDisposer = null
         void run('startup')
-      }, STARTUP_CHECK_DELAY_MS)
+      }, startupDelayMs)
     }
     logger.info('自动同步已启用 / automatic sync enabled', {
       mode: auto.mode,
       onStartup: auto.onStartup,
+      startupDelayMs: auto.startupDelayMs,
       onPluginChange: auto.onPluginChange,
     })
   }

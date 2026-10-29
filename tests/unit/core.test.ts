@@ -236,7 +236,13 @@ describe('configuration validation', () => {
     expect(config.profiles).toEqual(['desktop', 'web'])
     expect(config.includeConfigs).toBe(false)
     expect(config.excludedPlugins).toEqual(['x', 'y'])
-    expect(config.autoSync).toMatchObject({ enabled: true, mode: 'backup', intervalMinutes: 15, onStartup: true })
+    expect(config.autoSync).toMatchObject({
+      enabled: true,
+      mode: 'backup',
+      intervalMinutes: 15,
+      startupDelayMs: 15_000,
+      onStartup: true,
+    })
   })
 
   it('always keeps the active profile and clamps intervals', () => {
@@ -245,6 +251,10 @@ describe('configuration validation', () => {
     expect(config.autoSync.intervalMinutes).toBe(7 * 24 * 60)
     const tooSmall = normalizeConfig({ autoSync: { enabled: true, intervalMinutes: 0.2 } }, active, profiles)
     expect(tooSmall.autoSync.intervalMinutes).toBe(0)
+    const delay = normalizeConfig({ autoSync: { enabled: true, startupDelayMs: 999_999_999 } }, active, profiles)
+    expect(delay.autoSync.startupDelayMs).toBe(10 * 60 * 1000)
+    const negative = normalizeConfig({ autoSync: { enabled: true, startupDelayMs: -5 } }, active, profiles)
+    expect(negative.autoSync.startupDelayMs).toBe(0)
   })
 
   it('ignores unknown fields and malformed auto-sync', () => {

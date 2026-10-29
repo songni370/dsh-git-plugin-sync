@@ -209,6 +209,17 @@ describe('automatic sync scheduler', () => {
     scheduler.dispose()
   })
 
+  it('honours a custom startup delay', async () => {
+    const { engine, calls } = fakeEngine()
+    const scheduler = createScheduler({ ctx, engine, logger: silentLogger() })
+    scheduler.applyConfig(config({ onStartup: true, startupDelayMs: 5_000 }))
+    await vi.advanceTimersByTimeAsync(4_999)
+    expect(calls).toHaveLength(0)
+    await vi.advanceTimersByTimeAsync(1)
+    expect(calls).toEqual(['sync'])
+    scheduler.dispose()
+  })
+
   it('removes every timer on dispose', async () => {
     const { engine, calls } = fakeEngine()
     const scheduler = createScheduler({ ctx, engine, logger: silentLogger() })

@@ -123,6 +123,7 @@ export function registerHttpRoutes(options: { ctx: DshContext; engine: SyncEngin
         enabled: body.enabled === true,
         mode: body.mode === 'two-way' || body.mode === 'backup' || body.mode === 'restore' ? body.mode : undefined,
         intervalMinutes: typeof body.intervalMinutes === 'number' ? body.intervalMinutes : undefined,
+        startupDelayMs: typeof body.startupDelayMs === 'number' ? body.startupDelayMs : undefined,
         onStartup: typeof body.onStartup === 'boolean' ? body.onStartup : undefined,
         onPluginChange: typeof body.onPluginChange === 'boolean' ? body.onPluginChange : undefined,
         debounceMs: typeof body.debounceMs === 'number' ? body.debounceMs : undefined,
