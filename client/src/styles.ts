@@ -604,6 +604,27 @@ export const CSS = `
 .dgs-pageSizeSelect {
   width: 76px;
 }
+.dgs-spinner {
+  display: inline-block;
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  opacity: 0.85;
+  animation: dgs-spin 0.7s linear infinite;
+}
+@keyframes dgs-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dgs-spinner {
+    animation-duration: 1.6s;
+  }
+}
 .dgs-pagination {
   display: flex;
   align-items: center;
@@ -850,6 +871,9 @@ export const CSS = `
   height: 6px;
 }
 .dgs-moreItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   height: 30px;
   padding: 0 10px;
   border: 0;

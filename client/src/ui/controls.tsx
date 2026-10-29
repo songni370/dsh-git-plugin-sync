@@ -62,6 +62,8 @@ export function Button(props: {
   type?: 'button' | 'submit'
   ariaLabel?: string
   title?: string
+  /** Show a spinner because this button's action is in flight. */
+  loading?: boolean
 }): ReactElement {
   const classes = ['dgs-btn']
   if (props.variant === 'primary') classes.push('dgs-btnPrimary')
@@ -75,7 +77,9 @@ export function Button(props: {
       disabled={props.disabled === true}
       aria-label={props.ariaLabel}
       title={props.title}
+      aria-busy={props.loading === true ? true : undefined}
     >
+      {props.loading === true ? <span className="dgs-spinner" aria-hidden="true" /> : null}
       {props.children}
     </button>
   )

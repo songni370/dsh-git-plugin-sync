@@ -81,10 +81,21 @@ export function ActionsSection(props: ActionsSectionProps): ReactElement {
   return (
     <Card title={t('actionsTitle')} description={t('actionsDesc')}>
       <div className="dgs-actionsMain">
-        <Button variant="primary" onClick={props.onSync} disabled={disabled} title={t('actionSyncHint')}>
+        <Button
+          variant="primary"
+          onClick={props.onSync}
+          disabled={disabled}
+          loading={props.busy === 'sync'}
+          title={t('actionSyncHint')}
+        >
           {t('actionSync')}
         </Button>
-        <Button onClick={props.onDiff} disabled={disabled} title={t('actionDiffHint')}>
+        <Button
+          onClick={props.onDiff}
+          disabled={disabled}
+          loading={props.busy === 'diff'}
+          title={t('actionDiffHint')}
+        >
           {t('actionDiff')}
         </Button>
         <details
@@ -100,12 +111,14 @@ export function ActionsSection(props: ActionsSectionProps): ReactElement {
               className="dgs-moreItem"
               role="menuitem"
               disabled={disabled}
+              aria-busy={props.busy === 'backup' ? true : undefined}
               title={t('actionBackupHint')}
               onClick={() => {
                 closeMore()
                 props.onBackup()
               }}
             >
+              {props.busy === 'backup' ? <span className="dgs-spinner" aria-hidden="true" /> : null}
               {t('actionBackup')}
             </button>
             <button
@@ -113,12 +126,14 @@ export function ActionsSection(props: ActionsSectionProps): ReactElement {
               className="dgs-moreItem dgs-moreItemDanger"
               role="menuitem"
               disabled={disabled}
+              aria-busy={props.busy === 'restore' ? true : undefined}
               title={t('actionRestoreHint')}
               onClick={() => {
                 closeMore()
                 props.onRestore()
               }}
             >
+              {props.busy === 'restore' ? <span className="dgs-spinner" aria-hidden="true" /> : null}
               {t('actionRestore')}
             </button>
           </div>

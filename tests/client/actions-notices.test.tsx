@@ -11,11 +11,11 @@ import { createTranslate, zh } from '../../client/src/i18n'
 
 const t = createTranslate(key => zh[key] ?? key)
 
-function render(): string {
+function render(busy: 'sync' | 'diff' | null = null): string {
   return renderToStaticMarkup(
     <ActionsSection
       t={t}
-      busy={null}
+      busy={busy}
       hostBusy={false}
       enabled
       diff={null}
@@ -44,5 +44,11 @@ describe('actions notices', () => {
     expect(html).toContain('STATUS-BLOCK')
     expect(html.indexOf('BUSY-NOTICE')).toBeLessThan(html.indexOf('STATUS-BLOCK'))
     expect(html.indexOf('ERROR-NOTICE')).toBeLessThan(html.indexOf('STATUS-BLOCK'))
+  })
+
+  it('shows a spinner on the action that is running', () => {
+    const html = render('sync')
+    expect(html).toContain('dgs-spinner')
+    expect(html).toContain('aria-busy="true"')
   })
 })

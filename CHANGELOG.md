@@ -10,6 +10,18 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 
 - 暂无 / Nothing yet.
 
+## [0.1.47] - 2026-10-29
+
+### Added
+
+- **操作按钮加载动效**：正在执行的操作按钮显示旋转小圆环（同步 / 检查差异 / 备份 / 恢复），并带 `aria-busy`；自动同步保存、仓库配置测试与保存、插件刷新按钮同样在请求期间显示动效；
+- 支持 `prefers-reduced-motion`：开启减少动态效果时旋转速度变慢；
+- 配合已移除的「正在执行」文字行，用按钮动效提示进行中，不再重复文字提示。
+
+### Verified
+
+- `npm run typecheck`、`npm run build`、`npm test`（20 个测试文件 / 243 个测试）通过；新增按钮 spinner 断言。
+
 ## [0.1.46] - 2026-10-29
 
 ### Changed
@@ -655,7 +667,8 @@ This file follows the structure of [Keep a Changelog](https://keepachangelog.com
 - 已知限制（不在本版本范围内）：只同步当前激活 Profile；本地开发插件默认不同步、且即便开启也只能记录、**无法在其它设备自动恢复**（`archive` 字段与 `backup-tarball:` 规格已预留，归档创建尚未实现）；插件删除默认禁止（`allowPluginRemoval: false`）；构建脚本需用户在插件管理器批准；恢复/同步受宿主插件管理器能力约束；设置页依赖 Web/Desktop Profile；快照不能重装插件，也没有手动快照回滚入口。
 - 详细信息见 [README.md](README.md) 与 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/SECURITY.md](docs/SECURITY.md)。
 
-[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.46...HEAD
+[Unreleased]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.47...HEAD
+[0.1.47]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.46...v0.1.47
 [0.1.46]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.45...v0.1.46
 [0.1.45]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.44...v0.1.45
 [0.1.44]: https://github.com/songni370/dsh-git-plugin-sync/compare/v0.1.43...v0.1.44

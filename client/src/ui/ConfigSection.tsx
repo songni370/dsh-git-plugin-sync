@@ -314,10 +314,10 @@ export function ConfigSection(props: ConfigSectionProps): ReactElement {
         </div>
 
         <div className="dgs-formActions">
-          <Button onClick={props.onTest} disabled={busy}>
+          <Button onClick={props.onTest} disabled={busy} loading={props.testing}>
             {props.testing ? t('configTesting') : t('configTest')}
           </Button>
-          <Button variant="primary" onClick={props.onSave} disabled={busy || !dirty}>
+          <Button variant="primary" onClick={props.onSave} disabled={busy || !dirty} loading={props.saving}>
             {props.saving ? t('saving') : t('save')}
           </Button>
         </div>

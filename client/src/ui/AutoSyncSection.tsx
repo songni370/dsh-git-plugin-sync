@@ -237,7 +237,12 @@ export function AutoSyncSection(props: AutoSyncSectionProps): ReactElement {
         </div>
 
         <div className="dgs-formActions">
-          <Button variant="primary" onClick={props.onSave} disabled={props.saving || !props.dirty}>
+          <Button
+            variant="primary"
+            onClick={props.onSave}
+            disabled={props.saving || !props.dirty}
+            loading={props.saving}
+          >
             {props.saving ? t('saving') : t('autoSave')}
           </Button>
         </div>

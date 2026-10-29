@@ -143,7 +143,7 @@ export function PluginsSection(props: PluginsSectionProps): ReactElement {
             setOpen(true)
           }}
         />
-        <Button small onClick={props.onRefresh} disabled={props.loading || props.busy}>
+        <Button small onClick={props.onRefresh} disabled={props.loading || props.busy} loading={props.loading}>
           {t('pluginsRefresh')}
         </Button>
       </div>
