@@ -13,6 +13,7 @@ This file follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [
 ### Changed
 
 - 设置页操作反馈改为底部悬浮提示：固定居中、自动消失、可手动关闭，不再插入各卡片内部改变布局。
+- 悬浮提示改为淡绿色外边框，去掉左侧的竖条。
 
 ## [0.2.9] - 2026-10-30
 
