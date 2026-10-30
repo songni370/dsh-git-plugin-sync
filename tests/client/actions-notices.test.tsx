@@ -19,7 +19,6 @@ function render(busy: 'sync' | 'diff' | null = null): string {
       hostBusy={false}
       enabled
       diff={null}
-      diffLoading={false}
       onBackup={() => undefined}
       onRestore={() => undefined}
       onSync={() => undefined}

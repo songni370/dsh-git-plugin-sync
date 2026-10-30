@@ -156,7 +156,6 @@ export function Page({ t }: PageProps): ReactElement {
     history: null,
   })
   const [diff, setDiff] = useState<DiffResponse | null>(null)
-  const [diffLoading, setDiffLoading] = useState(false)
   const [modal, setModal] = useState<ConfirmState | null>(null)
 
   function markConfigDirty(dirty: boolean): void {
@@ -467,13 +466,11 @@ export function Page({ t }: PageProps): ReactElement {
   async function runDiff(): Promise<void> {
     clearMessages()
     setBusy('diff')
-    setDiffLoading(true)
     try {
       setDiff(await api.getDiff({ direction: 'two-way' }))
     } catch (error) {
       showFeedback('actions', 'error', t('diffLoadFailed', { message: errorText(error) }))
     } finally {
-      setDiffLoading(false)
       setBusy(null)
     }
   }
@@ -709,7 +706,6 @@ export function Page({ t }: PageProps): ReactElement {
             hostBusy={hostBusy}
             enabled={configured}
             diff={diff}
-            diffLoading={diffLoading}
             onBackup={() => void runBackup()}
             onRestore={() => void previewRestore('restore')}
             onSync={() => void previewSync()}

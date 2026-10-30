@@ -12,7 +12,7 @@ import { useEffect, useRef } from 'react'
 import type { ReactElement, ReactNode } from 'react'
 import type { DiffResponse } from '../../../src/http/api-types'
 import type { Translate } from '../i18n'
-import { Button, Card, LinkButton, Loading } from './controls'
+import { Button, Card, LinkButton } from './controls'
 import { PlanPreview } from './PlanPreview'
 
 /** Action names used for the busy indicator and disabled set. */
@@ -28,7 +28,6 @@ export interface ActionsSectionProps {
   /** Actions need a saved repository URL. */
   enabled: boolean
   diff: DiffResponse | null
-  diffLoading: boolean
   onBackup: () => void
   onRestore: () => void
   onSync: () => void
@@ -138,8 +137,6 @@ export function ActionsSection(props: ActionsSectionProps): ReactElement {
       </div>
 
       {props.notices === undefined ? null : <div className="dgs-actionsNotices">{props.notices}</div>}
-
-      {props.diffLoading ? <Loading text={t('loading')} /> : null}
 
       {props.diff === null ? null : (
         <section className="dgs-diffPanel" aria-label={t('diffTitle')}>
