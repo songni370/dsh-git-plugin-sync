@@ -36,7 +36,6 @@ import type {
 import type {
   ConflictChoice,
   ConflictResolution,
-  ConnectionTestResult,
   OperationResult,
   StatusView,
   SyncPlan,
@@ -158,7 +157,6 @@ export function Page({ t }: PageProps): ReactElement {
   })
   const [diff, setDiff] = useState<DiffResponse | null>(null)
   const [diffLoading, setDiffLoading] = useState(false)
-  const [connection, setConnection] = useState<ConnectionTestResult | null>(null)
   const [modal, setModal] = useState<ConfirmState | null>(null)
 
   function markConfigDirty(dirty: boolean): void {
@@ -277,13 +275,6 @@ export function Page({ t }: PageProps): ReactElement {
     setFeedback(current => ({ ...current, [area]: null }))
   }
 
-  // The connection-test result is also a transient prompt: hide it after 5s.
-  useEffect(() => {
-    if (connection === null) return
-    const timer = window.setTimeout(() => setConnection(null), FEEDBACK_TTL_MS)
-    return () => window.clearTimeout(timer)
-  }, [connection])
-
   // Never leave a timeout writing state after the page unmounts.
   useEffect(() => {
     return () => {
@@ -383,8 +374,6 @@ export function Page({ t }: PageProps): ReactElement {
       if (patch.repoUrl !== undefined) next.authMode = authForTransport(detectRepoTransport(patch.repoUrl), next.authMode)
       return next
     })
-    // The reported connection result belongs to the previous values.
-    setConnection(null)
     markConfigDirty(true)
   }
 
@@ -393,8 +382,13 @@ export function Page({ t }: PageProps): ReactElement {
     setTesting(true)
     try {
       const result = await api.testConnection(form === null ? {} : { config: form })
-      setConnection(result)
-      // Success and failure both render inside the config card via `connection`.
+      showFeedback(
+        'config',
+        result.ok ? 'success' : 'error',
+        result.ok
+          ? t('configConnectionOk', { message: result.message })
+          : t('configConnectionFail', { message: result.message }),
+      )
     } catch (error) {
       operationFailed(t('configTest'), error, 'config')
     } finally {
@@ -405,7 +399,6 @@ export function Page({ t }: PageProps): ReactElement {
   async function saveRepository(): Promise<void> {
     if (form === null) return
     clearMessages()
-    setConnection(null)
     setSavingConfig(true)
     setBusy('config')
     try {
@@ -702,7 +695,6 @@ export function Page({ t }: PageProps): ReactElement {
               dirty={configDirty}
               saving={savingConfig}
               testing={testing}
-              connection={connection}
               open={configOpen ?? true}
               onToggle={() => setConfigOpen(current => !(current ?? true))}
               onChange={changeConfig}
@@ -732,11 +724,6 @@ export function Page({ t }: PageProps): ReactElement {
                   <Banner tone="idle">{t('statusNotConfiguredHint')}</Banner>
                 ) : null}
                 {view.busy ? <Banner tone="warn">{t('statusBusy')}</Banner> : null}
-                {view.lastError === null ? null : (
-                  <Banner tone="error">
-                    {t('statusLastError')}: {view.lastError}
-                  </Banner>
-                )}
               </>
             }
             autoPanel={

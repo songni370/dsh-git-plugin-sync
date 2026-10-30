@@ -14,16 +14,14 @@
 
 import { useState } from 'react'
 import type { ReactElement, ReactNode } from 'react'
-import type { ConnectionTestResult, GitAuthMode, SyncConfigView } from '../../../src/types'
+import type { GitAuthMode, SyncConfigView } from '../../../src/types'
 import type { Translate } from '../i18n'
-import { formatDateTime, shortCommit } from '../format'
 import {
   authForTransport,
   detectRepoTransport,
   type RepoTransport,
 } from '../repo-transport'
-import { Badge, Banner, Button, Card, TextInput } from './controls'
-import type { Feedback } from './controls'
+import { Badge, Button, Card, TextInput } from './controls'
 
 /** The editable subset of the Host configuration. */
 export interface ConfigForm {
@@ -62,7 +60,6 @@ export interface ConfigSectionProps {
   saving: boolean
   testing: boolean
   /** Result of the last test from this card. */
-  connection: ConnectionTestResult | null
   onChange: (patch: Partial<ConfigForm>) => void
   onTest: () => void
   onSave: () => void
@@ -71,7 +68,6 @@ export interface ConfigSectionProps {
   /** Expand/collapse the card body. */
   onToggle: () => void
   /** Result of testing/saving, shown inside this card. */
-  feedback?: Feedback
 }
 
 /** Label + hint for one detected transport. */
@@ -322,31 +318,6 @@ export function ConfigSection(props: ConfigSectionProps): ReactElement {
           </Button>
         </div>
 
-        {props.feedback === undefined ? null : (
-        <Banner tone={props.feedback.tone}>{props.feedback.text}</Banner>
-      )}
-
-      {props.connection === null ? null : (
-          <>
-            <Banner tone={props.connection.ok ? 'success' : 'error'}>
-              {props.connection.ok
-                ? t('configConnectionOk', { message: props.connection.message })
-                : t('configConnectionFail', { message: props.connection.message })}
-            </Banner>
-            {props.connection.ok ? (
-              <p className="dgs-hint dgs-mono">
-                {t('configConnectionMeta', {
-                  branch: props.connection.branch ?? t('notAvailable'),
-                  head: props.connection.head === null || props.connection.head === undefined
-                    ? t('notAvailable')
-                    : shortCommit(props.connection.head),
-                  auth: props.connection.authMethod ?? t('notAvailable'),
-                })}{' '}
-                · {formatDateTime(props.connection.at, t('unknown'))}
-              </p>
-            ) : null}
-          </>
-        )}
       </div>
     </Card>
   )

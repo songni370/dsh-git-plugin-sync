@@ -44,7 +44,6 @@ function render(
   repoUrl: string,
   authMode: GitAuthMode,
   overrides: Partial<ConfigForm> = {},
-  feedback?: { tone: 'success' | 'error'; text: string },
 ): string {
   const view = viewFor(repoUrl, authMode)
   const form: ConfigForm = { ...configFormFromView(view), ...overrides }
@@ -56,13 +55,11 @@ function render(
       dirty={false}
       saving={false}
       testing={false}
-      connection={null}
       open
       onToggle={() => undefined}
       onChange={() => undefined}
       onTest={() => undefined}
       onSave={() => undefined}
-      feedback={feedback}
     />,
   )
 }
@@ -103,17 +100,6 @@ describe('auto-sync startup delay', () => {
   })
 })
 
-describe('repository card feedback', () => {
-  it('renders the save result inside the card body', () => {
-    const html = render('https://github.com/songni370/dsh-plugins-git-sync.git', 'credential-helper', {}, {
-      tone: 'success',
-      text: '仓库配置已保存。',
-    })
-    expect(html).toContain('仓库配置已保存。')
-    // Still inside the same <section> card, before its closing tag.
-    expect(html.indexOf('仓库配置已保存。')).toBeLessThan(html.lastIndexOf('</section>'))
-  })
-})
 
 describe('repository card transport fields', () => {
   it('HTTPS + credential helper: helper/token choice, no token value fields', () => {
