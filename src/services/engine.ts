@@ -200,11 +200,28 @@ function remoteMeta(read: RemoteRead): Record<string, RemoteMeta> {
  * The planner itself removes every conflict a supplied resolution actually
  * resolved, so `plan.conflicts` is already the exact unresolved set: filtering
  * by the caller's resolution list a second time would treat a resolution the
- * planner could not apply (for example a removal the configuration forbids) as
- * handled, and the operation would silently skip it.
+ * planner could not apply as handled, and the operation would silently skip
+ * it.
  */
 function unresolvedConflicts(plan: SyncPlan): ConflictInfo[] {
   return plan.conflicts
+}
+
+/**
+ * Conflicts that still block an operation.
+ *
+ * An explicit `skip` resolution is a real decision: leave this plugin exactly
+ * as it is and let the rest of the plan run. The conflict stays in
+ * `plan.conflicts` (so it is still visible), but it must not turn into a
+ * `conflict-present` error after the user chose to skip it.
+ */
+function blockingConflicts(
+  plan: SyncPlan,
+  resolutions: readonly { pluginId: string; choice: string }[] | undefined,
+): ConflictInfo[] {
+  if (resolutions === undefined || resolutions.length === 0) return unresolvedConflicts(plan)
+  const skipped = new Set(resolutions.filter(item => item.choice === 'skip').map(item => item.pluginId))
+  return unresolvedConflicts(plan).filter(conflict => !skipped.has(conflict.pluginId))
 }
 
 /** Human-readable conflict summary naming the affected plugins. */
@@ -685,7 +702,7 @@ export class SyncEngine {
         const read = await this.readRemote(store, config, prepared.head)
         const base = this.planInput(config, local, read, state)
         const plan = planSync({ ...base, resolutions: options.resolutions })
-        const pending = unresolvedConflicts(plan)
+        const pending = blockingConflicts(plan, options.resolutions)
         if (pending.length > 0) {
           throw new SyncError(
             'conflict-present',
@@ -1112,7 +1129,7 @@ export class SyncEngine {
           const wanted = new Set(options.pluginIds)
           plan = { ...plan, actions: plan.actions.filter(action => wanted.has(action.pluginId)) }
         }
-        const pending = unresolvedConflicts(plan)
+        const pending = blockingConflicts(plan, options.resolutions)
         if (pending.length > 0) {
           throw new SyncError(
             'conflict-present',

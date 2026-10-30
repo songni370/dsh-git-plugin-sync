@@ -6,10 +6,10 @@
  * "what happens to me" is the question a user actually asks. Counts sit in a
  * summary strip so the shape of the plan is visible before reading rows.
  *
- * Conflicts are rendered first and, when editable, as a three-way segmented
- * choice rather than a select: a conflict is the one decision a person must
- * make here, so it should not be buried under plan rows or hidden behind a
- * dropdown.
+ * Conflicts are rendered first and, when editable, as a segmented choice
+ * whose labels name the actual action (for example "delete from repository
+ * too"); a conflict is the one decision a person must make here, so it should
+ * not be buried under plan rows or hidden behind a dropdown.
  * @module ui/PlanPreview
  */
 
@@ -72,8 +72,6 @@ function reasonLabel(t: Translate, reason: string): string {
       return t('conflictReasonConfigConflict')
     case 'local-deleted':
       return t('conflictReasonLocalDeleted')
-    case 'remote-deleted':
-      return t('conflictReasonRemoteDeleted')
     default:
       return t('conflictReasonGeneric')
   }
@@ -102,11 +100,20 @@ function ConflictCard(props: {
     local: conflict.localVersion ?? t('notAvailable'),
     remote: conflict.remoteVersion ?? t('notAvailable'),
   })
-  const choices: Array<{ value: ConflictChoice; label: string; hint: string }> = [
-    { value: 'skip', label: t('conflictChoiceSkip'), hint: t('conflictChoiceHintSkip') },
-    { value: 'local', label: t('conflictChoiceLocal'), hint: t('conflictChoiceHintLocal') },
-    { value: 'remote', label: t('conflictChoiceRemote'), hint: t('conflictChoiceHintRemote') },
-  ]
+  // The same three generic labels ("keep local / use repository") are wrong
+  // for a plugin that is only gone on this device: there is no local side to
+  // keep, and the real decision is whether the repository copy is deleted too.
+  const choices: Array<{ value: ConflictChoice; label: string; hint: string; danger?: boolean }> =
+    conflict.reason === 'local-deleted'
+      ? [
+          { value: 'skip', label: t('conflictChoiceSkip'), hint: t('conflictChoiceHintSkipKeepRemote') },
+          { value: 'local', label: t('conflictChoiceDeleteRemote'), hint: t('conflictChoiceHintDeleteRemote'), danger: true },
+        ]
+      : [
+          { value: 'skip', label: t('conflictChoiceSkip'), hint: t('conflictChoiceHintSkip') },
+          { value: 'local', label: t('conflictChoiceLocal'), hint: t('conflictChoiceHintLocal') },
+          { value: 'remote', label: t('conflictChoiceRemote'), hint: t('conflictChoiceHintRemote') },
+        ]
   return (
     <li className="dgs-conflictCard">
       <div className="dgs-conflictHead">
@@ -117,6 +124,9 @@ function ConflictCard(props: {
         </span>
       </div>
       <p className="dgs-conflictReason">{reasonLabel(t, conflict.reason)}</p>
+      {conflict.reason === 'local-deleted' ? (
+        <p className="dgs-conflictExplain">{t('conflictLocalDeletedExplain')}</p>
+      ) : null}
       {conflict.fields.length === 0 ? null : (
         <div className="dgs-conflictFields">
           {conflict.fields.map(field => (
@@ -135,7 +145,13 @@ function ConflictCard(props: {
               role="radio"
               aria-checked={choice === item.value}
               title={item.hint}
-              className={choice === item.value ? 'dgs-choice dgs-choiceActive' : 'dgs-choice'}
+              className={[
+                'dgs-choice',
+                choice === item.value ? 'dgs-choiceActive' : '',
+                item.danger === true ? 'dgs-choiceDanger' : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
               onClick={() => props.onChoice?.(item.value)}
             >
               {item.label}

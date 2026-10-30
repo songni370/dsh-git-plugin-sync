@@ -197,7 +197,6 @@ describe('configuration validation', () => {
     expect(config.repoUrl).toBe('')
     expect(config.includeConfigs).toBe(true)
     expect(config.includeLocalPlugins).toBe(false)
-    expect(config.allowPluginRemoval).toBe(false)
   })
 
   it('rejects credentials inside the repository URL', () => {

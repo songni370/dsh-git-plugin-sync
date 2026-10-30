@@ -171,6 +171,13 @@ describe('two-device synchronization', () => {
     expect(conflict?.localConfig).toMatchObject({ timeout: 90 })
     expect(conflict?.remoteConfig).toMatchObject({ timeout: 60 })
 
+    const skipped = await ctx.win.engine.sync({
+      confirmDestructive: true,
+      resolutions: [{ pluginId: 'alpha', choice: 'skip' }],
+    })
+    expect(skipped.ok).toBe(true)
+    expect(ctx.win.plugin('alpha')?.configs.timeout).toBe(90)
+
     const resolved = await ctx.win.engine.sync({
       confirmDestructive: true,
       resolutions: [{ pluginId: 'alpha', choice: 'remote' }],
@@ -193,28 +200,16 @@ describe('two-device synchronization', () => {
     expect(state.plugins.beta?.deleted).toBe(true)
   }, 120_000)
 
-  it('pauses on a remote deletion until the user decides, then removes locally', async () => {
-    const error = await expectRejection(ctx.win.engine.sync({ confirmDestructive: true }), 'conflict-present')
-    const details = error.details as { plan?: { conflicts: { pluginId: string; reason: string }[] } }
-    expect(details.plan?.conflicts.find(item => item.pluginId === 'beta')?.reason).toBe('remote-deleted')
+  it('backs up a plugin the repository deleted instead of pausing', async () => {
+    const sync = await ctx.win.engine.sync({ confirmDestructive: true })
+    expect(sync.ok).toBe(true)
     expect(ctx.win.plugin('beta')).toBeDefined()
-
-    // Without allowPluginRemoval the engine keeps refusing destructive removals.
-    const stillRefused = await expectRejection(
-      ctx.win.engine.sync({ confirmDestructive: true, resolutions: [{ pluginId: 'beta', choice: 'remote' }] }),
-      'conflict-present',
-    )
-    expect(stillRefused.message).toContain('beta')
-
-    await ctx.win.saveConfig({ allowPluginRemoval: true })
-    const removed = await ctx.win.engine.sync({
-      confirmDestructive: true,
-      resolutions: [{ pluginId: 'beta', choice: 'remote' }],
-    })
-    expect(removed.ok).toBe(true)
-    expect(ctx.win.plugin('beta')).toBeUndefined()
+    const state = JSON.parse(readRepoFile(ctx.bareRepo, 'profiles/desktop/plugins.json')) as {
+      plugins: Record<string, { deleted?: boolean; version?: string }>
+    }
+    expect(state.plugins.beta?.deleted).not.toBe(true)
+    expect(state.plugins.beta?.version).toBe('2.0.0')
   }, 120_000)
-
   it('rolls back configuration and enablement from a snapshot', async () => {
     const snapshots = await ctx.win.engine.listSnapshots()
     expect(snapshots.length).toBeGreaterThan(0)

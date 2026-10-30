@@ -18,7 +18,7 @@ Reinstalling DSH or moving to another machine no longer means rebuilding a plugi
 
 - **Backup / restore**: push user-installed plugins (version, enabled state, configuration) to Git; install them back on another device.
 - **Two-way sync**: upload local changes, download repository changes; when both sides changed it stops and asks.
-- **Conflict handling**: keep local / use repository / skip, plus manual config merge.
+- **Conflict handling**: overwrite repository with this device / overwrite this device with repository / skip, plus manual config merge. When this device deleted a plugin that the repository still has, choose Delete from repository too or Skip.
 - **History rollback**: restore this device to any previous commit.
 - **Automatic sync**: on client startup and plugin install/update/remove; **no interval timer**.
 - **Agent tools**: six tools for status, backup, restore, sync, diff and history.
@@ -107,9 +107,13 @@ The device keeps a **baseline** of the last agreed state and compares `base / lo
 | Only remote changed | Apply locally (install/upgrade/downgrade/enable/disable/restore config) |
 | Neither changed | Skip |
 | Both changed identically | Skip |
-| Both changed differently, or delete vs. modify | Conflict; wait for your choice |
+| Present here, missing in the repository | Not a conflict; back it up into the repository |
+| Missing here, still in the repository | Conflict: delete from repository too or skip |
+| Both changed differently | Conflict; wait for your choice |
 
-- Deleting plugins is destructive and is never automatic by default.
+- A repository entry is only deleted after you explicitly choose “Delete from repository too”; Skip keeps it and lets the rest of the sync run.
+- When the repository is missing a plugin this device has, nothing is removed here; it is backed up again.
+- Deleting repository entries is destructive and only runs after confirmation.
 - A local snapshot is taken before changing this device; configuration/enabled state is rolled back on failure when possible.
 - A rejected push is re-fetched, re-planned and retried; **never force-pushed**.
 - No empty commits are created when nothing changed.
@@ -141,8 +145,8 @@ Destructive operations use two-phase confirmation: preview first, then `confirm:
 ## Safety and limits
 
 - Never collects or uploads tokens, passwords, private keys or cookies; HTTPS stores only the env-var name.
-- No absolute machine paths in backups; configs pass a whitelist filter.
-- Restore does not delete local plugins that are absent from the repository.
+- No absolute machine paths in backups; configs pass sensitive-key/value filtering (best-effort, not a strict whitelist).
+- A plugin present here but missing in the repository is backed up again, never deleted; a plugin missing here but present in the repository needs an explicit delete-or-skip choice.
 - Syncs the active profile only; other profiles install and sync separately.
 - Local-dev plugins can be recorded but cannot be installed on another device.
 - It synchronizes versions/state/config; it does not check for newer versions or upgrade plugins for you.

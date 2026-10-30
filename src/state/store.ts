@@ -120,7 +120,6 @@ export function defaultConfig(): SyncConfig {
     excludedConfigPlugins: [],
     autoSync: defaultAutoSync(),
     deviceName: defaultDeviceName(),
-    allowPluginRemoval: false,
   }
 }
 
@@ -241,7 +240,6 @@ export function normalizeConfig(input: unknown, activeProfile: string, available
 
   if (typeof raw.includeConfigs === 'boolean') config.includeConfigs = raw.includeConfigs
   if (typeof raw.includeLocalPlugins === 'boolean') config.includeLocalPlugins = raw.includeLocalPlugins
-  if (typeof raw.allowPluginRemoval === 'boolean') config.allowPluginRemoval = raw.allowPluginRemoval
   if (typeof raw.deviceName === 'string') {
     const name = sanitizeDeviceName(raw.deviceName)
     config.deviceName = name === '' ? defaultDeviceName() : name

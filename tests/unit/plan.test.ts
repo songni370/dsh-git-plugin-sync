@@ -249,50 +249,54 @@ describe('two-way sync plan', () => {
     expect(skipped.conflicts).toHaveLength(1)
   })
 
-  it('treats a local deletion as a destructive decision, not an automatic action', () => {
-    const plan = planSync(input({
-      base: { alpha: plugin('alpha') },
-      local: {},
-      remote: { alpha: plugin('alpha') },
-    }))
+  it('asks whether to delete the repository copy when the local plugin is gone', () => {
+    const base = { alpha: plugin('alpha') }
+    const local = {}
+    const remote = { alpha: plugin('alpha') }
+    const plan = planSync(input({ base, local, remote }))
     expect(actionsOf(plan, 'remove-remote')).toHaveLength(0)
     expect(plan.conflicts).toHaveLength(1)
     expect(plan.conflicts[0]?.reason).toBe('local-deleted')
 
-    const allowed: SyncConfig = { ...input().config, allowPluginRemoval: true }
-    const confirmed = planSync(input({
-      config: allowed,
-      base: { alpha: plugin('alpha') },
-      local: {},
-      remote: { alpha: plugin('alpha') },
+    const deleteRemote = planSync(input({
+      base,
+      local,
+      remote,
       resolutions: [{ pluginId: 'alpha', choice: 'local' }],
     }))
-    expect(actionsOf(confirmed, 'remove-remote', 'alpha')).toHaveLength(1)
-    expect(confirmed.requiresConfirmation).toBe(true)
+    expect(actionsOf(deleteRemote, 'remove-remote', 'alpha')).toHaveLength(1)
+    expect(deleteRemote.requiresConfirmation).toBe(true)
+
+    const restoreLocal = planSync(input({
+      base,
+      local,
+      remote,
+      resolutions: [{ pluginId: 'alpha', choice: 'remote' }],
+    }))
+    expect(actionsOf(restoreLocal, 'upgrade', 'alpha')).toHaveLength(1)
+    expect(restoreLocal.conflicts).toHaveLength(0)
   })
 
-  it('treats a remote deletion as a destructive decision', () => {
+  it('backs up a local plugin when the repository no longer has it', () => {
     const plan = planSync(input({
       base: { alpha: plugin('alpha') },
       local: { alpha: plugin('alpha') },
       remoteTombstones: new Set(['alpha']),
     }))
+    expect(plan.conflicts).toHaveLength(0)
+    expect(actionsOf(plan, 'push-plugin', 'alpha')).toHaveLength(1)
     expect(actionsOf(plan, 'remove-local')).toHaveLength(0)
-    expect(plan.conflicts).toHaveLength(1)
-    expect(plan.conflicts[0]?.reason).toBe('remote-deleted')
-
-    const allowed: SyncConfig = { ...input().config, allowPluginRemoval: true }
-    const confirmed = planSync(input({
-      config: allowed,
-      base: { alpha: plugin('alpha') },
-      local: { alpha: plugin('alpha') },
-      remoteTombstones: new Set(['alpha']),
-      resolutions: [{ pluginId: 'alpha', choice: 'remote' }],
-    }))
-    expect(actionsOf(confirmed, 'remove-local', 'alpha')).toHaveLength(1)
-    expect(confirmed.requiresConfirmation).toBe(true)
   })
 
+  it('backs up a local plugin even when both sides changed and the repository copy is gone', () => {
+    const plan = planSync(input({
+      base: { alpha: plugin('alpha', { version: '1.0.0' }) },
+      local: { alpha: plugin('alpha', { version: '1.1.0' }) },
+      remoteTombstones: new Set(['alpha']),
+    }))
+    expect(plan.conflicts).toHaveLength(0)
+    expect(actionsOf(plan, 'push-plugin', 'alpha')).toHaveLength(1)
+  })
   it('detects enablement changes in both directions', () => {
     const push = planSync(input({
       base: { alpha: plugin('alpha') },

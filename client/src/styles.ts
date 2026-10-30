@@ -1179,6 +1179,12 @@ export const CSS = `
   font-size: 13px;
   line-height: 18px;
 }
+.dgs-conflictExplain {
+  margin: 0;
+  color: var(--dsw-alias-label-secondary, #5c6570);
+  font-size: 12px;
+  line-height: 17px;
+}
 .dgs-conflictFields {
   display: flex;
   flex-wrap: wrap;
@@ -1219,6 +1225,14 @@ export const CSS = `
 }
 .dgs-choice:last-child {
   border-right: 0;
+}
+.dgs-choiceDanger {
+  color: var(--dsw-alias-state-error-primary, #dc2626);
+}
+.dgs-choiceDanger.dgs-choiceActive,
+.dgs-choiceDanger.dgs-choiceActive:hover {
+  background: var(--dsw-alias-state-error-primary, #dc2626);
+  color: #ffffff;
 }
 .dgs-choice:hover {
   background: var(--dsw-alias-bg-layer-2, #f7f8fa);

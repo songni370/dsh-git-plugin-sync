@@ -30,7 +30,6 @@ function viewFor(repoUrl: string, authMode: GitAuthMode): SyncConfigView {
     excludedConfigPlugins: [],
     autoSync: { enabled: false, mode: 'two-way', intervalMinutes: 30, startupDelayMs: 15_000, onStartup: false, onPluginChange: false, debounceMs: 10_000 },
     deviceName: 'mac',
-    allowPluginRemoval: false,
     tokenAvailable: true,
     device: { id: 'd', name: 'mac', platform: 'darwin', arch: 'arm64', dshVersion: '0.2.1-rc.3', pluginVersion: '0.1.0' },
     activeProfile: 'desktop',

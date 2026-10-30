@@ -216,22 +216,23 @@ statesEqual(a, b) = a 存在性相同 && a.version === b.version
 | local | remote | localChanged | remoteChanged | 结果 |
 | --- | --- | --- | --- | --- |
 | 有 | 有 | 否 | 否 | 无动作（可能记录 `identical` 差异） |
-| 有（改动） | 有/无 | 是 | 否 | `push-plugin`（+`push-config`）：把本机状态写进仓库 |
-| 有 | 无 | 是 | 否 | 同上；若本机插件不可安装到别的设备，追加警告「仅记录」 |
-| 无（本机删除） | 有 | 是 | 否 | 冲突 `local-deleted`；仅当 `allowPluginRemoval && choice==='local'` 时为 `remove-remote`（破坏性） |
+| 有（改动） | 有 | 是 | 否 | `push-plugin`（+`push-config`）：把本机状态写进仓库 |
+| 有 | 无 | 任意 | 任意 | 不算冲突：`push-plugin` 把本机插件重新写入仓库；不可安装时追加「仅记录」警告 |
+| 无（本机删除） | 有 | 是 | 否 | 冲突 `local-deleted`；选择 `local` → `remove-remote`（破坏性）；选择 `remote` → 恢复本机；`skip` 保留冲突 |
 | 有/无 | 有（改动） | 否 | 是 | `install/upgrade/downgrade`（+`enable/disable`/`restore-config`）应用远端状态 |
-| 有 | 无（远端删除） | 否 | 是 | 冲突 `remote-deleted`；仅当 `allowPluginRemoval && choice==='remote'` 时为 `remove-local`（破坏性） |
 | 有 | 有 | 是 | 是 | 若 `statesEqual(local, remote)` → 收敛（无动作）；否则冲突 `both-changed` |
 | 无 | 无 | — | — | 无动作 |
+
+本机有、仓库没有时，即使基线显示仓库曾经删除过它，也不再产生 `remote-deleted` 冲突；同步会按本机状态重新备份。仓库条目的删除只在本机删除后的 `local-deleted` 冲突中发生，并且必须由用户显式选择。
 
 冲突解决（`resolution.choice`）：
 
 | choice | 双方都改（均存在） | 本机删除 / 远端仍在 | 远端删除 / 本机仍在 |
 | --- | --- | --- | --- |
-| `local` | `push-plugin` + `push-config` | `remove-remote`（需 `allowPluginRemoval`，否则仍冲突/跳过） | `push-plugin`（把本机状态推回去） |
-| `remote` | 应用远端（install/upgrade/...） | 应用远端（相当于保留远端、忽略本机删除） | `remove-local`（需 `allowPluginRemoval`） |
-| `skip`（默认） | 保留冲突 | 保留冲突 | 保留冲突 |
-| `manual` | 用 `manualConfig` 写本机配置并推送合并状态（仅本机存在时） | 保留冲突（无本机状态可合并） | 保留冲突（无远端状态可合并） |
+| `local` | `push-plugin` + `push-config` | `remove-remote`（破坏性，从仓库删除） |
+| `remote` | 应用远端（install/upgrade/...） | 应用远端（恢复本机插件） |
+| `skip`（默认） | 不处理该插件，其余动作继续；冲突保留 | 不处理该插件，仓库保持不变，其余动作继续 |
+| `manual` | 用 `manualConfig` 写本机配置并推送合并状态（仅本机存在时） | 保留冲突（无本机状态可合并） |
 
 恢复（`planRestore`）方向的冲突只有一类：`config-conflict` —— 本机配置自基线后被改过，且与仓库配置不同。它不是「双方都改」意义上的冲突，而是「恢复会覆盖本机未同步的改动」，因此需要用户确认保留哪一侧。
 
@@ -304,7 +305,6 @@ Windows: 同理（它会把 A 从 1.2.0 与本机推不上去）→ 冲突
 | --- | --- | --- |
 | `both-changed` | 双方都改了同一插件且仍不一致 | `version`、`enabled`、`config.timeout` |
 | `local-deleted` | 本机删了、远端还在/被改 | 通常为空或 `version`/`config.*` |
-| `remote-deleted` | 远端标记删除、本机还在/被改 | 同上 |
 | `config-conflict` | 恢复会覆盖本机未同步的配置改动 | `config.<key>` |
 
 `plan.diffs` 另外给 UI 一个逐插件视图（`kind`: `missing-local` / `missing-remote` / `version-diff` / `config-diff` / `enabled-diff` / `deleted-remote` / `new-local` / `new-remote` / `identical`），`conflict?` 挂在对应 diff 上。

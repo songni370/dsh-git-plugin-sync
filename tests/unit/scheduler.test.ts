@@ -47,7 +47,6 @@ function config(overrides: Partial<SyncConfig['autoSync']> = {}): SyncConfig {
     excludedConfigPlugins: [],
     autoSync: { ...defaultAutoSync(), enabled: true, ...overrides },
     deviceName: 'mac',
-    allowPluginRemoval: false,
   }
 }
 

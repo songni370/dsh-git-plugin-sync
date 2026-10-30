@@ -64,7 +64,6 @@ function makeConfig(overrides: Partial<SyncConfig> = {}): SyncConfig {
       debounceMs: 10_000,
     },
     deviceName: 'test',
-    allowPluginRemoval: false,
     ...overrides,
   }
 }

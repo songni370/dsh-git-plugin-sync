@@ -231,8 +231,7 @@ function makeDiff(
   const destructive = false
   if (options.kind === undefined) {
     if (conflict !== undefined) {
-      if (conflict.reason === 'remote-deleted') kind = 'deleted-remote'
-      else if (conflict.reason === 'local-deleted') kind = 'missing-local'
+      if (conflict.reason === 'local-deleted') kind = 'missing-local'
       else if (local !== null && local !== undefined && remote !== null && remote !== undefined) {
         kind = local.version !== remote.version ? 'version-diff' : 'config-diff'
       } else kind = 'config-diff'
@@ -328,18 +327,6 @@ function pushDeleteAction(state: PluginState, destructive: boolean): PlanAction 
     pluginName: state.displayName ?? state.name,
     detail: `从远端备份中标记删除 ${state.name} / mark deleted in repository`,
     destructive,
-    version: state.version ?? undefined,
-  }
-}
-
-/** Build one plan action for removing a plugin locally. */
-function removeLocalAction(state: PluginState): PlanAction {
-  return {
-    kind: 'remove-local',
-    pluginId: state.id,
-    pluginName: state.displayName ?? state.name,
-    detail: `从本机移除 ${state.name} / remove from this device`,
-    destructive: true,
     version: state.version ?? undefined,
   }
 }
@@ -557,6 +544,11 @@ export function planSync(input: PlanInput): SyncPlan {
     }
     if (remote !== null && (remote.builtIn || !remote.syncable)) continue
 
+    if (local === null && remote === null) {
+      diffs.push(makeDiff(id, { local, remote, base, includeConfigs }))
+      continue
+    }
+
     const localChanged = !statesEqual(local, base)
     const remoteChanged = !statesEqual(remote, base)
 
@@ -569,27 +561,21 @@ export function planSync(input: PlanInput): SyncPlan {
       // This device changed: push it.
       const resolution = resolutionFor(resolutions, id)
       if (local === null) {
-        // Local deletion: needs explicit confirmation because it deletes remote data.
-        if (input.config.allowPluginRemoval && resolution?.choice === 'local') {
+        // The local plugin is gone but the repository still has it. This is a
+        // real decision: delete the repository copy too, or skip (keep it).
+        if (resolution?.choice === 'local') {
           if (remote !== null) actions.push(pushDeleteAction(remote, true))
           destructive.add(id)
           diffs.push(makeDiff(id, { local, remote, base, includeConfigs }))
           continue
         }
-        const conflict = makeConflict(id, 'local-deleted', base, local, remote, meta)
-        if (resolution === undefined || resolution.choice === 'skip') {
-          conflicts.push(conflict)
-        } else if (resolution.choice === 'remote') {
-          if (remote === null) {
-            conflicts.push(conflict)
-          } else {
-            actions.push(...localApplyActions(remote, local, { includeConfigs }))
-            diffs.push(makeDiff(id, { local, remote, base, includeConfigs }))
-            continue
-          }
-        } else {
-          conflicts.push(conflict)
+        if (resolution?.choice === 'remote' && remote !== null) {
+          actions.push(...localApplyActions(remote, local, { includeConfigs }))
+          diffs.push(makeDiff(id, { local, remote, base, includeConfigs }))
+          continue
         }
+        const conflict = makeConflict(id, 'local-deleted', base, local, remote, meta)
+        conflicts.push(conflict)
         diffs.push(makeDiff(id, { local, remote, base, conflict, includeConfigs }))
         continue
       }
@@ -603,24 +589,11 @@ export function planSync(input: PlanInput): SyncPlan {
 
     if (!localChanged && remoteChanged) {
       // Another device changed: apply it locally.
-      const resolution = resolutionFor(resolutions, id)
       if (remote === null) {
-        // Remote deletion: destructive locally, so only with permission.
-        if (local === null) continue
-        if (input.config.allowPluginRemoval && resolution?.choice === 'remote') {
-          actions.push(removeLocalAction(local))
-          destructive.add(id)
-          diffs.push(makeDiff(id, { local, remote, base, includeConfigs }))
-          continue
-        }
-        const conflict = makeConflict(id, 'remote-deleted', base, local, remote, meta)
-        if (resolution?.choice === 'local') {
-          actions.push(...remotePushActions(local, remote, includeConfigs))
-          diffs.push(makeDiff(id, { local, remote, base, includeConfigs }))
-          continue
-        }
-        conflicts.push(conflict)
-        diffs.push(makeDiff(id, { local, remote, base, conflict, includeConfigs }))
+        // The repository no longer has this plugin, but this device does.
+        // That is not a conflict: keep the local plugin and back it up.
+        if (local !== null) actions.push(...remotePushActions(local, remote, includeConfigs))
+        diffs.push(makeDiff(id, { local, remote, base, includeConfigs }))
         continue
       }
       if (!isRestorable(remote)) {
@@ -638,30 +611,43 @@ export function planSync(input: PlanInput): SyncPlan {
       diffs.push(makeDiff(id, { local, remote, base, includeConfigs }))
       continue
     }
-    const conflict = makeConflict(id, local === null ? 'local-deleted' : remote === null ? 'remote-deleted' : 'both-changed', base, local, remote, meta)
+    if (remote === null) {
+      // The repository copy is gone while this device still has the plugin.
+      // Not a conflict: re-create it in the repository.
+      if (local !== null) actions.push(...remotePushActions(local, remote, includeConfigs))
+      diffs.push(makeDiff(id, { local, remote, base, includeConfigs }))
+      continue
+    }
+    const conflict = makeConflict(id, local === null ? 'local-deleted' : 'both-changed', base, local, remote, meta)
     const resolution = resolutionFor(resolutions, id)
+    if (local === null) {
+      if (resolution?.choice === 'local') {
+        actions.push(pushDeleteAction(remote, true))
+        destructive.add(id)
+        diffs.push(makeDiff(id, { local, remote, base, includeConfigs }))
+        continue
+      }
+      if (resolution?.choice === 'remote') {
+        actions.push(...localApplyActions(remote, local, { includeConfigs }))
+        diffs.push(makeDiff(id, { local, remote, base, includeConfigs }))
+        continue
+      }
+      conflicts.push(conflict)
+      diffs.push(makeDiff(id, { local, remote, base, conflict, includeConfigs }))
+      continue
+    }
     if (resolution === undefined || resolution.choice === 'skip') {
       conflicts.push(conflict)
       diffs.push(makeDiff(id, { local, remote, base, conflict, includeConfigs }))
       continue
     }
     if (resolution.choice === 'local') {
-      if (local === null) {
-        if (remote !== null) actions.push(pushDeleteAction(remote, true))
-        destructive.add(id)
-      } else {
-        actions.push(...remotePushActions(local, remote, includeConfigs))
-      }
+      actions.push(...remotePushActions(local, remote, includeConfigs))
       diffs.push(makeDiff(id, { local, remote, base, includeConfigs }))
       continue
     }
     if (resolution.choice === 'remote') {
-      if (remote === null) {
-        if (local !== null) {
-          actions.push(removeLocalAction(local))
-          destructive.add(id)
-        }
-      } else if (!isRestorable(remote) && (local === null || local.version !== remote.version)) {
+      if (!isRestorable(remote) && (local === null || local.version !== remote.version)) {
         warnings.push(`备份中的插件 ${remote.name} 缺少可安装来源，已跳过 / no install source; skipped`)
       } else {
         actions.push(...localApplyActions(remote, local, { includeConfigs }))
@@ -670,17 +656,12 @@ export function planSync(input: PlanInput): SyncPlan {
       continue
     }
     // Manual: apply the user's config locally and push the merged state.
-    if (local !== null) {
-      const manualConfig = resolution.manualConfig
-      if (manualConfig !== undefined) {
-        actions.push(...localApplyActions({ ...local, configs: manualConfig }, local, { includeConfigs: true, manualConfig }))
-        actions.push(...remotePushActions({ ...local, configs: manualConfig }, remote, true))
-      }
-      diffs.push(makeDiff(id, { local, remote, base, includeConfigs }))
-    } else {
-      conflicts.push(conflict)
-      diffs.push(makeDiff(id, { local, remote, base, conflict, includeConfigs }))
+    const manualConfig = resolution.manualConfig
+    if (manualConfig !== undefined) {
+      actions.push(...localApplyActions({ ...local, configs: manualConfig }, local, { includeConfigs: true, manualConfig }))
+      actions.push(...remotePushActions({ ...local, configs: manualConfig }, remote, true))
     }
+    diffs.push(makeDiff(id, { local, remote, base, includeConfigs }))
   }
 
   if (conflicts.length > 0) {
