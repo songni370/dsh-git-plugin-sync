@@ -723,7 +723,6 @@ export function Page({ t }: PageProps): ReactElement {
                 {view.state === 'not-configured' ? (
                   <Banner tone="idle">{t('statusNotConfiguredHint')}</Banner>
                 ) : null}
-                {view.busy ? <Banner tone="warn">{t('statusBusy')}</Banner> : null}
               </>
             }
             autoPanel={
