@@ -34,7 +34,7 @@ This document describes the threat model, secret-filtering rules, Git subprocess
 | T3 | **秘密泄露到日志/UI** | Git 错误输出里带 token（URL userinfo、credential helper 输出）、日志 details 里带配置 | 所有日志消息经 `redactText`、details 经 `redactJson`；Git 错误在分类前先脱敏；认证方式只显示方法名 |
 | T4 | **命令注入 / 选项注入** | 仓库 URL、分支名、提交哈希或插件名被拼进 shell 命令或作为 Git 选项 | 永远用参数数组 + `shell:false`；拒绝 NUL、以 `-` 开头的子命令、`-c`、`--upload-pack` 等；提交哈希必须 `^[0-9a-fA-F]{4,64}$`；分支名与仓库 URL 单独校验 |
 | T5 | **覆盖其他设备的数据** | 两台设备同时推送；或实现里图省事 force push | 永不 force push；非快进 → 拉取 → `rebuild()` 重算 → 重试（默认 3 次）→ 明确失败 `git-push-rejected` |
-| T6 | **误删本机插件** | 恢复把备份里没有的插件删掉；或两侧删除被自动执行 | 恢复从不删除备份中没有的本机插件；删除类动作一律 `destructive` 且需要确认；同步中删除仓库条目必须显式选择「仓库也删除」，仓库缺失时不会删除本机插件，只会重新备份 |
+| T6 | **误删本机插件** | 恢复把备份里没有的插件删掉；或两侧删除被自动执行 | 恢复从不删除备份中没有的本机插件；删除类动作一律 `destructive` 且需要确认；同步中删除仓库条目必须显式选择「从仓库删除」，仓库缺失时不会删除本机插件，只会重新备份 |
 | T7 | **Agent 通过工具静默破坏** | 模型直接调用工具执行破坏性计划 | 工具两阶段：`confirm` 缺省返回预览；引擎仍校验 `confirmDestructive`；删除/降级必须显式确认 |
 | T8 | **跨 Profile 越权修改** | 恢复把插件装进别的 Profile | `installer.requireActiveProfile()` 只允许当前 Profile；引擎只扫描/写入 `activeProfile` |
 | T9 | **令牌泄露给第三方** | 令牌被写进仓库 URL、日志、或通过网络发到非目标服务 | 令牌只用于 Git 子进程环境；保存配置时拒绝含 userinfo 的 URL；仅在 `https-token` 模式下注入 |

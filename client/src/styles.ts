@@ -1185,6 +1185,12 @@ export const CSS = `
   font-size: 12px;
   line-height: 17px;
 }
+.dgs-conflictEffect {
+  margin: 0;
+  color: var(--dsw-alias-label-secondary, #5c6570);
+  font-size: 12px;
+  line-height: 17px;
+}
 .dgs-conflictFields {
   display: flex;
   flex-wrap: wrap;
@@ -1204,18 +1210,16 @@ export const CSS = `
 }
 .dgs-choiceGroup {
   display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
   align-self: flex-start;
-  overflow: hidden;
+}
+.dgs-choice {
+  min-height: 30px;
+  padding: 0 12px;
   border: 1px solid var(--dsw-alias-border-l2, #d9dde3);
   border-radius: 7px;
   background: var(--dsw-alias-bg-layer-1, #ffffff);
-}
-.dgs-choice {
-  min-height: 28px;
-  padding: 0 11px;
-  border: 0;
-  border-right: 1px solid var(--dsw-alias-border-l1, #e5e7eb);
-  background: transparent;
   color: var(--dsw-alias-label-secondary, #5c6570);
   font: inherit;
   font-size: 12px;
@@ -1223,24 +1227,24 @@ export const CSS = `
   white-space: nowrap;
   cursor: pointer;
 }
-.dgs-choice:last-child {
-  border-right: 0;
-}
-.dgs-choiceDanger {
-  color: var(--dsw-alias-state-error-primary, #dc2626);
-}
-.dgs-choiceDanger.dgs-choiceActive,
-.dgs-choiceDanger.dgs-choiceActive:hover {
-  background: var(--dsw-alias-state-error-primary, #dc2626);
-  color: #ffffff;
-}
 .dgs-choice:hover {
   background: var(--dsw-alias-bg-layer-2, #f7f8fa);
   color: var(--dsw-alias-label-primary, #1f2328);
 }
+.dgs-choiceDanger {
+  border-color: color-mix(in srgb, var(--dsw-alias-state-error-primary, #dc2626) 35%, var(--dsw-alias-border-l2, #d9dde3));
+  color: var(--dsw-alias-state-error-primary, #dc2626);
+}
 .dgs-choiceActive,
 .dgs-choiceActive:hover {
+  border-color: var(--dsw-alias-brand-primary, #0f1115);
   background: var(--dsw-alias-brand-primary, #0f1115);
+  color: #ffffff;
+}
+.dgs-choiceDanger.dgs-choiceActive,
+.dgs-choiceDanger.dgs-choiceActive:hover {
+  border-color: var(--dsw-alias-state-error-primary, #dc2626);
+  background: var(--dsw-alias-state-error-primary, #dc2626);
   color: #ffffff;
 }
 .dgs-choice:focus-visible {

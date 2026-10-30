@@ -272,6 +272,8 @@ export interface ConflictInfo {
     remoteDevice?: string;
     /** When the remote change was recorded. */
     remoteUpdatedAt?: string;
+    /** Whether the last-sync baseline contained this plugin. */
+    hadBaseline?: boolean;
 }
 /** A user's decision for one conflict. */
 export type ConflictChoice = 'local' | 'remote' | 'skip' | 'manual';

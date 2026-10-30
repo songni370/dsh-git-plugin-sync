@@ -6,10 +6,12 @@
  * "what happens to me" is the question a user actually asks. Counts sit in a
  * summary strip so the shape of the plan is visible before reading rows.
  *
- * Conflicts are rendered first and, when editable, as a segmented choice
- * whose labels name the actual action (for example "delete from repository
- * too"); a conflict is the one decision a person must make here, so it should
- * not be buried under plan rows or hidden behind a dropdown.
+ * Conflicts are rendered first and, when editable, as reason-specific choices
+ * whose labels name the actual action (for example "keep repository" versus
+ * "delete from repository"). Under the buttons, one line spells out what the
+ * current choice will do, so the decision never depends on a tooltip, and a
+ * plugin deleted only on this device is never offered a meaningless "keep
+ * local" option.
  * @module ui/PlanPreview
  */
 
@@ -87,7 +89,65 @@ function fieldLabel(t: Translate, field: string): string {
   return field
 }
 
-/** One conflict: reason, versions and the three-way choice. */
+/** One selectable choice: short button label plus the consequence of picking it. */
+interface ConflictChoiceView {
+  value: ConflictChoice
+  label: string
+  effect: string
+  danger?: boolean
+}
+
+/** Reason-specific copy and choices for one conflict. */
+interface ConflictPresentation {
+  reason: string
+  explain: string
+  choices: ConflictChoiceView[]
+}
+
+/**
+ * Turn a conflict reason into plain language. The three useful situations are
+ * deliberately separate:
+ *  - the plugin is gone here but still backed up (keep it or delete it);
+ *  - a restore would overwrite local configuration (keep local or use remote);
+ *  - both sides changed the plugin differently (pick a side or leave it).
+ * "Both added" is a special case of the last one: neither side has a baseline
+ * to be "changed" against, so saying "both changed" would confuse a new device.
+ */
+function conflictPresentation(t: Translate, conflict: SyncPlan['conflicts'][number]): ConflictPresentation {
+  if (conflict.reason === 'local-deleted') {
+    return {
+      reason: t('conflictReasonLocalDeleted'),
+      explain: t('conflictLocalDeletedExplain'),
+      choices: [
+        { value: 'skip', label: t('conflictChoiceKeepRemote'), effect: t('conflictEffectKeepRemote') },
+        { value: 'local', label: t('conflictChoiceDeleteRemote'), effect: t('conflictEffectDeleteRemote'), danger: true },
+      ],
+    }
+  }
+  if (conflict.reason === 'config-conflict') {
+    return {
+      reason: t('conflictReasonConfigConflict'),
+      explain: t('conflictConfigConflictExplain'),
+      choices: [
+        { value: 'local', label: t('conflictChoiceKeepLocalConfig'), effect: t('conflictEffectKeepLocalConfig') },
+        { value: 'remote', label: t('conflictChoiceUseRemoteConfig'), effect: t('conflictEffectUseRemoteConfig') },
+        { value: 'skip', label: t('conflictChoiceSkip'), effect: t('conflictEffectSkip') },
+      ],
+    }
+  }
+  const bothAdded = conflict.hadBaseline === false
+  return {
+    reason: bothAdded ? t('conflictReasonBothAdded') : reasonLabel(t, conflict.reason),
+    explain: bothAdded ? t('conflictBothAddedExplain') : t('conflictBothChangedExplain'),
+    choices: [
+      { value: 'local', label: t('conflictChoiceLocal'), effect: t('conflictEffectLocal') },
+      { value: 'remote', label: t('conflictChoiceRemote'), effect: t('conflictEffectRemote') },
+      { value: 'skip', label: t('conflictChoiceSkip'), effect: t('conflictEffectSkip') },
+    ],
+  }
+}
+
+/** One conflict: plain-language reason, differences, choices and their effect. */
 function ConflictCard(props: {
   t: Translate
   conflict: SyncPlan['conflicts'][number]
@@ -96,24 +156,15 @@ function ConflictCard(props: {
 }): ReactElement {
   const { t, conflict } = props
   const choice = props.choice ?? 'skip'
-  const versions = t('conflictVersionPair', {
-    local: conflict.localVersion ?? t('notAvailable'),
-    remote: conflict.remoteVersion ?? t('notAvailable'),
-  })
-  // The same three generic labels ("keep local / use repository") are wrong
-  // for a plugin that is only gone on this device: there is no local side to
-  // keep, and the real decision is whether the repository copy is deleted too.
-  const choices: Array<{ value: ConflictChoice; label: string; hint: string; danger?: boolean }> =
-    conflict.reason === 'local-deleted'
-      ? [
-          { value: 'skip', label: t('conflictChoiceSkip'), hint: t('conflictChoiceHintSkipKeepRemote') },
-          { value: 'local', label: t('conflictChoiceDeleteRemote'), hint: t('conflictChoiceHintDeleteRemote'), danger: true },
-        ]
-      : [
-          { value: 'skip', label: t('conflictChoiceSkip'), hint: t('conflictChoiceHintSkip') },
-          { value: 'local', label: t('conflictChoiceLocal'), hint: t('conflictChoiceHintLocal') },
-          { value: 'remote', label: t('conflictChoiceRemote'), hint: t('conflictChoiceHintRemote') },
-        ]
+  const presentation = conflictPresentation(t, conflict)
+  const active = presentation.choices.find(item => item.value === choice) ?? presentation.choices[0]
+  const versions =
+    conflict.localVersion === null
+      ? t('conflictVersionRemoteOnly', { remote: conflict.remoteVersion ?? t('notAvailable') })
+      : t('conflictVersionPair', {
+          local: conflict.localVersion,
+          remote: conflict.remoteVersion ?? t('notAvailable'),
+        })
   return (
     <li className="dgs-conflictCard">
       <div className="dgs-conflictHead">
@@ -123,10 +174,8 @@ function ConflictCard(props: {
           {conflict.remoteDevice === undefined ? null : ` · ${t('conflictRemoteDevice', { device: conflict.remoteDevice })}`}
         </span>
       </div>
-      <p className="dgs-conflictReason">{reasonLabel(t, conflict.reason)}</p>
-      {conflict.reason === 'local-deleted' ? (
-        <p className="dgs-conflictExplain">{t('conflictLocalDeletedExplain')}</p>
-      ) : null}
+      <p className="dgs-conflictReason">{presentation.reason}</p>
+      <p className="dgs-conflictExplain">{presentation.explain}</p>
       {conflict.fields.length === 0 ? null : (
         <div className="dgs-conflictFields">
           {conflict.fields.map(field => (
@@ -137,27 +186,34 @@ function ConflictCard(props: {
         </div>
       )}
       {props.onChoice === undefined ? null : (
-        <div className="dgs-choiceGroup" role="radiogroup" aria-label={t('conflictChoiceLabel')}>
-          {choices.map(item => (
-            <button
-              key={item.value}
-              type="button"
-              role="radio"
-              aria-checked={choice === item.value}
-              title={item.hint}
-              className={[
-                'dgs-choice',
-                choice === item.value ? 'dgs-choiceActive' : '',
-                item.danger === true ? 'dgs-choiceDanger' : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-              onClick={() => props.onChoice?.(item.value)}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
+        <>
+          <div className="dgs-choiceGroup" role="radiogroup" aria-label={t('conflictChoiceLabel')}>
+            {presentation.choices.map(item => (
+              <button
+                key={item.value}
+                type="button"
+                role="radio"
+                aria-checked={choice === item.value}
+                title={item.effect}
+                className={[
+                  'dgs-choice',
+                  choice === item.value ? 'dgs-choiceActive' : '',
+                  item.danger === true ? 'dgs-choiceDanger' : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+                onClick={() => props.onChoice?.(item.value)}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+          {active === undefined ? null : (
+            <p className="dgs-conflictEffect" aria-live="polite">
+              {active.effect}
+            </p>
+          )}
+        </>
       )}
     </li>
   )

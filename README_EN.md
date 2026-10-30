@@ -18,7 +18,7 @@ Reinstalling DSH or moving to another machine no longer means rebuilding a plugi
 
 - **Backup / restore**: push user-installed plugins (version, enabled state, configuration) to Git; install them back on another device.
 - **Two-way sync**: upload local changes, download repository changes; when both sides changed it stops and asks.
-- **Conflict handling**: overwrite repository with this device / overwrite this device with repository / skip, plus manual config merge. When this device deleted a plugin that the repository still has, choose Delete from repository too or Skip.
+- **Conflict handling**: overwrite repository with this device / overwrite this device with repository / leave for now; each button explains what it will do. When this device removed a plugin that the repository still backs up, choose Delete from repository or Keep repository.
 - **History rollback**: restore this device to any previous commit.
 - **Automatic sync**: on client startup and plugin install/update/remove; **no interval timer**.
 - **Agent tools**: six tools for status, backup, restore, sync, diff and history.
@@ -108,10 +108,10 @@ The device keeps a **baseline** of the last agreed state and compares `base / lo
 | Neither changed | Skip |
 | Both changed identically | Skip |
 | Present here, missing in the repository | Not a conflict; back it up into the repository |
-| Missing here, still in the repository | Conflict: delete from repository too or skip |
+| Missing here, still in the repository | Conflict: delete from repository or keep repository |
 | Both changed differently | Conflict; wait for your choice |
 
-- A repository entry is only deleted after you explicitly choose “Delete from repository too”; Skip keeps it and lets the rest of the sync run.
+- A repository entry is only deleted after you explicitly choose “Delete from repository”; “Keep repository” keeps it and lets the rest of the sync run.
 - When the repository is missing a plugin this device has, nothing is removed here; it is backed up again.
 - Deleting repository entries is destructive and only runs after confirmation.
 - A local snapshot is taken before changing this device; configuration/enabled state is rolled back on failure when possible.

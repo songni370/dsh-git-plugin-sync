@@ -104,6 +104,7 @@ function makeConflict(
     conflict.remoteDevice = meta.updatedBy
     conflict.remoteUpdatedAt = meta.updatedAt
   }
+  conflict.hadBaseline = base !== null && base !== undefined
   return conflict
 }
 
