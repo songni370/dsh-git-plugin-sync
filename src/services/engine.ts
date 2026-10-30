@@ -467,6 +467,11 @@ export class SyncEngine {
       const entry = read.state?.plugins[id]
       const excluded = config.excludedPlugins.includes(id) || (record?.name !== undefined && config.excludedPlugins.includes(record.name))
       if (excluded) syncStatus = 'excluded'
+      // `syncable` is the plugin's intrinsic capability; exclusion is shown by
+      // `syncStatus`/`selected`. Keeping exclusion out of `syncable` is what
+      // lets the UI re-enable a row the user previously excluded.
+      const intrinsicallySyncable =
+        !(record?.builtIn ?? entry?.builtIn ?? false) && (record?.syncable ?? entry?.syncable ?? true)
       const row: PluginListRow = {
         id,
         name: record?.name ?? entry?.name ?? id,
@@ -477,7 +482,7 @@ export class SyncEngine {
         remoteEnabled: remoteState?.enabled ?? null,
         syncStatus,
         inSync: diff === undefined || diff.kind === 'identical' ? !excluded : false,
-        syncable: !(record?.builtIn ?? entry?.builtIn ?? false) && !excluded,
+        syncable: intrinsicallySyncable,
         selected: !excluded,
       }
       if (record?.displayName !== undefined) row.displayName = record.displayName

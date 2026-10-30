@@ -88,7 +88,6 @@ interface ScanContext {
   platform: string
   includeConfigs: boolean
   includeLocalPlugins: boolean
-  excluded: readonly string[]
   excludedConfig: readonly string[]
   gateway: ConfigGateway
   warn: (message: string, details?: JsonValue) => void
@@ -98,7 +97,6 @@ interface ScanContext {
 interface ConfigFlags {
   includeConfigs: boolean
   includeLocalPlugins: boolean
-  excluded: string[]
   excludedConfig: string[]
   profiles: string[]
 }
@@ -132,7 +130,6 @@ function readConfigFlags(config: unknown): ConfigFlags {
   return {
     includeConfigs: record.includeConfigs !== false,
     includeLocalPlugins: record.includeLocalPlugins === true,
-    excluded: stringArray(record.excludedPlugins),
     excludedConfig: stringArray(record.excludedConfigPlugins),
     profiles: stringArray(record.profiles),
   }
@@ -332,7 +329,6 @@ function computeSyncable(args: {
   if (args.name === PACKAGE_NAME) return false
   // DSH loader internals are not installable plugins.
   if (args.name.startsWith('cordis:')) return false
-  if (args.context.excluded.includes(args.id) || args.context.excluded.includes(args.name)) return false
   if (args.origin === 'local-path') return args.context.includeLocalPlugins
   if (args.origin === 'official' || args.origin === 'unknown') return false
   return args.installSpec !== null
@@ -787,7 +783,6 @@ export function createScanner(deps: ScannerDeps): InventoryScanner {
       platform: device.platform,
       includeConfigs: flags.includeConfigs,
       includeLocalPlugins: flags.includeLocalPlugins,
-      excluded: flags.excluded,
       excludedConfig: flags.excludedConfig,
       gateway,
       warn: log.warn,

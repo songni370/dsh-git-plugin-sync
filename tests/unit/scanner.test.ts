@@ -318,7 +318,7 @@ describe('createScanner inventory', () => {
     expect(included.plugins[0]!.syncable).toBe(true)
   })
 
-  it('keeps excluded third-party plugins listed but not syncable', async () => {
+  it('keeps excluded third-party plugins listed and intrinsically syncable', async () => {
     const root = await makeTempDir()
     const profilesRoot = join(root, 'profiles')
     const services = {
@@ -341,9 +341,11 @@ describe('createScanner inventory', () => {
     })
 
     expect(inventory.plugins).toHaveLength(1)
+    // Exclusion is applied by the planner/UI, not baked into the scan: the
+    // plugin list needs `syncable` to stay true so a row can be re-enabled.
     expect(inventory.plugins[0]).toMatchObject({
       id: 'excluded-plugin',
-      syncable: false,
+      syncable: true,
       installSpec: 'excluded-plugin@1.0.0',
     })
   })

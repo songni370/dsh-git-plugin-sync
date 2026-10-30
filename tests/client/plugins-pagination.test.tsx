@@ -47,6 +47,29 @@ function render(count: number): string {
   )
 }
 
+describe('plugin list exclusions', () => {
+  it('keeps an excluded row selectable so it can be re-enabled', () => {
+    const excluded = { ...rows(1)[0]!, syncStatus: 'excluded' as const, selected: false }
+    const html = renderToStaticMarkup(
+      <PluginsSection
+        t={t}
+        plugins={{ rows: [excluded], activeProfile: 'desktop', availableProfiles: ['desktop'] }}
+        loading={false}
+        error={null}
+        filter=""
+        exclusions={new Set([excluded.id])}
+        busy={false}
+        onFilterChange={() => undefined}
+        onToggle={() => undefined}
+        onRefresh={() => undefined}
+      />,
+    )
+    expect(html).toContain('已排除')
+    expect(html).toContain('type="checkbox"')
+    expect(html).not.toContain('disabled=""')
+  })
+})
+
 describe('plugin list pagination', () => {
   beforeEach(() => {
     window.localStorage.clear()
