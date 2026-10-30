@@ -263,46 +263,22 @@ describe('settings page render', () => {
     expect(container.querySelector('#dgs-config-repo')?.closest('[hidden]')).toBeNull()
   })
 
-  it('offers two primary actions and hides one-way actions in a menu', async () => {
+  it('shows all four manual actions directly without a more-actions menu', async () => {
     await settle()
     const main = container.querySelector('.dgs-actionsMain')
     expect(main).not.toBeNull()
-    const primary = Array.from(main?.querySelectorAll(':scope > button') ?? []).map(
+    const buttons = Array.from(main?.querySelectorAll(':scope > button') ?? []).map(
       button => button.textContent ?? '',
     )
-    expect(primary).toHaveLength(2)
-    expect(primary[0]).toContain('同步')
-    expect(primary[1]).toContain('检查差异')
+    expect(buttons).toHaveLength(4)
+    expect(buttons[0]).toContain('同步')
+    expect(buttons[1]).toContain('检查差异')
+    expect(buttons[2]).toContain('备份到 Git')
+    expect(buttons[3]).toContain('从 Git 恢复')
+    expect(container.querySelector('.dgs-moreActions')).toBeNull()
     // The direction selector is gone; diff always previews a two-way sync.
     expect(container.querySelector('#dgs-diff-direction')).toBeNull()
-    const menu = main?.querySelector('.dgs-moreActions')
-    expect(menu).not.toBeNull()
-    // The trigger comes after both primary buttons (not pushed to the far edge).
-    expect(main?.lastElementChild).toBe(menu)
-    expect(menu?.querySelector('summary')?.textContent).toContain('更多操作')
-    const items = Array.from(menu?.querySelectorAll('.dgs-moreItem') ?? []).map(
-      item => item.textContent ?? '',
-    )
-    expect(items.some(text => text.includes('备份到 Git'))).toBe(true)
-    expect(items.some(text => text.includes('从 Git 恢复'))).toBe(true)
-
-    // Opening the menu is click-driven; leaving the mouse closes it again.
-    const details = menu as HTMLDetailsElement
-    await act(async () => {
-      details.open = true
-    })
-    expect(details.open).toBe(true)
-    await act(async () => {
-      details.dispatchEvent(new window.MouseEvent('mouseout', { bubbles: true, relatedTarget: document.body }))
-    })
-    // A short grace period protects the gap between trigger and popup.
-    expect(details.open).toBe(true)
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 200))
-    })
-    expect(details.open).toBe(false)
   })
-
   it('renders diff results inside the operations card, not in a global area', async () => {
     await settle()
     const diffButton = Array.from(container.querySelectorAll('button')).find(button =>

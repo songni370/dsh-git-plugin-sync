@@ -8,7 +8,6 @@
  * @module ui/ActionsSection
  */
 
-import { useEffect, useRef } from 'react'
 import type { ReactElement, ReactNode } from 'react'
 import type { DiffResponse } from '../../../src/http/api-types'
 import type { Translate } from '../i18n'
@@ -47,33 +46,6 @@ export interface ActionsSectionProps {
 export function ActionsSection(props: ActionsSectionProps): ReactElement {
   const { t } = props
   const disabled = props.busy !== null || props.hostBusy || !props.enabled
-  const moreRef = useRef<HTMLDetailsElement>(null)
-  const closeTimer = useRef<number | null>(null)
-
-  const cancelScheduledClose = (): void => {
-    if (closeTimer.current !== null) {
-      window.clearTimeout(closeTimer.current)
-      closeTimer.current = null
-    }
-  }
-
-  const closeMore = (): void => {
-    cancelScheduledClose()
-    if (moreRef.current !== null) moreRef.current.open = false
-  }
-
-  // A short grace period lets the pointer cross the 6px gap between the trigger
-  // and the popup without closing it; hovering the popup cancels the close.
-  const scheduleClose = (): void => {
-    cancelScheduledClose()
-    closeTimer.current = window.setTimeout(() => {
-      closeTimer.current = null
-      if (moreRef.current !== null) moreRef.current.open = false
-    }, 160)
-  }
-
-  useEffect(() => cancelScheduledClose, [])
-
   return (
     <Card title={t('actionsTitle')} description={t('actionsDesc')}>
       <div className="dgs-actionsMain">
@@ -94,46 +66,22 @@ export function ActionsSection(props: ActionsSectionProps): ReactElement {
         >
           {t('actionDiff')}
         </Button>
-        <details
-          className="dgs-moreActions"
-          ref={moreRef}
-          onMouseEnter={cancelScheduledClose}
-          onMouseLeave={scheduleClose}
+        <Button
+          onClick={props.onBackup}
+          disabled={disabled}
+          loading={props.busy === 'backup'}
+          title={t('actionBackupHint')}
         >
-          <summary className="dgs-moreSummary">{t('moreActions')}</summary>
-          <div className="dgs-moreMenu" role="menu">
-            <button
-              type="button"
-              className="dgs-moreItem"
-              role="menuitem"
-              disabled={disabled}
-              aria-busy={props.busy === 'backup' ? true : undefined}
-              title={t('actionBackupHint')}
-              onClick={() => {
-                closeMore()
-                props.onBackup()
-              }}
-            >
-              {props.busy === 'backup' ? <span className="dgs-spinner" aria-hidden="true" /> : null}
-              {t('actionBackup')}
-            </button>
-            <button
-              type="button"
-              className="dgs-moreItem dgs-moreItemDanger"
-              role="menuitem"
-              disabled={disabled}
-              aria-busy={props.busy === 'restore' ? true : undefined}
-              title={t('actionRestoreHint')}
-              onClick={() => {
-                closeMore()
-                props.onRestore()
-              }}
-            >
-              {props.busy === 'restore' ? <span className="dgs-spinner" aria-hidden="true" /> : null}
-              {t('actionRestore')}
-            </button>
-          </div>
-        </details>
+          {t('actionBackup')}
+        </Button>
+        <Button
+          onClick={props.onRestore}
+          disabled={disabled}
+          loading={props.busy === 'restore'}
+          title={t('actionRestoreHint')}
+        >
+          {t('actionRestore')}
+        </Button>
       </div>
 
       {props.notices === undefined ? null : <div className="dgs-actionsNotices">{props.notices}</div>}
