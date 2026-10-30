@@ -139,6 +139,9 @@ function localApplyActions(
       installSpec: remote.installSpec ?? undefined,
       version: targetVersion ?? undefined,
       from: local?.version ?? undefined,
+      // A replacement installs with the Host default (enabled); restore the
+      // desired state afterwards even when no separate toggle action is needed.
+      enabled: remote.enabled,
     })
   }
   if (local !== null && local !== undefined && local.enabled !== remote.enabled) {

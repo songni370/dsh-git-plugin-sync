@@ -340,16 +340,19 @@ export function Page({ t }: PageProps): ReactElement {
     plan: SyncPlan,
     extras: { commit?: string; snapshotPlanned?: boolean; sourceCommit?: string | null; hint?: string } = {},
   ): void {
+    const conflicts = plan.conflicts.length
     setModal({
       kind,
       ...(extras.commit === undefined ? {} : { commit: extras.commit }),
-      title: confirmTitle(kind, extras.commit),
-      description: confirmDescription(kind),
+      title: conflicts === 0 ? confirmTitle(kind, extras.commit) : t('confirmConflictTitle', { count: conflicts }),
+      description: conflicts === 0 ? confirmDescription(kind) : t('confirmConflictDesc'),
       plan,
       snapshotPlanned: extras.snapshotPlanned === true,
       sourceCommit: extras.sourceCommit ?? null,
       resolutions: defaultResolutions(plan),
-      ...(extras.hint === undefined ? {} : { hint: extras.hint }),
+      // The Host's raw `conflict-present` error is not useful above a list of
+      // conflicts; keep it only for non-conflict confirmations.
+      ...(extras.hint === undefined || conflicts > 0 ? {} : { hint: extras.hint }),
     })
   }
 
@@ -781,7 +784,7 @@ export function Page({ t }: PageProps): ReactElement {
           t={t}
           title={modal.title}
           description={modal.description}
-          confirmLabel={t('confirmRun')}
+          confirmLabel={modal.plan.conflicts.length > 0 ? t('confirmConflictRun') : t('confirmRun')}
           busy={modalBusy}
           onConfirm={() => void confirmModal()}
           onClose={() => {

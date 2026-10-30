@@ -54,7 +54,12 @@ async function runAction(action: PlanAction, context: LocalExecutionContext): Pr
       case 'upgrade':
       case 'downgrade': {
         const spec = await installSpecFor(action, context)
-        const result = await context.installer.install(spec, { profile: context.profile, signal: context.signal })
+        const result = await context.installer.install(spec, {
+          profile: context.profile,
+          signal: context.signal,
+          name: action.pluginId,
+          version: action.version ?? null,
+        })
         const outcome: ActionOutcome = {
           action,
           ok: result.ok,

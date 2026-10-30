@@ -1222,6 +1222,104 @@ export const CSS = `
   line-height: 18px;
   color: var(--dsw-alias-label-secondary, #5c6570);
 }
+
+.dgs-conflictSection {
+  gap: 8px;
+}
+.dgs-conflictList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dgs-conflictCard {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--dsw-alias-state-warn-primary, #b45309) 45%, var(--dsw-alias-border-l1, #e5e7eb));
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--dsw-alias-state-warn-primary, #b45309) 4%, var(--dsw-alias-bg-layer-1, #ffffff));
+}
+.dgs-conflictHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.dgs-conflictMeta {
+  min-width: 0;
+  color: var(--dsw-alias-label-secondary, #5c6570);
+  font-size: 11px;
+  line-height: 16px;
+  overflow-wrap: anywhere;
+}
+.dgs-conflictReason {
+  margin: 0;
+  color: var(--dsw-alias-label-primary, #1f2328);
+  font-size: 13px;
+  line-height: 18px;
+}
+.dgs-conflictFields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.dgs-conflictField {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: var(--dsw-alias-bg-layer-2, #f7f8fa);
+  color: var(--dsw-alias-label-secondary, #5c6570);
+  font-size: 11px;
+  line-height: 1;
+  white-space: nowrap;
+}
+.dgs-choiceGroup {
+  display: flex;
+  align-self: flex-start;
+  overflow: hidden;
+  border: 1px solid var(--dsw-alias-border-l2, #d9dde3);
+  border-radius: 7px;
+  background: var(--dsw-alias-bg-layer-1, #ffffff);
+}
+.dgs-choice {
+  min-height: 28px;
+  padding: 0 11px;
+  border: 0;
+  border-right: 1px solid var(--dsw-alias-border-l1, #e5e7eb);
+  background: transparent;
+  color: var(--dsw-alias-label-secondary, #5c6570);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.dgs-choice:last-child {
+  border-right: 0;
+}
+.dgs-choice:hover {
+  background: var(--dsw-alias-bg-layer-2, #f7f8fa);
+  color: var(--dsw-alias-label-primary, #1f2328);
+}
+.dgs-choiceActive,
+.dgs-choiceActive:hover {
+  background: var(--dsw-alias-brand-primary, #0f1115);
+  color: #ffffff;
+}
+.dgs-choice:focus-visible {
+  outline: 2px solid var(--dsw-alias-brand-primary, #0f1115);
+  outline-offset: -2px;
+}
 .dgs-modalOverlay {
   position: fixed;
   inset: 0;

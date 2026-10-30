@@ -470,10 +470,19 @@ export interface InventoryScanner {
 }
 /** Installs, removes, and toggles plugins through the DSH plugin manager. */
 export interface PluginInstaller {
-    /** Install one exact spec; resolves with the plugin manager's outcome. */
+    /**
+     * Install one exact spec; resolves with the plugin manager's outcome.
+     *
+     * `name`/`version` let the installer recognise a package that is already
+     * installed. DSH refuses to install over an installed name, so a requested
+     * version change is handled by removing the old bundle and installing the
+     * target spec; an identical or unknown version is a no-op.
+     */
     install(spec: string, options: {
         profile: string;
         signal?: AbortSignal;
+        name?: string;
+        version?: string | null;
     }): Promise<InstallOutcome>;
     /** Enable or disable a plugin identified by its module name. */
     setEnabled(moduleName: string, enabled: boolean, options: {

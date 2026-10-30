@@ -65,6 +65,33 @@ function bundleForModule(bundles: readonly DshBundleInfo[], moduleName: string):
   return bundles.find(bundle => bundle.name === moduleName || bundle.rows.some(row => row.moduleName === moduleName))
 }
 
+/** Read a stable error code from a plugin-manager failure. */
+function errorCode(error: unknown): string | null {
+  if (error !== null && typeof error === 'object' && 'code' in error) {
+    const code = (error as { code?: unknown }).code
+    if (typeof code === 'string' && code !== '') return code
+  }
+  const message = errorMessage(error)
+  return /already-installed/i.test(message) ? 'already-installed' : null
+}
+
+/** Strip a leading `v` so `v1.2.3` and `1.2.3` compare equal. */
+function normalizeVersion(version: string | null | undefined): string | null {
+  if (version === null || version === undefined) return null
+  const trimmed = version.trim().replace(/^v/i, '')
+  return trimmed === '' ? null : trimmed
+}
+
+/** Package name from an npm-style spec, used when the caller did not provide one. */
+function packageNameFromSpec(spec: string): string | null {
+  const value = spec.trim()
+  if (value === '' || /^(?:git|file|link|workspace|github|gitlab|bitbucket):/i.test(value)) return null
+  if (/^(?:https?|ssh|git\+https|git\+ssh):\/\//i.test(value)) return null
+  const at = value.lastIndexOf('@')
+  if (at > 0) return value.slice(0, at)
+  return /^@?[A-Za-z0-9][A-Za-z0-9._/-]*$/.test(value) ? value : null
+}
+
 /** Create the installer. */
 export function createInstaller(options: InstallerOptions): PluginInstaller {
   const requireManager = (): DshPluginManager => {
@@ -91,21 +118,98 @@ export function createInstaller(options: InstallerOptions): PluginInstaller {
     async install(spec, request): Promise<InstallOutcome> {
       const manager = requireManager()
       requireActiveProfile(request.profile)
-      if (spec.trim() === '') throw new SyncError('install-failed', '安装规格为空 / empty install spec')
-      options.logger.info(`安装插件 / installing plugin: ${spec}`)
+      const value = spec.trim()
+      if (value === '') throw new SyncError('install-failed', '安装规格为空 / empty install spec')
+
+      /** Resolve an `already-installed` refusal: same version is a no-op, a different version is replaced. */
+      const resolveAlreadyInstalled = async (): Promise<InstallOutcome> => {
+        const targetName = request.name?.trim() || packageNameFromSpec(value)
+        const bundles = await manager.listBundles()
+        const bundle = targetName === null
+          ? undefined
+          : bundles.find(item => item.name === targetName || item.rows.some(row => row.moduleName === targetName))
+        if (bundle === undefined) {
+          return {
+            ok: false,
+            changed: false,
+            application: 'failed',
+            message: `插件 ${targetName ?? value} 已安装，但无法读取版本；请在插件管理器中手动检查 / already installed but its version is unknown`,
+            error: 'already-installed',
+          }
+        }
+        const installedVersion = normalizeVersion(bundle.version ?? bundle.installTarget?.version ?? null)
+        const targetVersion = normalizeVersion(request.version ?? null)
+        if (targetVersion === null || installedVersion === null || targetVersion === installedVersion) {
+          return {
+            ok: true,
+            changed: false,
+            application: 'applied',
+            message: `${bundle.name} 已安装${installedVersion === null ? '' : `（${installedVersion}）`}，无需重复安装 / already installed`,
+            ...(installedVersion === null ? {} : { version: installedVersion }),
+          }
+        }
+        if (!bundle.removable) {
+          return {
+            ok: false,
+            changed: false,
+            application: 'failed',
+            message: `${bundle.name} 已安装 ${installedVersion}，无法自动升级到 ${targetVersion}；请手动更新 / cannot replace automatically`,
+            error: 'already-installed',
+          }
+        }
+        options.logger.info(
+          `替换插件版本 / replacing plugin version: ${bundle.name} ${installedVersion} -> ${targetVersion}`,
+        )
+        const removal = await manager.removeBundle(bundle.name)
+        if (removal.application === 'failed' || removal.application === 'cancelled') {
+          const reason = redactText(removal.error?.diagnostic ?? removal.error?.code ?? 'unknown error')
+          return {
+            ok: false,
+            changed: false,
+            application: 'failed',
+            message: `升级 ${bundle.name} 失败：无法移除旧版本 / could not remove ${installedVersion}: ${reason}`,
+            error: reason,
+          }
+        }
+        const result = await manager.installBundle(value, { saveExact: true, enabled: true })
+        const outcome = toInstallOutcome(result, '升级 / upgrade')
+        if (outcome.ok) {
+          outcome.message = `${bundle.name} ${installedVersion} → ${targetVersion}，${outcome.message}`
+        }
+        return outcome
+      }
+
+      options.logger.info(`安装插件 / installing plugin: ${value}`)
       try {
-        const result = await manager.installBundle(spec.trim(), { saveExact: true, enabled: true })
+        const result = await manager.installBundle(value, { saveExact: true, enabled: true })
+        if (result.application === 'failed' && result.error?.code === 'already-installed') {
+          return await resolveAlreadyInstalled()
+        }
         const outcome = toInstallOutcome(result, '安装 / install')
         if (outcome.pendingBuilds !== undefined && outcome.pendingBuilds.length > 0) {
           outcome.message += `\n需要在插件管理器中批准构建脚本 / build scripts need approval: ${outcome.pendingBuilds.join(', ')}`
         }
         return outcome
       } catch (error) {
+        if (errorCode(error) === 'already-installed') {
+          try {
+            return await resolveAlreadyInstalled()
+          } catch (replacementError) {
+            const message = redactText(errorMessage(replacementError))
+            return {
+              ok: false,
+              changed: false,
+              application: 'failed',
+              message: `升级 ${value} 失败 / failed to replace: ${message}`,
+              error: message,
+            }
+          }
+        }
         return {
           ok: false,
           changed: false,
           application: 'failed',
-          message: `安装 ${spec} 失败 / failed to install: ${redactText(errorMessage(error))}`,
+          message: `安装 ${value} 失败 / failed to install: ${redactText(errorMessage(error))}`,
           error: redactText(errorMessage(error)),
         }
       }

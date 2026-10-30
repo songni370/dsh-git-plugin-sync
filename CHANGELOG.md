@@ -8,6 +8,18 @@ This file follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [
 
 暂无 / Nothing yet.
 
+## [0.2.7] - 2026-10-30
+
+### Fixed
+
+- 多设备恢复/同步不再因插件已安装而整体失败：DSH 返回 `already-installed` 时，同版本直接跳过；版本不同则移除旧包后安装目标版本。
+- 版本替换后恢复仓库中的启用/停用状态。
+
+### Changed
+
+- 冲突确认弹窗重构：冲突优先展示，使用“跳过 / 保留本机 / 使用仓库”三段选择，补充本机/仓库版本、变更字段和简洁原因；确认按钮改为“按选择继续”。
+- 弹窗不再展示原始的 `conflict-present` 错误文本。
+
 ## [0.2.6] - 2026-10-29
 
 ### Changed
@@ -102,7 +114,8 @@ This file follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [
 - 设置页基础界面、HTTP 路由与 6 个 Agent 工具。
 - 单元测试、双设备集成测试与 CI（macOS / Windows / Linux）。
 
-[Unreleased]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.6...HEAD
+[Unreleased]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.7...HEAD
+[0.2.7]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.6...v0.2.7
 [0.2.6]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.5...v0.2.6
 [0.2.5]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.3...v0.2.4
