@@ -6,6 +6,10 @@ This file follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [
 
 ## [Unreleased]
 
+暂无 / Nothing yet.
+
+## [0.2.10] - 2026-10-30
+
 ### Changed
 
 - 设置页操作反馈改为底部悬浮提示：固定居中、自动消失、可手动关闭，不再插入各卡片内部改变布局。
@@ -128,7 +132,8 @@ This file follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [
 - 设置页基础界面、HTTP 路由与 6 个 Agent 工具。
 - 单元测试、双设备集成测试与 CI（macOS / Windows / Linux）。
 
-[Unreleased]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.9...HEAD
+[Unreleased]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.10...HEAD
+[0.2.10]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.9...v0.2.10
 [0.2.9]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.8...v0.2.9
 [0.2.8]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.7...v0.2.8
 [0.2.7]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.6...v0.2.7
