@@ -65,6 +65,7 @@ import { Modal } from './Modal'
 import { PlanPreview } from './PlanPreview'
 import { PluginsSection } from './PluginsSection'
 import { StatusSection } from './StatusSection'
+import { ToastStack } from './ToastStack'
 
 /** Poll interval for the status endpoint, in milliseconds. */
 const STATUS_POLL_MS = 5000
@@ -268,6 +269,12 @@ export function Page({ t }: PageProps): ReactElement {
   function clearMessages(): void {
     for (const area of Object.keys(feedbackTimers.current) as FeedbackArea[]) clearFeedbackTimer(area)
     setFeedback({ config: null, auto: null, actions: null, plugins: null, history: null })
+  }
+
+  /** Close one floating toast without waiting for its five-second timer. */
+  function dismissFeedback(area: FeedbackArea): void {
+    clearFeedbackTimer(area)
+    setFeedback(current => ({ ...current, [area]: null }))
   }
 
   // The connection-test result is also a transient prompt: hide it after 5s.
@@ -701,7 +708,6 @@ export function Page({ t }: PageProps): ReactElement {
               onChange={changeConfig}
               onTest={() => void testRepository()}
               onSave={() => void saveRepository()}
-              feedback={feedback.config ?? undefined}
             />
           )}
 
@@ -719,8 +725,6 @@ export function Page({ t }: PageProps): ReactElement {
             onClearDiff={() => {
               setDiff(null)
             }}
-            feedback={feedback.actions ?? undefined}
-            autoFeedback={feedback.auto ?? undefined}
             statusPanel={<StatusSection t={t} status={view} embedded />}
             notices={
               <>
@@ -763,7 +767,6 @@ export function Page({ t }: PageProps): ReactElement {
             onFilterChange={setFilter}
             onToggle={(row, next) => void toggleExclusion(row, next)}
             onRefresh={() => void refreshPlugins()}
-            feedback={feedback.plugins ?? undefined}
           />
 
           <HistorySection
@@ -774,7 +777,6 @@ export function Page({ t }: PageProps): ReactElement {
             busy={anyBusy}
             onRestoreCommit={commit => void previewRestore('rollback', commit)}
             onRefresh={() => void refreshHistory()}
-            feedback={feedback.history ?? undefined}
           />
         </>
       )}
@@ -802,6 +804,17 @@ export function Page({ t }: PageProps): ReactElement {
           />
         </Modal>
       )}
+
+      {modal === null ? (
+        <ToastStack
+          t={t}
+          items={(Object.keys(feedback) as FeedbackArea[]).flatMap(area => {
+            const item = feedback[area]
+            return item === null ? [] : [{ key: area, tone: item.tone, text: item.text }]
+          })}
+          onDismiss={key => dismissFeedback(key as FeedbackArea)}
+        />
+      ) : null}
     </div>
   )
 }
