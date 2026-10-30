@@ -8,6 +8,12 @@ This file follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [
 
 暂无 / Nothing yet.
 
+## [0.2.8] - 2026-10-30
+
+### Fixed
+
+- 升级/降级替换插件后，即使配置值与仓库相同也会写回仓库配置，避免卸载重装过程中丢失配置。
+
 ## [0.2.7] - 2026-10-30
 
 ### Fixed
@@ -114,7 +120,8 @@ This file follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [
 - 设置页基础界面、HTTP 路由与 6 个 Agent 工具。
 - 单元测试、双设备集成测试与 CI（macOS / Windows / Linux）。
 
-[Unreleased]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.7...HEAD
+[Unreleased]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.8...HEAD
+[0.2.8]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.7...v0.2.8
 [0.2.7]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.6...v0.2.7
 [0.2.6]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.5...v0.2.6
 [0.2.5]: https://github.com/songni370/dsh-plugins-git-sync/compare/v0.2.4...v0.2.5

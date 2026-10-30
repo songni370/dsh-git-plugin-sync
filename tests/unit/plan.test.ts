@@ -136,6 +136,15 @@ describe('restore plan', () => {
     expect(downgrade.requiresConfirmation).toBe(true)
   })
 
+  it('restores configuration after a version replacement even when its values are unchanged', () => {
+    const plan = planRestore(input({
+      local: { alpha: plugin('alpha', { version: '1.0.0', configs: { timeout: 10 } }) },
+      remote: { alpha: plugin('alpha', { version: '2.0.0', configs: { timeout: 10 } }) },
+    }))
+    expect(actionsOf(plan, 'upgrade', 'alpha')).toHaveLength(1)
+    expect(actionsOf(plan, 'restore-config', 'alpha')).toHaveLength(1)
+  })
+
   it('restores configuration only when the local value was unchanged since the baseline', () => {
     const safe = planRestore(input({
       base: { alpha: plugin('alpha', { configs: { timeout: 10 } }) },

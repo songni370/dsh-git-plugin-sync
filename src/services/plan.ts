@@ -159,7 +159,10 @@ function localApplyActions(
     const differs = local === null || local === undefined
       ? true
       : changedConfigKeys(local.configs, configs).length > 0
-    if (differs) {
+    // A version replacement removes and reinstalls the bundle, which can drop
+    // its profile configuration. Restore it afterwards even when the values
+    // are unchanged, so an upgrade does not silently lose settings.
+    if (differs || versionDiffers) {
       actions.push({
         kind: 'restore-config',
         pluginId: remote.id,
@@ -458,6 +461,10 @@ export function planRestore(input: PlanInput): SyncPlan {
         const safe = base !== null && changedConfigKeys(base.configs, local.configs).length === 0
         if (safe) needConfig = true
         else configConflict = true
+      } else if (local.version !== remote.version && Object.keys(remote.configs).length > 0) {
+        // The replacement removes and reinstalls the bundle; write the config
+        // back even though its values happen to match.
+        needConfig = true
       }
     } else if (includeConfigs && local === null) {
       needConfig = Object.keys(remote.configs).length > 0
