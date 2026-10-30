@@ -219,6 +219,15 @@ function ConflictCard(props: {
   )
 }
 
+/**
+ * The Host adds a pause warning while a plan still has unresolved conflicts.
+ * Once every card has a real decision, that warning is stale: keeping it would
+ * tell the user the opposite of what the dialog is about to do.
+ */
+function isConflictPauseWarning(warning: string): boolean {
+  return warning.includes('未解决的冲突') || warning.includes('unresolved conflicts pause auto-sync')
+}
+
 /** Render a plan's conflicts, summary, grouped steps and warnings. */
 export function PlanPreview(props: PlanPreviewProps): ReactElement {
   const { t, plan } = props
@@ -227,8 +236,15 @@ export function PlanPreview(props: PlanPreviewProps): ReactElement {
   )
   const downloads = plan.actions.filter(action => !deletions.includes(action) && DOWNLOAD_KINDS.has(action.kind))
   const uploads = plan.actions.filter(action => !deletions.includes(action) && UPLOAD_KINDS.has(action.kind))
-  const hasNothing = plan.actions.length === 0 && plan.conflicts.length === 0 && plan.warnings.length === 0
   const editable = props.onResolutionChange !== undefined
+  const unresolved = plan.conflicts.filter(
+    conflict => (props.resolutions?.[conflict.pluginId] ?? 'skip') === 'skip',
+  ).length
+  const warnings =
+    editable && plan.conflicts.length > 0 && unresolved === 0
+      ? plan.warnings.filter(warning => !isConflictPauseWarning(warning))
+      : plan.warnings
+  const hasNothing = plan.actions.length === 0 && plan.conflicts.length === 0 && warnings.length === 0
 
   return (
     <>
@@ -242,6 +258,13 @@ export function PlanPreview(props: PlanPreviewProps): ReactElement {
         <section className="dgs-planSection dgs-conflictSection">
           <h4 className="dgs-planHeading">{t('planConflictsHeader', { count: plan.conflicts.length })}</h4>
           <p className="dgs-hint">{t('planConflictNote')}</p>
+          {editable ? (
+            <p className="dgs-hint">
+              {unresolved === 0
+                ? t('planConflictAllChosen')
+                : t('planConflictStillSkipped', { count: unresolved })}
+            </p>
+          ) : null}
           <ul className="dgs-conflictList">
             {plan.conflicts.map(conflict => (
               <ConflictCard
@@ -282,8 +305,8 @@ export function PlanPreview(props: PlanPreviewProps): ReactElement {
                 {t('planSummaryConflict', { n: plan.conflicts.length })}
               </span>
             )}
-            {plan.warnings.length === 0 ? null : (
-              <span className="dgs-planSummaryItem">{t('planSummaryWarning', { n: plan.warnings.length })}</span>
+            {warnings.length === 0 ? null : (
+              <span className="dgs-planSummaryItem">{t('planSummaryWarning', { n: warnings.length })}</span>
             )}
           </div>
 
@@ -322,11 +345,11 @@ export function PlanPreview(props: PlanPreviewProps): ReactElement {
         </>
       )}
 
-      {plan.warnings.length === 0 ? null : (
+      {warnings.length === 0 ? null : (
         <section className="dgs-planSection">
-          <h4 className="dgs-planHeading">{t('planWarningsHeader', { count: plan.warnings.length })}</h4>
+          <h4 className="dgs-planHeading">{t('planWarningsHeader', { count: warnings.length })}</h4>
           <ul className="dgs-plainList">
-            {plan.warnings.map((warning, index) => (
+            {warnings.map((warning, index) => (
               <li key={`w${index}`} className="dgs-warningItem">
                 {warning}
               </li>
